@@ -78,7 +78,6 @@ class Tron
         $key = $ec->genKeyPair();
         $private = $key->getPrivate("hex");
         $public = $key->getPublic(false, "hex");
-
         $hash  = Keccak::hash(hex2bin(substr($public, 2)), 256);
         $hexAddress = "41" . substr($hash, -40);
 
