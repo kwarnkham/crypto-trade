@@ -6,6 +6,9 @@ use App\Utility\Conversion;
 use Illuminate\Support\Facades\Http;
 use App\Utility\Keccak;
 use Elliptic\EC;
+use Exception;
+use kornrunner\Secp256k1;
+use kornrunner\Signature\Signature;
 
 class Tron
 {
@@ -18,6 +21,56 @@ class Tron
             'TRON-PRO-API-KEY' => 'cad0a351-7759-4133-90c5-9e733846c896'
         ];
     }
+
+    // public  static function foo()
+    // {
+    //     $transaction = static::signTransaction(static::freezeBalance('TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y', 'ENERGY', 1000000));
+
+    //     return static::broadcastTransaction($transaction);
+    // }
+
+    /**
+     * Sign the transaction, the api has the risk of leaking the private key,
+     * please make sure to call the api in a secure environment
+     *
+     */
+    public static function signTransaction(array $transaction, string $message = null): array
+    {
+        $privateKey = '40f1a63332a869f3c1ab4c07c1dba94d0fbc019dc88ef796bb1b147c0e15795e';
+
+        if (isset($transaction['Error']))
+            throw new Exception($transaction['Error']);
+
+
+        if (isset($transaction['signature'])) {
+            throw new Exception('Transaction is already signed');
+        }
+
+        if (!is_null($message)) {
+            $transaction['raw_data']['data'] = bin2hex($message);
+        }
+
+        $secp = new Secp256k1();
+        /** @var Signature $sign */
+        $sign = $secp->sign($transaction['txID'], $privateKey, ['canonical' => false]);
+
+        $signature =  $sign->toHex() . bin2hex(implode('', array_map('chr', [$sign->getRecoveryParam()])));
+
+        $transaction['signature'] = [$signature];
+
+        return $transaction;
+    }
+
+    public static function broadcastTransaction(array $signedTransaction)
+    {
+        if (!array_key_exists('signature', $signedTransaction) || !is_array($signedTransaction['signature'])) {
+            throw new Exception('Transaction is not signed');
+        }
+        // https://developers.tron.network/reference/account-info-by-address
+        return Http::withHeaders(static::getHeader())->withBody(json_encode($signedTransaction))
+            ->post("https://api.shasta.trongrid.io/wallet/broadcasttransaction")->throw()->object();
+    }
+
 
     public static function generateAddressLocally()
     {
@@ -36,6 +89,17 @@ class Tron
             "base58_check" => Conversion::hexString2Base58check($hexAddress),
             "base64" => Conversion::hexString2Base64($hexAddress)
         ];
+    }
+
+    public static function freezeBalance(string $ownerAddress, string $resource, int $frozenBalance): array
+    {
+        // https://developers.tron.network/reference/freezebalancev2-1
+        return Http::withHeaders(static::getHeader())->post("https://api.shasta.trongrid.io/wallet/freezebalancev2", [
+            'owner_address' => $ownerAddress,
+            'resource' => $resource,
+            'frozen_balance' => $frozenBalance,
+            'visible' => true
+        ])->throw()->json();
     }
 
     public static function getAccountInfoByAddress(string $address)
