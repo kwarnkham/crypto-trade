@@ -3,10 +3,13 @@
 namespace App\Services;
 
 use App\Utility\Conversion;
+use App\Utility\Formatter;
 use Illuminate\Support\Facades\Http;
 use App\Utility\Keccak;
+use App\Utility\Utils;
 use Elliptic\EC;
 use Exception;
+use InvalidArgumentException;
 use kornrunner\Secp256k1;
 use kornrunner\Signature\Signature;
 
@@ -71,6 +74,50 @@ class Tron
             ->post("https://api.shasta.trongrid.io/wallet/broadcasttransaction")->throw()->object();
     }
 
+    public static function sendUSDT(string $to /* hex address */, int $amount)
+    {
+        // https://developers.tron.network/reference/triggersmartcontract
+
+        $toFormat = Formatter::toAddressFormat($to);
+
+        try {
+            $amount = Utils::toMinUnitByDecimals($amount, 6);
+        } catch (InvalidArgumentException $e) {
+            throw new Exception($e->getMessage());
+        }
+        $numberFormat = Formatter::toIntegerFormat($amount);
+
+        $transaction = Http::withHeaders(static::getHeader())->post("https://api.shasta.trongrid.io/wallet/triggersmartcontract", [
+            "contract_address" => '4142A1E39AEFA49290F2B3F9ED688D7CECF86CD6E0',
+            "function_selector" => "transfer(address,uint256)",
+            "parameter" => "{$toFormat}{$numberFormat}",
+            "owner_address" => "412A6B12B7C076E978F66BB97DEF94B7CA84A05432",
+            "fee_limit" => 100000000,
+            "call_value" => 0,
+        ])->throw()->json()['transaction'];
+
+        $signed = static::signTransaction($transaction);
+
+        return static::broadcastTransaction($signed);
+    }
+
+    public static function getTransactionError(string $txID)
+    {
+        $txInfo = static::getTransactionInfoById($txID);
+        return [
+            'contractResult' => hex2bin($txInfo->contractResult[0]),
+            'txInfo' => get_object_vars($txInfo)
+        ];
+    }
+
+
+    public static function getTransactionInfoById(string $txID)
+    {
+        //https://developers.tron.network/reference/transaction-info-by-id
+        return Http::withHeaders(static::getHeader())->post("https://api.shasta.trongrid.io/wallet/gettransactioninfobyid", [
+            "value" => $txID,
+        ])->throw()->object();
+    }
 
     public static function generateAddressLocally()
     {
@@ -155,12 +202,4 @@ class Tron
     //         "value" => $transactionId,
     //     ])->throw()->object();
     // }
-
-    public static function GetTransactionInfoById(string $transactionId)
-    {
-        //https://developers.tron.network/reference/transaction-info-by-id
-        return Http::withHeaders(static::getHeader())->post("https://api.shasta.trongrid.io/wallet/gettransactioninfobyid", [
-            "value" => $transactionId,
-        ])->throw()->object();
-    }
 }
