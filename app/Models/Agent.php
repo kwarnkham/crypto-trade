@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class Agent extends Model
@@ -23,7 +22,6 @@ class Agent extends Model
         $name = $request->header('x-agent');
         $key = $request->header('x-api-key');
         $ip = $request->ip();
-        Log::info($key);
         if (!$name || !$key || !$ip) {
             return 'Cannot find key and agent';
         }

@@ -4,5 +4,6 @@ namespace App\Enums;
 
 enum ResponseStatus: int
 {
-    case UNAUTHORIZED = 401;
+    case UNAUTHENTICATED = 401;
+    case BAD_REQUEST = 400;
 }

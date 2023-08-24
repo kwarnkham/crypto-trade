@@ -38,5 +38,10 @@ class DatabaseSeeder extends Seeder
             'key' => bcrypt('aGqFAEV84uk1V4SvSP8IHcPxkOA5FMNv19XGl8cYztoG2I7ngGNErJhsaxNh74k9'),
             'ip' => '*'
         ]);
+
+        DB::table('admins')->insert([
+            'name' => 'admin',
+            'password' => bcrypt('123123')
+        ]);
     }
 }

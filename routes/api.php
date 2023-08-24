@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BalanceController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,4 +18,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['agent'])->controller(BalanceController::class)->prefix('/balance')->group(function () {
     Route::post('deposit', 'deposit');
+});
+
+Route::middleware(['auth:sanctum'])->get('admin', function (Request $request) {
+    return $request->user();
+});
+Route::controller(AuthController::class)->prefix('/admin')->group(function () {
+    Route::post('login', 'login');
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('change-password', 'changePassword');
+    });
 });

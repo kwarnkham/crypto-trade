@@ -6,7 +6,6 @@ use App\Enums\ResponseStatus;
 use App\Models\Agent;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerifyAgent
@@ -19,8 +18,7 @@ class VerifyAgent
     public function handle(Request $request, Closure $next): Response
     {
         $result = Agent::verify($request);
-        Log::info($request . 'result');
-        if ($result !== true) abort(ResponseStatus::UNAUTHORIZED->value, $result);
+        if ($result !== true) abort(ResponseStatus::UNAUTHENTICATED->value, $result);
         return $next($request);
     }
 }
