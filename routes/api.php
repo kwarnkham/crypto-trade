@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BalanceController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,9 +24,17 @@ Route::middleware(['agent'])->controller(BalanceController::class)->prefix('/bal
 Route::middleware(['auth:sanctum'])->get('admin', function (Request $request) {
     return $request->user();
 });
+
+
 Route::controller(AuthController::class)->prefix('/admin')->group(function () {
     Route::post('login', 'login');
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('change-password', 'changePassword');
     });
+});
+
+Route::controller(WalletController::class)->middleware(['auth:sanctum'])->prefix('/wallets')->group(function () {
+    Route::post('', 'store');
+    Route::get('', 'index');
+    Route::post('{wallet}/activate', 'activate');
 });
