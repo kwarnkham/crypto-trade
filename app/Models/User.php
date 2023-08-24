@@ -24,10 +24,11 @@ class User extends Model
         return $this->hasOne(Wallet::class);
     }
 
-    function reserveWallet(Wallet $wallet)
+    function reserveWallet(Wallet $wallet, int $amount)
     {
         $wallet->user_id = $this->id;
         $wallet->reserved_at = now();
-        $wallet->save();
+        $wallet->reserved_balance = $amount;
+        return $wallet->save();
     }
 }

@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
+            $table->double('balance')->default(0);
+            $table->double('reserved_balance')->default(0);
             $table->foreignId('user_id')->nullable()->constrained();
-            $table->timestamp('activated_at')->nullable();
             $table->timestamp('reserved_at')->nullable();
+            $table->timestamp('activated_at')->nullable();
             $table->string('base58_check');
             $table->string('public_key');
             $table->string('hex_address');

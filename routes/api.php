@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['agent'])->controller(BalanceController::class)->prefix('/balance')->group(function () {
     Route::post('deposit', 'deposit');
+    Route::post('confirm-deposit', 'confirmDeposit');
+    Route::post('cancel-deposit', 'cancelDeposit');
 });
 
 Route::middleware(['auth:sanctum'])->get('admin', function (Request $request) {

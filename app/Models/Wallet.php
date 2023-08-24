@@ -30,4 +30,13 @@ class Wallet extends Model
     {
         return Wallet::query()->whereNull('reserved_at')->whereNotNull('activated_at')->first();
     }
+
+    function removeReservation()
+    {
+        $this->update([
+            'reserved_balance' => 0,
+            'reserved_at' => null,
+            'user_id' => null
+        ]);
+    }
 }
