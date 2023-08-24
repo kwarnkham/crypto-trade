@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['agent'])->controller(DepositController::class)->prefix('/deposits')->group(function () {
     Route::post('', 'store');
-    Route::post('{depoist}/confirm', 'confirm');
+    Route::post('{deposit}/confirm', 'confirm');
     Route::post('{deposit}/cancel', 'cancel');
 });
 

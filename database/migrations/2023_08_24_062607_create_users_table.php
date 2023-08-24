@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('code')->index();
             $table->string('name');
-            $table->double('balance')->default(0);
+            $table->integer('balance')->default(0);
             $table->foreignId('agent_id')->constrained();
             $table->timestamps();
             $table->unique(['code', 'agent_id']);

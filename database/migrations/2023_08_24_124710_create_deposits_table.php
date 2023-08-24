@@ -16,7 +16,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('wallet_id')->constrained();
-            $table->double('amount');
+            $table->foreignId('transaction_id')->nullable()->constrained();
+            $table->integer('amount');
             $table->tinyInteger('status')->default(DepositStatus::PENDING->value);
             $table->timestamps();
         });

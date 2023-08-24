@@ -38,15 +38,15 @@ class DepositController extends Controller
                 'agent_id' => $agent->id
             ]);
 
-        DB::transaction(function () use ($wallet, $user, $data) {
+        $deposit = DB::transaction(function () use ($wallet, $user, $data) {
             $wallet->update(['reserved_at' => now()]);
-            $user->deposits()->create([
+            return $user->deposits()->create([
                 'wallet_id' => $wallet->id,
-                'amount' => $data['amount']
+                'amount' => $data['amount'] * 1000000
             ]);
         });
 
-        return response()->json(['wallet' =>  $wallet->base58_check]);
+        return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => $deposit]);
     }
 
     public function confirm(Deposit $deposit)

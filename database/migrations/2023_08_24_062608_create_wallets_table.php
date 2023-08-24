@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
-            $table->double('balance')->default(0);
+            $table->unsignedBigInteger('balance')->default(0);
             $table->timestamp('activated_at')->nullable();
             $table->string('base58_check');
             $table->string('public_key');
