@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\DepositStatus;
 use App\Services\Tron;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,9 +28,19 @@ class Wallet extends Model
         return Wallet::create(Tron::generateAddressLocally());
     }
 
+    public function deposits()
+    {
+        return $this->hasMany(Deposit::class);
+    }
+
     public static function findAvailable(): ?Wallet
     {
-        return Wallet::query()->whereNull('reserved_at')->whereNotNull('activated_at')->first();
+        return Wallet::query()
+            ->whereNotNull('activated_at')
+            ->whereDoesntHave('deposits', function (Builder $query) {
+                $query->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value]);
+            })
+            ->first();
     }
 
     function removeReservation()

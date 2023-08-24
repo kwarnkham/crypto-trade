@@ -3,32 +3,30 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\DepositStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
 
-    function agent(): BelongsTo
+    public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
-    function wallet(): HasOne
+    public function deposits(): HasMany
     {
-        return $this->hasOne(Wallet::class);
+        return $this->hasMany(Deposit::class);
     }
 
-    function reserveWallet(Wallet $wallet, int $amount)
+    public function getActiveDeposit(): ?Deposit
     {
-        $wallet->user_id = $this->id;
-        $wallet->reserved_at = now();
-        $wallet->reserved_balance = $amount;
-        return $wallet->save();
+        return $this->deposits()->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])->first();
     }
 }

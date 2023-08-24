@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BalanceController;
+use App\Http\Controllers\DepositController;
 use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,14 +17,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['agent'])->controller(BalanceController::class)->prefix('/balance')->group(function () {
-    Route::post('deposit', 'deposit');
-    Route::post('confirm-deposit', 'confirmDeposit');
-    Route::post('cancel-deposit', 'cancelDeposit');
-});
 
-Route::middleware(['auth:sanctum'])->get('admin', function (Request $request) {
-    return $request->user();
+Route::middleware(['agent'])->controller(DepositController::class)->prefix('/deposits')->group(function () {
+    Route::post('', 'store');
+    Route::post('{depoist}/confirm', 'confirm');
+    Route::post('{deposit}/cancel', 'cancel');
 });
 
 
