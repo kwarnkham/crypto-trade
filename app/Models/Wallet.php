@@ -43,12 +43,12 @@ class Wallet extends Model
             ->first();
     }
 
-    function removeReservation()
+    public function updateBalance()
     {
-        $this->update([
-            'reserved_balance' => 0,
-            'reserved_at' => null,
-            'user_id' => null
-        ]);
+        $usdt = collect(
+            Tron::getAccountInfoByAddress($this->wallet->base58_check)->data[0]->trc20
+        )->first(fn ($v) => property_exists($v, 'TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs'));
+        $key = 'TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs';
+        if ($usdt != null) $this->wallet->update(['balance' => $usdt->$key]);
     }
 }

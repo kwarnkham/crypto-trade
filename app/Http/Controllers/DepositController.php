@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Enums\DepositStatus;
 use App\Enums\ResponseStatus;
+use App\Jobs\ProcessConfirmedDeposit;
+use App\Jobs\ProcessDepositForExpire;
 use App\Models\Agent;
 use App\Models\Deposit;
 use App\Models\User;
@@ -51,8 +53,11 @@ class DepositController extends Controller
 
     public function confirm(Deposit $deposit)
     {
-        if ($deposit->status == DepositStatus::PENDING->value)
+        if ($deposit->status == DepositStatus::PENDING->value) {
             $deposit->update(['status' => DepositStatus::CONFIRMED->value]);
+            ProcessConfirmedDeposit::dispatch($deposit);
+            ProcessDepositForExpire::dispatch($deposit)->delay(now()->addMinutes(10));
+        }
 
         return response()->json(['deposit' => $deposit]);
     }
