@@ -71,7 +71,7 @@ class Tron
         }
         // https://developers.tron.network/reference/account-info-by-address
         return Http::withHeaders(static::getHeader())->withBody(json_encode($signedTransaction))
-            ->post("https://api.shasta.trongrid.io/wallet/broadcasttransaction")->throw()->object();
+            ->post(config('app')['tron_api_url'] . "/wallet/broadcasttransaction")->throw()->object();
     }
 
     public static function sendUSDT(string $to /* hex address */, int $amount)
@@ -87,8 +87,8 @@ class Tron
         }
         $numberFormat = Formatter::toIntegerFormat($amount);
 
-        $transaction = Http::withHeaders(static::getHeader())->post("https://api.shasta.trongrid.io/wallet/triggersmartcontract", [
-            "contract_address" => '4142A1E39AEFA49290F2B3F9ED688D7CECF86CD6E0',
+        $transaction = Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/triggersmartcontract", [
+            "contract_address" => config('app')['trc20_address_hex'],
             "function_selector" => "transfer(address,uint256)",
             "parameter" => "{$toFormat}{$numberFormat}",
             "owner_address" => "412A6B12B7C076E978F66BB97DEF94B7CA84A05432",
@@ -114,7 +114,7 @@ class Tron
     public static function getTransactionInfoById(string $txID)
     {
         //https://developers.tron.network/reference/transaction-info-by-id
-        return Http::withHeaders(static::getHeader())->post("https://api.shasta.trongrid.io/wallet/gettransactioninfobyid", [
+        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/gettransactioninfobyid", [
             "value" => $txID,
         ])->throw()->object();
     }
@@ -140,7 +140,7 @@ class Tron
     public static function freezeBalance(string $ownerAddress, string $resource, int $frozenBalance): array
     {
         // https://developers.tron.network/reference/freezebalancev2-1
-        return Http::withHeaders(static::getHeader())->post("https://api.shasta.trongrid.io/wallet/freezebalancev2", [
+        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/freezebalancev2", [
             'owner_address' => $ownerAddress,
             'resource' => $resource,
             'frozen_balance' => $frozenBalance,
@@ -151,7 +151,7 @@ class Tron
     public static function getAccountInfoByAddress(string $address)
     {
         // https://developers.tron.network/reference/account-info-by-address
-        return Http::withHeaders(static::getHeader())->get("https://api.shasta.trongrid.io/v1/accounts/$address")->throw()->object();
+        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/accounts/$address")->throw()->object();
     }
 
     public static function isActivated(string $address)
@@ -162,43 +162,43 @@ class Tron
     public static function validateAddress(string $address)
     {
         // https://developers.tron.network/reference/walletvalidateaddress
-        return Http::withHeaders(static::getHeader())->post("https://api.shasta.trongrid.io/wallet/validateaddress", ["address" => $address])->throw()->object();
+        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/validateaddress", ["address" => $address])->throw()->object();
     }
 
     // public static function getTransactionInfoByAccountAddress(string $address)
     // {
     //     // https://developers.tron.network/reference/transaction-information-by-account-address
-    //     return Http::withHeaders(static::getHeader())->get("https://api.shasta.trongrid.io/v1/accounts/$address/transactions")->throw()->object();
+    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/accounts/$address/transactions")->throw()->object();
     // }
 
     public static function getTRC20TransactionInfoByAccountAddress(string $address, $options = null)
     {
         // https://developers.tron.network/reference/trc20-transaction-information-by-account-address
-        return Http::withHeaders(static::getHeader())->get("https://api.shasta.trongrid.io/v1/accounts/$address/transactions/trc20", $options)->throw()->object();
+        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/accounts/$address/transactions/trc20", $options)->throw()->object();
     }
 
     public static function getTransactionInfoByContractAddress(string $contractAddress)
     {
         // https://developers.tron.network/reference/testinput
-        return Http::withHeaders(static::getHeader())->get("https://api.shasta.trongrid.io/v1/contracts/$contractAddress/transactions")->throw()->object();
+        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/contracts/$contractAddress/transactions")->throw()->object();
     }
 
     // public static function getEventsByTransactionId(string $transactionID)
     // {
     //     // https://developers.tron.network/reference/events-by-transaction-id
-    //     return Http::withHeaders(static::getHeader())->get("https://api.shasta.trongrid.io/v1/transactions/$transactionID/events")->throw()->object();
+    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/transactions/$transactionID/events")->throw()->object();
     // }
 
     // public static function getEventsByContractAddress(string $contractAddress)
     // {
     //     //https://developers.tron.network/reference/events-by-contract-address
-    //     return Http::withHeaders(static::getHeader())->get("https://api.shasta.trongrid.io/v1/contracts/$contractAddress/events")->throw()->object();
+    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/contracts/$contractAddress/events")->throw()->object();
     // }
 
     // public static function GetTransactionById(string $transactionId)
     // {
     //     //https://developers.tron.network/reference/walletgettransactionbyid
-    //     return Http::withHeaders(static::getHeader())->post("https://api.shasta.trongrid.io/wallet/gettransactionbyid", [
+    //     return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url']."/wallet/gettransactionbyid", [
     //         "value" => $transactionId,
     //     ])->throw()->object();
     // }

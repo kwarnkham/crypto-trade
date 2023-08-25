@@ -45,10 +45,11 @@ class Wallet extends Model
 
     public function updateBalance()
     {
+        $trc20_address = config('app')['trc20_address'];
         $usdt = collect(
-            Tron::getAccountInfoByAddress($this->wallet->base58_check)->data[0]->trc20
-        )->first(fn ($v) => property_exists($v, 'TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs'));
-        $key = 'TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs';
-        if ($usdt != null) $this->wallet->update(['balance' => $usdt->$key]);
+            Tron::getAccountInfoByAddress($this->base58_check)->data[0]->trc20
+        )->first(fn ($v) => property_exists($v, $trc20_address));
+
+        if ($usdt != null) $this->update(['balance' => $usdt->$trc20_address]);
     }
 }

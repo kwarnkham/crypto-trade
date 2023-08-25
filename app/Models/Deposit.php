@@ -36,7 +36,7 @@ class Deposit extends Model
         $transactions = collect(Tron::getTRC20TransactionInfoByAccountAddress($this->wallet->base58_check, [
             'only_confirmed' => true,
             'limit' => 10,
-            'contract_address' => 'TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs',
+            'contract_address' => config('app')['trc20_address'],
             'only_to' => true
         ])->data);
 
