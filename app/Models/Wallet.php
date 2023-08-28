@@ -43,6 +43,31 @@ class Wallet extends Model
             ->first();
     }
 
+    public static function validate(string $address)
+    {
+        $response = Tron::validateAddress($address);
+        return $response->result;
+    }
+
+    public static function withdrawable(int $amount): ?Wallet
+    {
+        $wallet = Wallet::query()->where('balance', '>=', $amount)->first();
+        if ($wallet == null) return $wallet;
+        $wallet->updateBalance();
+        if ($wallet->balance < $amount) {
+            $wallets = Wallet::query()
+                ->whereNotNull('activated_at')
+                ->where('id', '!=', $wallet->id)
+                ->get();
+            $wallet = $wallets->first(function ($w) use ($amount) {
+                return $w->updateBalance()->balance >= $amount;
+            });
+            if ($wallet == null) return $wallet;
+            $wallet->refresh();
+        }
+        return $wallet;
+    }
+
     public function updateBalance()
     {
         $trc20_address = config('app')['trc20_address'];
@@ -51,5 +76,11 @@ class Wallet extends Model
         )->first(fn ($v) => property_exists($v, $trc20_address));
 
         if ($usdt != null) $this->update(['balance' => $usdt->$trc20_address]);
+        return $this->refresh();
+    }
+
+    public function sendUSDT(string $to, int $amount)
+    {
+        return Tron::sendUSDT($to, $amount, $this);
     }
 }

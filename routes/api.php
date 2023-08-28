@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\WithdrawController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,11 @@ Route::middleware(['agent'])->controller(DepositController::class)->prefix('/dep
     Route::post('', 'store');
     Route::post('{deposit}/confirm', 'confirm');
     Route::post('{deposit}/cancel', 'cancel');
+});
+
+Route::middleware(['agent'])->controller(WithdrawController::class)->prefix('/withdraws')->group(function () {
+    Route::post('', 'store');
+    Route::post('{withdraw}/confirm', 'confirm');
 });
 
 

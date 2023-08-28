@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Wallet;
 use App\Utility\Conversion;
 use App\Utility\Formatter;
 use Illuminate\Support\Facades\Http;
@@ -25,21 +26,9 @@ class Tron
         ];
     }
 
-    // public  static function foo()
-    // {
-    //     $transaction = static::signTransaction(static::freezeBalance('TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y', 'ENERGY', 1000000));
-
-    //     return static::broadcastTransaction($transaction);
-    // }
-
-    /**
-     * Sign the transaction, the api has the risk of leaking the private key,
-     * please make sure to call the api in a secure environment
-     *
-     */
-    public static function signTransaction(array $transaction, string $message = null): array
+    public static function signTransaction(array $transaction, Wallet $wallet, string $message = null): array
     {
-        $privateKey = '40f1a63332a869f3c1ab4c07c1dba94d0fbc019dc88ef796bb1b147c0e15795e';
+        $privateKey = $wallet->private_key;
 
         if (isset($transaction['Error']))
             throw new Exception($transaction['Error']);
@@ -71,14 +60,14 @@ class Tron
         }
         // https://developers.tron.network/reference/account-info-by-address
         return Http::withHeaders(static::getHeader())->withBody(json_encode($signedTransaction))
-            ->post(config('app')['tron_api_url'] . "/wallet/broadcasttransaction")->throw()->object();
+            ->post(config('app')['tron_api_url'] . "/wallet/broadcasttransaction")->object();
     }
 
-    public static function sendUSDT(string $to /* hex address */, int $amount)
+    public static function sendUSDT(string $to, int $amount, Wallet $wallet)
     {
+        $amount /= 1000000;
         // https://developers.tron.network/reference/triggersmartcontract
-
-        $toFormat = Formatter::toAddressFormat($to);
+        $toFormat = Formatter::toAddressFormat(Conversion::base58check2HexString($to));
 
         try {
             $amount = Utils::toMinUnitByDecimals($amount, 6);
@@ -88,15 +77,15 @@ class Tron
         $numberFormat = Formatter::toIntegerFormat($amount);
 
         $transaction = Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/triggersmartcontract", [
-            "contract_address" => config('app')['trc20_address_hex'],
+            "contract_address" => Conversion::base58check2HexString(config('app')['trc20_address']),
             "function_selector" => "transfer(address,uint256)",
             "parameter" => "{$toFormat}{$numberFormat}",
             "owner_address" => "412A6B12B7C076E978F66BB97DEF94B7CA84A05432",
             "fee_limit" => 100000000,
             "call_value" => 0,
-        ])->throw()->json()['transaction'];
+        ])->json()['transaction'];
 
-        $signed = static::signTransaction($transaction);
+        $signed = static::signTransaction($transaction, $wallet);
 
         return static::broadcastTransaction($signed);
     }
@@ -116,7 +105,21 @@ class Tron
         //https://developers.tron.network/reference/transaction-info-by-id
         return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/gettransactioninfobyid", [
             "value" => $txID,
-        ])->throw()->object();
+        ])->object();
+    }
+
+    public static function getSolidityTransactionInfoById(string $txID)
+    {
+        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/walletsolidity/gettransactioninfobyid", [
+            "value" => $txID,
+        ])->object();
+    }
+
+    public static function getSolidityTransactionById(string $txID)
+    {
+        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/walletsolidity/gettransactionbyid", [
+            "value" => $txID,
+        ])->object();
     }
 
     public static function generateAddressLocally()
@@ -145,13 +148,13 @@ class Tron
             'resource' => $resource,
             'frozen_balance' => $frozenBalance,
             'visible' => true
-        ])->throw()->json();
+        ])->json();
     }
 
     public static function getAccountInfoByAddress(string $address)
     {
         // https://developers.tron.network/reference/account-info-by-address
-        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/accounts/$address")->throw()->object();
+        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/accounts/$address")->object();
     }
 
     public static function isActivated(string $address)
@@ -162,37 +165,37 @@ class Tron
     public static function validateAddress(string $address)
     {
         // https://developers.tron.network/reference/walletvalidateaddress
-        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/validateaddress", ["address" => $address])->throw()->object();
+        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/validateaddress", ["address" => $address])->object();
     }
 
     // public static function getTransactionInfoByAccountAddress(string $address)
     // {
     //     // https://developers.tron.network/reference/transaction-information-by-account-address
-    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/accounts/$address/transactions")->throw()->object();
+    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/accounts/$address/transactions")->object();
     // }
 
     public static function getTRC20TransactionInfoByAccountAddress(string $address, $options = null)
     {
         // https://developers.tron.network/reference/trc20-transaction-information-by-account-address
-        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/accounts/$address/transactions/trc20", $options)->throw()->object();
+        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/accounts/$address/transactions/trc20", $options)->object();
     }
 
     public static function getTransactionInfoByContractAddress(string $contractAddress)
     {
         // https://developers.tron.network/reference/testinput
-        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/contracts/$contractAddress/transactions")->throw()->object();
+        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/contracts/$contractAddress/transactions")->object();
     }
 
     // public static function getEventsByTransactionId(string $transactionID)
     // {
     //     // https://developers.tron.network/reference/events-by-transaction-id
-    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/transactions/$transactionID/events")->throw()->object();
+    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/transactions/$transactionID/events")->object();
     // }
 
     // public static function getEventsByContractAddress(string $contractAddress)
     // {
     //     //https://developers.tron.network/reference/events-by-contract-address
-    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/contracts/$contractAddress/events")->throw()->object();
+    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/contracts/$contractAddress/events")->object();
     // }
 
     // public static function GetTransactionById(string $transactionId)
@@ -200,6 +203,6 @@ class Tron
     //     //https://developers.tron.network/reference/walletgettransactionbyid
     //     return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url']."/wallet/gettransactionbyid", [
     //         "value" => $transactionId,
-    //     ])->throw()->object();
+    //     ])->object();
     // }
 }
