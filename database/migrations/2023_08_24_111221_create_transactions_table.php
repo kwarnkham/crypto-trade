@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('block_timestamp');
             $table->unsignedBigInteger('value');
             $table->string('type');
+            $table->unsignedBigInteger('fee')->nullable();
+            $table->jsonb('receipt')->nullable();
             $table->timestamps();
         });
     }

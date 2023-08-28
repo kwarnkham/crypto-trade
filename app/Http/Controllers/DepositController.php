@@ -57,7 +57,7 @@ class DepositController extends Controller
         if ($deposit->status == DepositStatus::PENDING->value) {
             $deposit->update(['status' => DepositStatus::CONFIRMED->value]);
             ProcessConfirmedDeposit::dispatch($deposit->id);
-            ProcessDepositForExpire::dispatch($deposit->id)->delay(now()->addMinutes(2));
+            ProcessDepositForExpire::dispatch($deposit->id)->delay(now()->addMinutes(5));
         } else {
             abort(ResponseStatus::BAD_REQUEST->value, 'Can only confirm a pending deposit');
         }

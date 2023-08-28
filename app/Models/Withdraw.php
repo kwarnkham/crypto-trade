@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Enums\WithdrawStatus;
 use App\Jobs\ProcessConfirmWithdraw;
-use App\Jobs\ProcessWithdrawForExpire;
+use App\Jobs\ProcessWithdrawForCancel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -27,12 +27,12 @@ class Withdraw extends Model
         if ($wallet == null || $this->to == $wallet->base58_check) return;
 
         $this->update(['status' => WithdrawStatus::CONFIRMED->value, 'from' => $wallet->base58_check]);
-        $response = $wallet->sendUSDT($this->to, $this->amount - $this->fees);
+        $response = $wallet->sendUSDT($this->to, $this->amount - $this->fee);
         $result = $response->result ?? false;
         $txid = $response->txid ?? false;
         if ($result == true && $txid != false) {
             ProcessConfirmWithdraw::dispatch($txid, $this->id)->delay(now()->addMinute());
-            ProcessWithdrawForExpire::dispatch($this->id)->delay(now()->addMinutes(5));
+            ProcessWithdrawForCancel::dispatch($this->id)->delay(now()->addMinutes(5));
             return $response;
         }
     }
@@ -46,8 +46,10 @@ class Withdraw extends Model
                 'transaction_id' => $tx['id'],
                 'token_address' => $tx['token_address'],
                 'block_timestamp' => $tx['block_timestamp'],
-                'value' => $this->amount,
-                'type' => 'Transfer'
+                'value' => $this->amount - $this->fee,
+                'type' => 'Transfer',
+                'fee' => $tx['fee'],
+                'receipt' => $tx['receipt']
             ]);
             $this->update(['status' => WithdrawStatus::COMPLETED->value, 'transaction_id' => $transaction->id]);
             $user = $this->user;

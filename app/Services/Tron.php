@@ -16,16 +16,6 @@ use kornrunner\Signature\Signature;
 
 class Tron
 {
-
-    public static function getHeader()
-    {
-        return [
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-            'TRON-PRO-API-KEY' => 'cad0a351-7759-4133-90c5-9e733846c896'
-        ];
-    }
-
     public static function signTransaction(array $transaction, Wallet $wallet, string $message = null): array
     {
         $privateKey = $wallet->private_key;
@@ -58,15 +48,13 @@ class Tron
         if (!array_key_exists('signature', $signedTransaction) || !is_array($signedTransaction['signature'])) {
             throw new Exception('Transaction is not signed');
         }
-        // https://developers.tron.network/reference/account-info-by-address
-        return Http::withHeaders(static::getHeader())->withBody(json_encode($signedTransaction))
-            ->post(config('app')['tron_api_url'] . "/wallet/broadcasttransaction")->object();
+        return Http::tron()->withBody(json_encode($signedTransaction))
+            ->post("/wallet/broadcasttransaction")->object();
     }
 
     public static function sendUSDT(string $to, int $amount, Wallet $wallet)
     {
         $amount /= 1000000;
-        // https://developers.tron.network/reference/triggersmartcontract
         $toFormat = Formatter::toAddressFormat(Conversion::base58check2HexString($to));
 
         try {
@@ -76,7 +64,7 @@ class Tron
         }
         $numberFormat = Formatter::toIntegerFormat($amount);
 
-        $transaction = Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/triggersmartcontract", [
+        $transaction = Http::tron()->post("/wallet/triggersmartcontract", [
             "contract_address" => Conversion::base58check2HexString(config('app')['trc20_address']),
             "function_selector" => "transfer(address,uint256)",
             "parameter" => "{$toFormat}{$numberFormat}",
@@ -102,22 +90,21 @@ class Tron
 
     public static function getTransactionInfoById(string $txID)
     {
-        //https://developers.tron.network/reference/transaction-info-by-id
-        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/gettransactioninfobyid", [
+        return Http::tron()->post("/wallet/gettransactioninfobyid", [
             "value" => $txID,
         ])->object();
     }
 
     public static function getSolidityTransactionInfoById(string $txID)
     {
-        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/walletsolidity/gettransactioninfobyid", [
+        return Http::tron()->post("/walletsolidity/gettransactioninfobyid", [
             "value" => $txID,
         ])->object();
     }
 
     public static function getSolidityTransactionById(string $txID)
     {
-        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/walletsolidity/gettransactionbyid", [
+        return Http::tron()->post("/walletsolidity/gettransactionbyid", [
             "value" => $txID,
         ])->object();
     }
@@ -142,8 +129,7 @@ class Tron
 
     public static function freezeBalance(string $ownerAddress, string $resource, int $frozenBalance): array
     {
-        // https://developers.tron.network/reference/freezebalancev2-1
-        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/freezebalancev2", [
+        return Http::tron()->post("/wallet/freezebalancev2", [
             'owner_address' => $ownerAddress,
             'resource' => $resource,
             'frozen_balance' => $frozenBalance,
@@ -153,8 +139,7 @@ class Tron
 
     public static function getAccountInfoByAddress(string $address)
     {
-        // https://developers.tron.network/reference/account-info-by-address
-        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/accounts/$address")->object();
+        return Http::tron()->get("/v1/accounts/$address")->object();
     }
 
     public static function isActivated(string $address)
@@ -164,45 +149,17 @@ class Tron
 
     public static function validateAddress(string $address)
     {
-        // https://developers.tron.network/reference/walletvalidateaddress
-        return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url'] . "/wallet/validateaddress", ["address" => $address])->object();
+        return Http::tron()->post("/wallet/validateaddress", ["address" => $address])->object();
     }
 
-    // public static function getTransactionInfoByAccountAddress(string $address)
-    // {
-    //     // https://developers.tron.network/reference/transaction-information-by-account-address
-    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/accounts/$address/transactions")->object();
-    // }
 
     public static function getTRC20TransactionInfoByAccountAddress(string $address, $options = null)
     {
-        // https://developers.tron.network/reference/trc20-transaction-information-by-account-address
-        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/accounts/$address/transactions/trc20", $options)->object();
+        return Http::tron()->get("/v1/accounts/$address/transactions/trc20", $options)->object();
     }
 
     public static function getTransactionInfoByContractAddress(string $contractAddress)
     {
-        // https://developers.tron.network/reference/testinput
-        return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url'] . "/v1/contracts/$contractAddress/transactions")->object();
+        return Http::tron()->get("/v1/contracts/$contractAddress/transactions")->object();
     }
-
-    // public static function getEventsByTransactionId(string $transactionID)
-    // {
-    //     // https://developers.tron.network/reference/events-by-transaction-id
-    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/transactions/$transactionID/events")->object();
-    // }
-
-    // public static function getEventsByContractAddress(string $contractAddress)
-    // {
-    //     //https://developers.tron.network/reference/events-by-contract-address
-    //     return Http::withHeaders(static::getHeader())->get(config('app')['tron_api_url']."/v1/contracts/$contractAddress/events")->object();
-    // }
-
-    // public static function GetTransactionById(string $transactionId)
-    // {
-    //     //https://developers.tron.network/reference/walletgettransactionbyid
-    //     return Http::withHeaders(static::getHeader())->post(config('app')['tron_api_url']."/wallet/gettransactionbyid", [
-    //         "value" => $transactionId,
-    //     ])->object();
-    // }
 }

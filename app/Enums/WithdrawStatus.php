@@ -8,5 +8,4 @@ enum WithdrawStatus: int
     case CONFIRMED = 2;
     case COMPLETED = 3;
     case CANCELED = 4;
-    case EXPIRED = 5;
 }

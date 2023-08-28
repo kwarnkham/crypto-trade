@@ -37,6 +37,10 @@ return [
     'tron_api_url' => env('APP_ENV', 'production') == 'production' ?
         'https://api.trongrid.io' : 'https://api.shasta.trongrid.io',
 
+    'tron_api_key' => env('TRON_API_KEY', 'cad0a351-7759-4133-90c5-9e733846c896'),
+    'tron_api_key2' => env('TRON_API_KEY2', '747f1d4f-de2d-4393-929a-bf99019dbaa4'),
+    'tron_api_key3' => env('TRON_API_KEY3', '659e3a1b-e4ae-4dd0-9219-b56215e919d0'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('from')->nullable()->index();
             $table->string('to');
             $table->double('amount');
-            $table->double('fees')->nullable();
+            $table->double('fee')->nullable();
             $table->tinyInteger('status')->default(WithdrawStatus::PENDING->value);
             $table->foreignId('transaction_id')->nullable()->constrained();
             $table->timestamps();

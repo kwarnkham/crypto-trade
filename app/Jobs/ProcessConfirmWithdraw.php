@@ -34,7 +34,7 @@ class ProcessConfirmWithdraw implements ShouldQueue
         if ($withdraw->status == WithdrawStatus::CONFIRMED->value) {
             $response = Tron::getSolidityTransactionInfoById($this->txid);
             $receipt = $response->receipt ?? null;
-            if ($receipt == null || $receipt->result !== "SUCCESS") ProcessConfirmWithdraw::dispatch()->delay(now()->addMinute());
+            if ($receipt == null || $receipt->result !== "SUCCESS") ProcessConfirmWithdraw::dispatch($this->txid, $this->withdrawId)->delay(now()->addMinute());
             else if ($receipt->result === "SUCCESS") {
                 $tx = [];
                 $tx['id'] = $response->id;
@@ -44,14 +44,14 @@ class ProcessConfirmWithdraw implements ShouldQueue
                 $tx['receipt'] = json_encode($response->receipt);
                 $response = Tron::getSolidityTransactionById($this->txid);
                 $ret = $response->ret ?? null;
-                if ($ret == null) ProcessConfirmWithdraw::dispatch()->delay(now()->addMinute());
+                if ($ret == null) ProcessConfirmWithdraw::dispatch($this->txid, $this->withdrawId)->delay(now()->addMinute());
                 else {
                     if (is_array($ret)) {
                         $result = $ret[0]->contractRet ?? false;
                     } else {
                         $result = $ret->contractRet ?? false;
                     }
-                    if ($result !== "SUCCESS") ProcessConfirmWithdraw::dispatch()->delay(now()->addMinute());
+                    if ($result !== "SUCCESS") ProcessConfirmWithdraw::dispatch($this->txid, $this->withdrawId)->delay(now()->addMinute());
                     else if ($result === "SUCCESS") {
                         $withdraw->complete($tx);
                     }

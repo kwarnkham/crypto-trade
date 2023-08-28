@@ -11,7 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class ProcessWithdrawForExpire implements ShouldQueue
+class ProcessWithdrawForCancel implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -29,6 +29,6 @@ class ProcessWithdrawForExpire implements ShouldQueue
     public function handle(): void
     {
         $withdraw =  Withdraw::find($this->withdarwId);
-        if ($withdraw->status == WithdrawStatus::CONFIRMED->value) $withdraw->update(['status' => WithdrawStatus::EXPIRED->value]);
+        if ($withdraw->status == WithdrawStatus::CONFIRMED->value) $withdraw->update(['status' => WithdrawStatus::CANCELED->value]);
     }
 }
