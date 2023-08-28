@@ -18,7 +18,7 @@ class WithdrawController extends Controller
         $agent = Agent::current($request);
         $data = $request->validate([
             'code' => ['required', Rule::exists('users', 'code')->where('agent_id', $agent->id)],
-            'amount' => ['required', 'numeric', 'integer', 'min:2'],
+            'amount' => ['required', 'numeric', 'integer', 'gt:1'],
             'to' => ['required', 'string'],
         ]);
         abort_unless(Wallet::validate($data['to']), ResponseStatus::BAD_REQUEST->value, 'Wallet is invalid');
