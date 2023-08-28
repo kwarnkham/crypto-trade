@@ -28,6 +28,7 @@ class Deposit extends Model
         $this->update(['transaction_id' => $transaction->id, 'status' => DepositStatus::COMPLETED->value]);
         $user = $this->user;
         $user->update(['balance' => $user->balance + $this->amount]);
+        $this->refresh();
     }
 
     public function attemptToComplete()

@@ -21,7 +21,7 @@ class DepositController extends Controller
         $data = $request->validate([
             'code' => ['required'],
             'name' => ['required'],
-            'amount' => ['required', 'numeric']
+            'amount' => ['required', 'numeric', 'integer']
         ]);
 
         $user = $agent->users()->where('code', $data['code'])->first();
@@ -53,10 +53,13 @@ class DepositController extends Controller
 
     public function confirm(Deposit $deposit)
     {
+
         if ($deposit->status == DepositStatus::PENDING->value) {
             $deposit->update(['status' => DepositStatus::CONFIRMED->value]);
-            ProcessConfirmedDeposit::dispatch($deposit);
-            ProcessDepositForExpire::dispatch($deposit)->delay(now()->addMinutes(10));
+            ProcessConfirmedDeposit::dispatch($deposit->id);
+            ProcessDepositForExpire::dispatch($deposit->id)->delay(now()->addMinutes(2));
+        } else {
+            abort(ResponseStatus::BAD_REQUEST->value, 'Can only confirm a pending deposit');
         }
 
         return response()->json(['deposit' => $deposit]);

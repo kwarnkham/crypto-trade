@@ -19,7 +19,7 @@ class ProcessDepositForExpire implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(#[WithoutRelations] public Deposit $deposit)
+    public function __construct(public int $depositId)
     {
         //
     }
@@ -29,8 +29,8 @@ class ProcessDepositForExpire implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->deposit = $this->deposit->fresh();
-        if ($this->deposit->status == DepositStatus::CONFIRMED->value);
-        $this->deposit->update(['status' => DepositStatus::EXPIRED->value]);
+        $deposit = Deposit::find($this->depositId);
+        if ($deposit->status == DepositStatus::CONFIRMED->value)
+            $deposit->update(['status' => DepositStatus::EXPIRED->value]);
     }
 }

@@ -25,7 +25,7 @@ class ProcessConfirmedDeposit implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(#[WithoutRelations] public Deposit $deposit)
+    public function __construct(public int $depositId)
     {
         //
     }
@@ -35,9 +35,9 @@ class ProcessConfirmedDeposit implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->deposit->attemptToComplete();
-        $deposit = $this->deposit->fresh();
+        $deposit = Deposit::find($this->depositId);
+        $deposit->attemptToComplete();
         if ($deposit->status == DepositStatus::CONFIRMED->value)
-            ProcessConfirmedDeposit::dispatch($deposit)->delay(now()->addMinute());
+            ProcessConfirmedDeposit::dispatch($deposit->id)->delay(now()->addMinute());
     }
 }
