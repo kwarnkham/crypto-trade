@@ -19,13 +19,18 @@ class Withdraw extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function wallet()
+    {
+        return $this->belongsTo(Wallet::class);
+    }
+
 
     public function confirm()
     {
         $wallet = Wallet::withdrawable($this->amount);
         if ($wallet == null || $this->to == $wallet->base58_check) return;
 
-        $this->update(['status' => WithdrawStatus::CONFIRMED->value, 'from' => $wallet->base58_check]);
+        $this->update(['status' => WithdrawStatus::CONFIRMED->value, 'wallet_id' => $wallet->id]);
         $response = $wallet->sendUSDT($this->to, $this->amount - $this->fee);
         $result = $response->result ?? false;
         $txid = $response->txid ?? false;
@@ -40,7 +45,7 @@ class Withdraw extends Model
     {
         DB::transaction(function () use ($tx) {
             $transaction = Transaction::create([
-                'from' => $this->from,
+                'from' => $this->wallet->base58_check,
                 'to' => $this->to,
                 'transaction_id' => $tx['id'],
                 'token_address' => $tx['token_address'],

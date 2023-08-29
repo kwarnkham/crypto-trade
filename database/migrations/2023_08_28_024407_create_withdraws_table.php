@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('withdraws', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('from')->nullable()->index();
+            $table->foreignId('wallet_id')->nullable()->constrained();
             $table->string('to');
             $table->double('amount');
             $table->double('fee')->nullable();

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('balance')->default(0);
             $table->timestamp('activated_at')->nullable();
-            $table->string('base58_check');
+            $table->string('base58_check')->index();
             $table->string('public_key');
             $table->string('hex_address');
             $table->string('base64');

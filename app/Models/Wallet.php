@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use App\Enums\DepositStatus;
+use App\Enums\WithdrawStatus;
 use App\Services\Tron;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Wallet extends Model
 {
@@ -28,6 +29,11 @@ class Wallet extends Model
         return Wallet::create(Tron::generateAddressLocally());
     }
 
+    public function withdraws()
+    {
+        return $this->hasMany(Withdraw::class);
+    }
+
     public function deposits()
     {
         return $this->hasMany(Deposit::class);
@@ -37,7 +43,7 @@ class Wallet extends Model
     {
         return Wallet::query()
             ->whereNotNull('activated_at')
-            ->whereDoesntHave('deposits', function (Builder $query) {
+            ->whereDoesntHave('deposits', function ($query) {
                 $query->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value]);
             })
             ->first();
@@ -51,16 +57,28 @@ class Wallet extends Model
 
     public static function withdrawable(int $amount): ?Wallet
     {
-        $wallet = Wallet::query()->where('balance', '>=', $amount)->first();
+        $wallet = Wallet::query()->whereRaw(
+            'balance >= IFNULL((
+            SELECT SUM(amount)
+            FROM withdraws
+            WHERE withdraws.wallet_id = wallets.id
+            AND status IN (?, ?)), 0) + ?',
+            [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
+        )->first();
+
         if ($wallet == null) return $wallet;
+
+        $oldBalance = $wallet->balance;
+
         $wallet->updateBalance();
-        if ($wallet->balance < $amount) {
+
+        if ($wallet->balance < $oldBalance) {
             $wallets = Wallet::query()
                 ->whereNotNull('activated_at')
                 ->where('id', '!=', $wallet->id)
                 ->get();
             $wallet = $wallets->first(function ($w) use ($amount) {
-                return $w->updateBalance()->balance >= $amount;
+                return $w->updateBalance()->balance >= $amount + $w->withdraws()->whereIn('status', [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value])->sum('amount');
             });
             if ($wallet == null) return $wallet;
             $wallet->refresh();
