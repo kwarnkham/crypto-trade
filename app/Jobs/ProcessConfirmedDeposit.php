@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\Attributes\WithoutRelations;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class ProcessConfirmedDeposit implements ShouldQueue
 {
@@ -35,9 +36,20 @@ class ProcessConfirmedDeposit implements ShouldQueue
      */
     public function handle(): void
     {
+        $maxAttempts = 5;
         $deposit = Deposit::find($this->depositId);
         $deposit->attemptToComplete();
-        if ($deposit->status == DepositStatus::CONFIRMED->value)
+        if ($deposit->status == DepositStatus::CONFIRMED->value && $deposit->attempts < $maxAttempts)
             ProcessConfirmedDeposit::dispatch($deposit->id)->delay(now()->addMinute());
+        else if ($deposit->attempts >= $maxAttempts) {
+            $deposit->update(['status' => DepositStatus::EXPIRED->value]);
+        }
+    }
+
+    public function middleware(): array
+    {
+        return [
+            (new WithoutOverlapping("deposit:{$this->depositId}"))->shared(),
+        ];
     }
 }

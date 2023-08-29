@@ -20,7 +20,9 @@ return new class extends Migration
             $table->double('amount');
             $table->double('fee')->nullable();
             $table->tinyInteger('status')->default(WithdrawStatus::PENDING->value);
+            $table->string('txid')->nullable();
             $table->foreignId('transaction_id')->nullable()->constrained();
+            $table->tinyInteger('attempts')->default(0);
             $table->timestamps();
         });
     }

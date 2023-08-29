@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('transaction_id')->nullable()->constrained();
             $table->integer('amount');
             $table->tinyInteger('status')->default(DepositStatus::PENDING->value);
+            $table->tinyInteger('attempts')->default(0);
             $table->timestamps();
         });
     }

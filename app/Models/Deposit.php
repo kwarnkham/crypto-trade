@@ -6,6 +6,7 @@ use App\Enums\DepositStatus;
 use App\Services\Tron;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Deposit extends Model
 {
@@ -34,6 +35,8 @@ class Deposit extends Model
     public function attemptToComplete()
     {
         if ($this->status != DepositStatus::CONFIRMED->value) return;
+        $this->increment('attempts');
+
         $transactions = collect(Tron::getTRC20TransactionInfoByAccountAddress($this->wallet->base58_check, [
             'only_confirmed' => true,
             'limit' => 10,
@@ -42,22 +45,24 @@ class Deposit extends Model
         ])->data);
 
         $transactions->each(function ($tx) {
-            if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
-                $transaction = Transaction::create([
-                    'from' => $tx->from,
-                    'to' => $tx->to,
-                    'transaction_id' => $tx->transaction_id,
-                    'token_address' => $tx->token_info->address,
-                    'block_timestamp' => $tx->block_timestamp,
-                    'value' => $tx->value,
-                    'type' => $tx->type
-                ]);
+            DB::transaction(function () use ($tx) {
+                if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
+                    $transaction = Transaction::create([
+                        'from' => $tx->from,
+                        'to' => $tx->to,
+                        'transaction_id' => $tx->transaction_id,
+                        'token_address' => $tx->token_info->address,
+                        'block_timestamp' => $tx->block_timestamp,
+                        'value' => $tx->value,
+                        'type' => $tx->type
+                    ]);
 
-                if ($this->amount == $transaction->value) {
-                    $this->complete($transaction);
-                    $this->wallet->updateBalance();
+                    if ($this->amount == $transaction->value) {
+                        $this->complete($transaction);
+                        $this->wallet->updateBalance();
+                    }
                 }
-            }
+            });
         });
     }
 }

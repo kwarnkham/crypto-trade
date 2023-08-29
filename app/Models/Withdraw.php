@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\WithdrawStatus;
 use App\Jobs\ProcessConfirmWithdraw;
-use App\Jobs\ProcessWithdrawForCancel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -31,8 +30,8 @@ class Withdraw extends Model
         $result = $response->result ?? false;
         $txid = $response->txid ?? false;
         if ($result == true && $txid != false) {
+            $this->update(['txid' => $txid]);
             ProcessConfirmWithdraw::dispatch($txid, $this->id)->delay(now()->addMinute());
-            ProcessWithdrawForCancel::dispatch($this->id)->delay(now()->addMinutes(5));
             return $response;
         }
     }
