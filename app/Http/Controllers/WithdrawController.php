@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Enums\ResponseStatus;
 use App\Enums\WithdrawStatus;
 use App\Models\Agent;
-use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Withdraw;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class WithdrawController extends Controller
@@ -21,7 +21,7 @@ class WithdrawController extends Controller
             'amount' => ['required', 'numeric', 'integer', 'gt:1'],
             'to' => ['required', 'string'],
         ]);
-        abort_unless(Wallet::validate($data['to']), ResponseStatus::BAD_REQUEST->value, 'Wallet is invalid');
+        abort_unless(Str::startsWith($data['to'], 'T') && Wallet::validate($data['to']), ResponseStatus::BAD_REQUEST->value, 'Wallet is invalid');
         $user = $agent->users()->where('code', $data['code'])->first();
         $withdrawAmount = $user->withdraws()->whereIn('status', [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value])->sum('amount');
         $fee = 1000000;
