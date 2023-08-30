@@ -8,9 +8,6 @@ use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class Wallet extends Model
 {
@@ -19,7 +16,7 @@ class Wallet extends Model
     protected $guarded = ['id'];
 
     protected $hidden = [
-        'private_key',
+        'private_key', 'public_key', 'base64', 'hex_address'
     ];
 
     protected $casts = [
@@ -30,6 +27,34 @@ class Wallet extends Model
     {
         return Attribute::make(
             get: fn (?string $value) => json_decode($value ?? ''),
+        );
+    }
+
+    protected function balance(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => ($value ?? 0) / 1000000,
+        );
+    }
+
+    protected function stakedForBandwidth(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => ($value ?? 0) / 1000000,
+        );
+    }
+
+    protected function stakedForEnergy(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => ($value ?? 0) / 1000000,
+        );
+    }
+
+    protected function trx(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => ($value ?? 0) / 1000000,
         );
     }
 
@@ -97,13 +122,19 @@ class Wallet extends Model
 
     public function updateBalance()
     {
+        $resource = Tron::getAccountResource($this->base58_check);
         $trc20_address = config('app')['trc20_address'];
         $response =  Tron::getAccountInfoByAddress($this->base58_check)->data[0];
         $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20_address));
-        $trx = $response->balance;
-
-        if ($usdt != null) $this->update(['balance' => $usdt->$trc20_address, 'trx' => $trx]);
-        return $this->refresh();
+        $frozenV2 = collect($response->frozenV2);
+        $this->update([
+            'balance' => $usdt->$trc20_address ?? 0,
+            'trx' => $response->balance ?? 0,
+            'resource' => $resource,
+            'staked_for_energy' => $frozenV2->first(fn ($v) => $v->type ?? null == 'ENERGY')->amount ?? 0,
+            'staked_for_bandwidth' => $frozenV2->first(fn ($v) => !property_exists($v, 'type'))->amount ?? 0
+        ]);
+        return $this;
     }
 
     public function sendUSDT(string $to, int $amount)
@@ -116,13 +147,6 @@ class Wallet extends Model
         $tx =  Tron::freezeBalance($this->base58_check, $resource, $amount * 1000000);
         $signed = Tron::signTransaction($tx, $this);
         return Tron::broadcastTransaction($signed);
-    }
-
-    public function updateResource()
-    {
-        $resource = Tron::getAccountResource($this->base58_check);
-        $this->update(['resource' => $resource]);
-        return $this;
     }
 
     public function syncTxs(array $options = [])

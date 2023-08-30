@@ -1,0 +1,55 @@
+{
+    "data": [
+        {
+            "owner_permission": {
+                "keys": [
+                    {
+                        "address": "TYzQah15hdzvw6BQ1j9csFTMMSTHzKGn96",
+                        "weight": 1
+                    }
+                ],
+                "threshold": 1,
+                "permission_name": "owner"
+            },
+            "account_resource": {
+                "energy_window_optimized": true,
+                "energy_window_size": 28800000
+            },
+            "active_permission": [
+                {
+                    "operations": "7fff1fc0033ec30f000000000000000000000000000000000000000000000000",
+                    "keys": [
+                        {
+                            "address": "TYzQah15hdzvw6BQ1j9csFTMMSTHzKGn96",
+                            "weight": 1
+                        }
+                    ],
+                    "threshold": 1,
+                    "id": 2,
+                    "type": "Active",
+                    "permission_name": "active"
+                }
+            ],
+            "frozenV2": [
+                {},
+                {
+                    "type": "ENERGY"
+                },
+                {
+                    "type": "UNKNOWN_ENUM_VALUE_ResourceCode_2"
+                }
+            ],
+            "address": "41fc84f9b16bea439cba1cd5ff64d55e92da804af5",
+            "balance": 11000000,
+            "create_time": 1693388880000,
+            "trc20": [],
+            "net_window_size": 28800000,
+            "net_window_optimized": true
+        }
+    ],
+    "success": true,
+    "meta": {
+        "at": 1693396951341,
+        "page_size": 1
+    }
+}

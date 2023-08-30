@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
 use App\Models\Wallet;
 use App\Services\Tron;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ class WalletController extends Controller
     {
         $wallet = Wallet::generate();
 
-        return response()->json(['wallet' => $wallet]);
+        return response()->json(['wallet' => $wallet->fresh()]);
     }
 
     public function index(Request $request)
@@ -24,14 +25,31 @@ class WalletController extends Controller
 
     public function activate(Wallet $wallet)
     {
-        if (Tron::isActivated($wallet->base58_check)) $wallet->update(['activated_at' => now()]);
+        if (Tron::isActivated($wallet->base58_check)) {
+            $wallet->update(['activated_at' => now()]);
+            $wallet->updateBalance();
+        }
         return response()->json(['wallet' => $wallet]);
     }
 
     public function find(Wallet $wallet)
     {
-        $wallet->updateResource();
+        return response()->json(['wallet' => $wallet->updateBalance()]);
+    }
 
-        return response()->json(['wallet' => $wallet]);
+    public function stake(Request $request, Wallet $wallet)
+    {
+        $data = $request->validate([
+            'type' => ['required', 'in:ENERGY,BANDWIDTH'],
+            'amount' => ['required', 'numeric', 'gt:0', 'integer', 'lte:' . ($wallet->trx)]
+        ]);
+
+        $response =  $wallet->freezeBalance($data['amount'], $data['type']);
+
+        if (($response->result ?? false) != true) abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
+
+        return response()->json([
+            'wallet' => $wallet->updateBalance()
+        ]);
     }
 }

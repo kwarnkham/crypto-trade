@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('balance')->default(0);
             $table->unsignedBigInteger('trx')->default(0);
+            $table->unsignedBigInteger('staked_for_energy')->default(0);
+            $table->unsignedBigInteger('staked_for_bandwidth')->default(0);
+            $table->unsignedBigInteger('trx')->default(0);
             $table->jsonb('resource')->nullable();
             $table->timestamp('activated_at')->nullable();
             $table->string('base58_check')->index();
