@@ -22,9 +22,16 @@ class WalletController extends Controller
         return response()->json($query->paginate($request->per_page ?? 20));
     }
 
-    public  function activate(Wallet $wallet)
+    public function activate(Wallet $wallet)
     {
-        if (Tron::isActivated('TBnGvsr6VV6DdjD6qmKka8ei5RXaomcoKw')) $wallet->update(['activated_at' => now()]);
+        if (Tron::isActivated($wallet->base58_check)) $wallet->update(['activated_at' => now()]);
+        return response()->json(['wallet' => $wallet]);
+    }
+
+    public function find(Wallet $wallet)
+    {
+        $wallet->updateResource();
+
         return response()->json(['wallet' => $wallet]);
     }
 }

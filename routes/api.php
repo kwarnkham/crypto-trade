@@ -43,8 +43,11 @@ Route::controller(AuthController::class)->prefix('/admin')->group(function () {
     });
 });
 
-Route::controller(WalletController::class)->middleware(['auth:sanctum'])->prefix('/wallets')->group(function () {
-    Route::post('', 'store');
-    Route::get('', 'index');
-    Route::post('{wallet}/activate', 'activate');
+Route::controller(WalletController::class)->middleware(['agent'])->prefix('/wallets')->group(function () {
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('', 'store');
+        Route::get('', 'index');
+        Route::post('{wallet}/activate', 'activate');
+    });
+    Route::get('{wallet}', 'find');
 });

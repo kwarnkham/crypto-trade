@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('balance')->default(0);
+            $table->unsignedBigInteger('trx')->default(0);
+            $table->jsonb('resource')->nullable();
             $table->timestamp('activated_at')->nullable();
             $table->string('base58_check')->index();
             $table->string('public_key');

@@ -137,6 +137,14 @@ class Tron
         ])->json();
     }
 
+    public static function getAccountResource(string $address)
+    {
+        return Http::tron2()->post('/wallet/getaccountresource', [
+            'address' => $address,
+            'visible' => true
+        ])->body();
+    }
+
     public static function getAccountInfoByAddress(string $address)
     {
         return Http::tron()->get("/v1/accounts/$address")->object();
@@ -155,11 +163,16 @@ class Tron
 
     public static function getTRC20TransactionInfoByAccountAddress(string $address, $options = null)
     {
-        return Http::tron()->get("/v1/accounts/$address/transactions/trc20", $options)->object();
+        return Http::tron2()->get("/v1/accounts/$address/transactions/trc20", $options)->object();
+    }
+
+    public static function getTransactionInfoByAccountAddress(string $address, $options = null)
+    {
+        return Http::tron2()->get("/v1/accounts/$address/transactions", $options)->object();
     }
 
     public static function getTransactionInfoByContractAddress(string $contractAddress)
     {
-        return Http::tron()->get("/v1/contracts/$contractAddress/transactions")->object();
+        return Http::tron2()->get("/v1/contracts/$contractAddress/transactions")->object();
     }
 }
