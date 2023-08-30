@@ -20,7 +20,7 @@ class AuthController extends Controller
         if (Hash::check($data['password'], $admin->password)) {
             $admin->tokens()->delete();
             $token = $admin->createToken('admin');
-            return ['token' => $token->plainTextToken];
+            return ['token' => $token->plainTextToken, 'admin' => $admin];
         }
 
         abort(ResponseStatus::UNAUTHENTICATED->value, 'Incorrect Password');
@@ -41,5 +41,13 @@ class AuthController extends Controller
         }
 
         abort(ResponseStatus::UNAUTHENTICATED->value, 'Incorrect Password');
+    }
+
+    public function logout(Request $request)
+    {
+        $admin = $request->user();
+        $admin->tokens()->delete();
+
+        return response()->json(['message' => 'success']);
     }
 }

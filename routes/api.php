@@ -40,6 +40,7 @@ Route::controller(AuthController::class)->prefix('/admin')->group(function () {
     Route::post('login', 'login');
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('change-password', 'changePassword');
+        Route::post('logout', 'logout');
     });
 });
 
