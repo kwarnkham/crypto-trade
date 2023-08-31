@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Agent;
 use App\Models\Transfer;
 use App\Models\User;
+use App\Services\Tron;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -30,8 +31,8 @@ class TransferController extends Controller
             $transfer = Transfer::create([
                 'user_id' => $from->id,
                 'recipient_id' => $to->id,
-                'amount' => $data['amount'] * 1000000,
-                'fee' => 1000000
+                'amount' => $data['amount'] * Tron::DIGITS,
+                'fee' => Tron::DIGITS
             ]);
 
             $from->decrement('balance', $transfer->amount);

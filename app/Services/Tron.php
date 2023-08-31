@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ResponseStatus;
 use App\Models\Wallet;
 use App\Utility\Conversion;
 use App\Utility\Formatter;
@@ -9,23 +10,23 @@ use Illuminate\Support\Facades\Http;
 use App\Utility\Keccak;
 use App\Utility\Utils;
 use Elliptic\EC;
-use Exception;
 use InvalidArgumentException;
 use kornrunner\Secp256k1;
 use kornrunner\Signature\Signature;
 
 class Tron
 {
+    const DIGITS = 10 ** 6;
     public static function signTransaction(array $transaction, Wallet $wallet, string $message = null): array
     {
         $privateKey = $wallet->private_key;
 
         if (isset($transaction['Error']))
-            throw new Exception($transaction['Error']);
+            abort(ResponseStatus::BAD_REQUEST->value, $transaction['Error']);
 
 
         if (isset($transaction['signature'])) {
-            throw new Exception('Transaction is already signed');
+            abort(ResponseStatus::BAD_REQUEST->value, 'Transaction is already signed');
         }
 
         if (!is_null($message)) {
@@ -46,7 +47,7 @@ class Tron
     public static function broadcastTransaction(array $signedTransaction)
     {
         if (!array_key_exists('signature', $signedTransaction) || !is_array($signedTransaction['signature'])) {
-            throw new Exception('Transaction is not signed');
+            abort(ResponseStatus::BAD_REQUEST->value, 'Transaction is not signed');
         }
         return Http::tron()->withBody(json_encode($signedTransaction))
             ->post("/wallet/broadcasttransaction")->object();
@@ -54,13 +55,13 @@ class Tron
 
     public static function sendUSDT(string $to, int $amount, Wallet $wallet)
     {
-        $amount /= 1000000;
+        $amount /= Tron::DIGITS;
         $toFormat = Formatter::toAddressFormat(Conversion::base58check2HexString($to));
 
         try {
             $amount = Utils::toMinUnitByDecimals($amount, 6);
         } catch (InvalidArgumentException $e) {
-            throw new Exception($e->getMessage());
+            abort(ResponseStatus::BAD_REQUEST->value, $e->getMessage());
         }
         $numberFormat = Formatter::toIntegerFormat($amount);
 
@@ -69,7 +70,7 @@ class Tron
             "function_selector" => "transfer(address,uint256)",
             "parameter" => "{$toFormat}{$numberFormat}",
             "owner_address" => "412A6B12B7C076E978F66BB97DEF94B7CA84A05432",
-            "fee_limit" => 100000000,
+            "fee_limit" => 100 * Tron::DIGITS,
             "call_value" => 0,
         ])->json()['transaction'];
 
@@ -86,7 +87,6 @@ class Tron
             'txInfo' => get_object_vars($txInfo)
         ];
     }
-
 
     public static function getTransactionInfoById(string $txID)
     {
@@ -137,6 +137,17 @@ class Tron
         ])->json();
     }
 
+
+    public static function withdrawExpireUnfreeze(string $ownerAddress): array
+    {
+        return Http::tron()->post("/wallet/withdrawexpireunfreeze", [
+            'owner_address' => $ownerAddress,
+            'visible' => true
+        ])->json();
+    }
+
+    // /wallet/withdrawexpireunfreeze
+
     public static function getAccountResource(string $address)
     {
         return Http::tron2()->post('/wallet/getaccountresource', [
@@ -158,6 +169,16 @@ class Tron
     public static function validateAddress(string $address)
     {
         return Http::tron()->post("/wallet/validateaddress", ["address" => $address])->object();
+    }
+
+    public static function unfreezeBalance(string $ownerAddress, string $resource, int $unfreezeBalance)
+    {
+        return Http::tron()->post("/wallet/unfreezebalancev2", [
+            'owner_address' => $ownerAddress,
+            'unfreeze_balance' => $unfreezeBalance,
+            'resource' => $resource,
+            'visible' => true
+        ])->json();
     }
 
 

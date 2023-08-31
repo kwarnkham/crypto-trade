@@ -9,6 +9,7 @@ use App\Models\Agent;
 use App\Models\Deposit;
 use App\Models\User;
 use App\Models\Wallet;
+use App\Services\Tron;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,7 +44,7 @@ class DepositController extends Controller
             $wallet->update(['reserved_at' => now()]);
             return $user->deposits()->create([
                 'wallet_id' => $wallet->id,
-                'amount' => $data['amount'] * 1000000
+                'amount' => $data['amount'] * Tron::DIGITS
             ]);
         });
 

@@ -8,6 +8,8 @@ use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class Wallet extends Model
 {
@@ -15,12 +17,14 @@ class Wallet extends Model
 
     protected $guarded = ['id'];
 
+
     protected $hidden = [
         'private_key', 'public_key', 'base64', 'hex_address'
     ];
 
     protected $casts = [
-        'private_key' => 'encrypted'
+        'private_key' => 'encrypted',
+        'activated_at' => 'datetime'
     ];
 
     protected function resource(): Attribute
@@ -30,32 +34,38 @@ class Wallet extends Model
         );
     }
 
+
     protected function balance(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => ($value ?? 0) / 1000000,
+            get: fn (?string $value) => ($value ?? 0) / Tron::DIGITS,
         );
     }
 
     protected function stakedForBandwidth(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => ($value ?? 0) / 1000000,
+            get: fn (?string $value) => ($value ?? 0) / Tron::DIGITS,
         );
     }
 
     protected function stakedForEnergy(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => ($value ?? 0) / 1000000,
+            get: fn (?string $value) => ($value ?? 0) / Tron::DIGITS,
         );
     }
 
     protected function trx(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => ($value ?? 0) / 1000000,
+            get: fn (?string $value) => ($value ?? 0) / Tron::DIGITS,
         );
+    }
+
+    public function unstakes()
+    {
+        return $this->hasMany(Unstake::class);
     }
 
     public static function generate()
@@ -122,19 +132,34 @@ class Wallet extends Model
 
     public function updateBalance()
     {
-        $resource = Tron::getAccountResource($this->base58_check);
-        $trc20_address = config('app')['trc20_address'];
-        $response =  Tron::getAccountInfoByAddress($this->base58_check)->data[0];
-        $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20_address));
-        $frozenV2 = collect($response->frozenV2);
-        $this->update([
-            'balance' => $usdt->$trc20_address ?? 0,
-            'trx' => $response->balance ?? 0,
-            'resource' => $resource,
-            'staked_for_energy' => $frozenV2->first(fn ($v) => $v->type ?? null == 'ENERGY')->amount ?? 0,
-            'staked_for_bandwidth' => $frozenV2->first(fn ($v) => !property_exists($v, 'type'))->amount ?? 0
-        ]);
-        return $this;
+        return DB::transaction(function () {
+            $resource = Tron::getAccountResource($this->base58_check);
+            $trc20_address = config('app')['trc20_address'];
+            $response =  Tron::getAccountInfoByAddress($this->base58_check)->data[0];
+            $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20_address));
+            $frozenV2 = collect($response->frozenV2);
+            $unfrozenV2 = collect($response->unfrozenV2);
+            $this->update([
+                'balance' => $usdt->$trc20_address ?? 0,
+                'trx' => $response->balance ?? 0,
+                'resource' => $resource,
+                'staked_for_energy' => $frozenV2->first(fn ($v) => $v->type ?? null == 'ENERGY')->amount ?? 0,
+                'staked_for_bandwidth' => $frozenV2->first(fn ($v) => !property_exists($v, 'type'))->amount ?? 0,
+            ]);
+
+            $this->unstakes()->delete();
+
+            $unfrozenV2->each(function ($unstake) {
+                if ($unstake->unfreeze_amount ?? null != null)
+                    $this->unstakes()->create([
+                        'amount' => $unstake->unfreeze_amount,
+                        'type' => property_exists($unstake, 'type') ? $unstake->type : 'BANDWIDTH',
+                        'withdrawable_at' => Carbon::createFromTimestamp($unstake->unfreeze_expire_time / 1000)
+                    ]);
+            });
+
+            return $this;
+        });
     }
 
     public function sendUSDT(string $to, int $amount)
@@ -144,7 +169,23 @@ class Wallet extends Model
 
     public function freezeBalance(int $amount, string $resource = 'BANDWIDTH')
     {
-        $tx =  Tron::freezeBalance($this->base58_check, $resource, $amount * 1000000);
+        $tx =  Tron::freezeBalance($this->base58_check, $resource, $amount * Tron::DIGITS);
+        $signed = Tron::signTransaction($tx, $this);
+        return Tron::broadcastTransaction($signed);
+    }
+
+
+    public function unfreezeBalance(int $amount, string $resource = 'BANDWIDTH')
+    {
+        $tx =  Tron::unfreezeBalance($this->base58_check, $resource, $amount * Tron::DIGITS);
+        $signed = Tron::signTransaction($tx, $this);
+        return Tron::broadcastTransaction($signed);
+    }
+
+
+    public function withdrawUnfreezeBalance()
+    {
+        $tx =  Tron::withdrawExpireUnfreeze($this->base58_check);
         $signed = Tron::signTransaction($tx, $this);
         return Tron::broadcastTransaction($signed);
     }
