@@ -17,10 +17,8 @@ use kornrunner\Signature\Signature;
 class Tron
 {
     const DIGITS = 10 ** 6;
-    public static function signTransaction(array $transaction, Wallet $wallet, string $message = null): array
+    public static function signTransaction(array $transaction, string $privateKey, string $message = null): array
     {
-        $privateKey = $wallet->private_key;
-
         if (isset($transaction['Error']))
             abort(ResponseStatus::BAD_REQUEST->value, $transaction['Error']);
 
@@ -53,7 +51,7 @@ class Tron
             ->post("/wallet/broadcasttransaction")->object();
     }
 
-    public static function sendUSDT(string $to, int $amount, Wallet $wallet)
+    public static function sendUSDT(string $to, int $amount, string $privateKey)
     {
         $amount /= Tron::DIGITS;
         $toFormat = Formatter::toAddressFormat(Conversion::base58check2HexString($to));
@@ -74,7 +72,7 @@ class Tron
             "call_value" => 0,
         ])->json()['transaction'];
 
-        $signed = static::signTransaction($transaction, $wallet);
+        $signed = static::signTransaction($transaction, $privateKey);
 
         return static::broadcastTransaction($signed);
     }
@@ -146,7 +144,13 @@ class Tron
         ])->json();
     }
 
-    // /wallet/withdrawexpireunfreeze
+    public static function cancelAllUnfreezeV2(string $ownerAddress): array
+    {
+        return Http::tron()->post("/wallet/cancelallunfreezev2", [
+            'owner_address' => $ownerAddress,
+            'visible' => true
+        ])->json();
+    }
 
     public static function getAccountResource(string $address)
     {
@@ -158,7 +162,7 @@ class Tron
 
     public static function getAccountInfoByAddress(string $address)
     {
-        return Http::tron()->get("/v1/accounts/$address")->object();
+        return Http::tron2()->get("/v1/accounts/$address")->object();
     }
 
     public static function isActivated(string $address)

@@ -138,7 +138,7 @@ class Wallet extends Model
             $response =  Tron::getAccountInfoByAddress($this->base58_check)->data[0];
             $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20_address));
             $frozenV2 = collect($response->frozenV2);
-            $unfrozenV2 = collect($response->unfrozenV2);
+            $unfrozenV2 = collect($response->unfrozenV2 ?? []);
             $this->update([
                 'balance' => $usdt->$trc20_address ?? 0,
                 'trx' => $response->balance ?? 0,
@@ -164,21 +164,28 @@ class Wallet extends Model
 
     public function sendUSDT(string $to, int $amount)
     {
-        return Tron::sendUSDT($to, $amount, $this);
+        return Tron::sendUSDT($to, $amount, $this->private_key);
     }
 
     public function freezeBalance(int $amount, string $resource = 'BANDWIDTH')
     {
         $tx =  Tron::freezeBalance($this->base58_check, $resource, $amount * Tron::DIGITS);
-        $signed = Tron::signTransaction($tx, $this);
+        $signed = Tron::signTransaction($tx, $this->private_key);
         return Tron::broadcastTransaction($signed);
     }
 
 
+    public function cancelAllUnfreezeV2()
+    {
+        $tx =  Tron::cancelAllUnfreezeV2($this->base58_check);
+        $signed = Tron::signTransaction($tx, $this->private_key);
+        return Tron::broadcastTransaction($signed);
+    }
+
     public function unfreezeBalance(int $amount, string $resource = 'BANDWIDTH')
     {
         $tx =  Tron::unfreezeBalance($this->base58_check, $resource, $amount * Tron::DIGITS);
-        $signed = Tron::signTransaction($tx, $this);
+        $signed = Tron::signTransaction($tx, $this->private_key);
         return Tron::broadcastTransaction($signed);
     }
 
@@ -186,7 +193,7 @@ class Wallet extends Model
     public function withdrawUnfreezeBalance()
     {
         $tx =  Tron::withdrawExpireUnfreeze($this->base58_check);
-        $signed = Tron::signTransaction($tx, $this);
+        $signed = Tron::signTransaction($tx, $this->private_key);
         return Tron::broadcastTransaction($signed);
     }
 

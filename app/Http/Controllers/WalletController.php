@@ -84,4 +84,13 @@ class WalletController extends Controller
             'wallet' => $wallet->updateBalance()->load('unstakes')->load('unstakes')
         ]);
     }
+
+    public function cancelUnstake(Wallet $wallet)
+    {
+        $response =  $wallet->cancelAllUnfreezeV2();
+        if (($response->result ?? false) != true) abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
+        return response()->json([
+            'wallet' => $wallet->updateBalance()->load('unstakes')->load('unstakes')
+        ]);
+    }
 }

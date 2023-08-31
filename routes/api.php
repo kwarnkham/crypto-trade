@@ -51,4 +51,5 @@ Route::controller(WalletController::class)->middleware(['auth:sanctum'])->prefix
     Route::post('{wallet}/stake', 'stake');
     Route::post('{wallet}/unstake', 'unstake');
     Route::post('{wallet}/withdraw-unstake', 'withdrawUnstake');
+    Route::post('{wallet}/cancel-unstake', 'cancelUnstake');
 });
