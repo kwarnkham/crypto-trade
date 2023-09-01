@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AgentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\TransferController;
@@ -52,4 +53,13 @@ Route::controller(WalletController::class)->middleware(['auth:sanctum'])->prefix
     Route::post('{wallet}/unstake', 'unstake');
     Route::post('{wallet}/withdraw-unstake', 'withdrawUnstake');
     Route::post('{wallet}/cancel-unstake', 'cancelUnstake');
+});
+
+
+Route::controller(AgentController::class)->middleware(['auth:sanctum'])->prefix('/agents')->group(function () {
+    Route::post('', 'store');
+    Route::post('{agent}/toggle-status', 'toggleStatus');
+    Route::post('{agent}/reset-key', 'resetKey');
+    Route::put('{agent}', 'update');
+    Route::get('', 'index');
 });

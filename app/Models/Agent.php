@@ -27,7 +27,7 @@ class Agent extends Model
         }
         $agent = Agent::where('name', $name)->first();
         if (!$agent || !Hash::check($key, $agent->key) || $agent->status == AgentStatus::RESTRICTED->value) {
-            return 'Invalid agent or key';
+            return 'RESTRICTED agent or invalid key';
         }
         if ($agent->ip != $ip && $agent->ip != "*") {
             return 'Invalid IP';
@@ -59,7 +59,8 @@ class Agent extends Model
 
     public function resetKey()
     {
-        $this->key = bcrypt($this->id);
-        return $this->save();
+        $key = Str::random(64);
+        $this->update(['key'=> bcrypt($key)]);
+        return $key;
     }
 }
