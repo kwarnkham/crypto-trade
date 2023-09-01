@@ -35,14 +35,15 @@ class Agent extends Model
         return true;
     }
 
-    public static function make($name, $ip, $remark = null): array
+    public static function make($name, $ip = "*", $remark = null): array
     {
         $key = Str::random(64);
         $agent = Agent::create([
             'name' => $name,
             'ip' => $ip,
             'key' => bcrypt($key),
-            'remark' => $remark
+            'remark' => $remark,
+            'status'=> AgentStatus::NORMAL->value
         ]);
         return [$agent, $key];
     }
