@@ -31,6 +31,7 @@ class Wallet extends Model
     {
         return Attribute::make(
             get: fn (?string $value) => json_decode($value ?? ''),
+            set: fn (?array $value) => json_encode($value ?? ''),
         );
     }
 
@@ -108,7 +109,12 @@ class Wallet extends Model
             WHERE withdraws.wallet_id = wallets.id
             AND status IN (?, ?)), 0) + ?',
             [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
-        )->first();
+        )->where(function ($q) {
+            return $q->where('trx', '>=', 10 * Tron::DIGITS)->orWhere(function ($query) {
+                $query->where('energy', '>=', 15000)
+                    ->where('bandwidth', '>=', 500);
+            });
+        })->first();
 
         if ($wallet == null) return $wallet;
 
@@ -139,10 +145,14 @@ class Wallet extends Model
             $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20_address));
             $frozenV2 = collect($response->frozenV2);
             $unfrozenV2 = collect($response->unfrozenV2 ?? []);
+            $energy = ($resource['EnergyLimit'] ?? 0) - ($resource['EnergyUsed'] ?? 0);
+            $bandwidth = ($resource['freeNetLimit'] ?? 0) - ($resource['freeNetUsed'] ?? 0) - ($resource['NetUsed'] ?? 0) + ($resource['NetLimit'] ?? 0);
             $this->update([
                 'balance' => $usdt->$trc20_address ?? 0,
                 'trx' => $response->balance ?? 0,
                 'resource' => $resource,
+                'energy' => $energy,
+                'bandwidth' => $bandwidth,
                 'staked_for_energy' => $frozenV2->first(fn ($v) => $v->type ?? null == 'ENERGY')->amount ?? 0,
                 'staked_for_bandwidth' => $frozenV2->first(fn ($v) => !property_exists($v, 'type'))->amount ?? 0,
             ]);
@@ -164,7 +174,7 @@ class Wallet extends Model
 
     public function sendUSDT(string $to, int $amount)
     {
-        return Tron::sendUSDT($to, $amount, $this->private_key);
+        return Tron::sendUSDT($to, $amount, $this->private_key, $this->base58_check);
     }
 
     public function freezeBalance(int $amount, string $resource = 'BANDWIDTH')

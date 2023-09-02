@@ -18,6 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('staked_for_energy')->default(0);
             $table->unsignedBigInteger('staked_for_bandwidth')->default(0);
             $table->jsonb('resource')->nullable();
+            $table->integer('energy')->nullable();
+            $table->integer('bandwidth')->nullable();
             $table->timestamp('activated_at')->nullable();
             $table->string('base58_check')->index();
             $table->string('public_key');

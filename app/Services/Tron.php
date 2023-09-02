@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\ResponseStatus;
-use App\Models\Wallet;
 use App\Utility\Conversion;
 use App\Utility\Formatter;
 use Illuminate\Support\Facades\Http;
@@ -51,7 +50,7 @@ class Tron
             ->post("/wallet/broadcasttransaction")->object();
     }
 
-    public static function sendUSDT(string $to, int $amount, string $privateKey)
+    public static function sendUSDT(string $to, int $amount, string $privateKey, string $from)
     {
         $toFormat = Formatter::toAddressFormat(Conversion::base58check2HexString($to));
 
@@ -66,7 +65,7 @@ class Tron
             "contract_address" => Conversion::base58check2HexString(config('app')['trc20_address']),
             "function_selector" => "transfer(address,uint256)",
             "parameter" => "{$toFormat}{$numberFormat}",
-            "owner_address" => "412A6B12B7C076E978F66BB97DEF94B7CA84A05432",
+            "owner_address" => Conversion::base58check2HexString($from),
             "fee_limit" => 100 * Tron::DIGITS,
             "call_value" => 0,
         ])->json()['transaction'];
@@ -156,7 +155,7 @@ class Tron
         return Http::tron2()->post('/wallet/getaccountresource', [
             'address' => $address,
             'visible' => true
-        ])->body();
+        ])->json();
     }
 
     public static function getAccountInfoByAddress(string $address)

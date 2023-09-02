@@ -49,7 +49,7 @@ class WalletController extends Controller
         if (($response->result ?? false) != true) abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
 
         return response()->json([
-            'wallet' => $wallet->updateBalance()
+            'wallet' => $wallet->updateBalance()->load(['unstakes'])
         ]);
     }
 

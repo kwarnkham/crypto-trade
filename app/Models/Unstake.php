@@ -26,7 +26,6 @@ class Unstake extends Model
     {
         return Attribute::make(
             get: fn (string $value) => ($value ?? 0) / Tron::DIGITS,
-            set: fn (string $value) => ($value ?? 0) * Tron::DIGITS,
         );
     }
 }

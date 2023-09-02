@@ -47,10 +47,10 @@ class Withdraw extends Model
     public function confirm()
     {
         $wallet = Wallet::withdrawable($this->amount);
-        if ($wallet == null || $this->to == $wallet->base58_check) return;
+        if ($wallet == null || $this->to == $wallet->base58_check) abort(ResponseStatus::BAD_REQUEST->value, 'No wallet availabe');
         [$result, $txid, $response] = DB::transaction(function () use ($wallet) {
             $response = $wallet->sendUSDT($this->to, $this->amount - $this->fee);
-            if ($response->code ?? '' == "SIGERROR") abort(ResponseStatus::BAD_REQUEST->value, "Sign Error");
+            if (($response->code ?? null) != null) abort(ResponseStatus::BAD_REQUEST->value, $response->code);
             $result = $response->result ?? false;
             $txid = $response->txid ?? false;
             return [$result, $txid, $response];

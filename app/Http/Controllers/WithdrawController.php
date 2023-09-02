@@ -44,7 +44,7 @@ class WithdrawController extends Controller
     {
         if ($withdraw->status != WithdrawStatus::PENDING->value) abort(ResponseStatus::BAD_REQUEST->value, 'Can only confirm a pending withdraw');
         $result = $withdraw->confirm();
-        if ($result == null) abort(ResponseStatus::BAD_REQUEST->value, 'No wallet have enough balance or send usdt failed');
+        if ($result == null) abort(ResponseStatus::BAD_REQUEST->value, 'Send usdt failed');
         return response()->json([
             'withdraw' => $withdraw
         ]);
