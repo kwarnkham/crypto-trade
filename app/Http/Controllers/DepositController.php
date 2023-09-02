@@ -51,6 +51,12 @@ class DepositController extends Controller
         return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => $deposit]);
     }
 
+    public function index(Request $request)
+    {
+        $query = Deposit::query()->latest('id')->with(['wallet', 'user.agent']);
+        return response()->json($query->paginate($request->per_page ?? 10));
+    }
+
     public function confirm(Deposit $deposit)
     {
         abort_if($deposit->status != DepositStatus::PENDING->value, ResponseStatus::BAD_REQUEST->value, 'Can only confirm a pending deposit');
@@ -64,9 +70,11 @@ class DepositController extends Controller
 
     public function cancel(Deposit $deposit)
     {
-        if ($deposit->status == DepositStatus::PENDING->value)
-            $deposit->update(['status' => DepositStatus::CANCELED->value]);
 
-        return response()->json(['deposit' => $deposit]);
+        if ($deposit->status != DepositStatus::PENDING->value) abort(ResponseStatus::BAD_REQUEST->value, 'Can only cancel a pending deposit');
+
+        $deposit->update(['status' => DepositStatus::CANCELED->value]);
+
+        return response()->json(['deposit' => $deposit->load(['user.agent', 'wallet'])]);
     }
 }

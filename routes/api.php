@@ -20,10 +20,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::middleware(['agent'])->controller(DepositController::class)->prefix('/deposits')->group(function () {
-    Route::post('', 'store');
-    Route::post('{deposit}/confirm', 'confirm');
-    Route::post('{deposit}/cancel', 'cancel');
+Route::controller(DepositController::class)->prefix('/deposits')->group(function () {
+    Route::middleware(['agent'])->prefix('/agent')->group(function(){
+        Route::post('{deposit}/confirm', 'confirm');
+        Route::post('{deposit}/cancel', 'cancel');
+        Route::post('', 'store');
+    });
+    Route::middleware(['auth:sanctum'])->group(function(){
+        Route::get('', 'index');
+        Route::post('{deposit}/cancel', 'cancel');
+    });
 });
 
 Route::middleware(['agent'])->controller(WithdrawController::class)->prefix('/withdraws')->group(function () {
