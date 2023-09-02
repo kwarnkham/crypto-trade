@@ -7,7 +7,6 @@ use App\Enums\WithdrawStatus;
 use App\Models\Agent;
 use App\Models\Wallet;
 use App\Models\Withdraw;
-use App\Services\Tron;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -49,5 +48,11 @@ class WithdrawController extends Controller
         return response()->json([
             'withdraw' => $withdraw
         ]);
+    }
+
+    public function index(Request $request)
+    {
+        $query = Withdraw::query()->with(['user.agent', 'wallet']);
+        return response()->json($query->paginate($request->per_page ?? 10));
     }
 }

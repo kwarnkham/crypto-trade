@@ -21,19 +21,26 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::controller(DepositController::class)->prefix('/deposits')->group(function () {
-    Route::middleware(['agent'])->prefix('/agent')->group(function(){
+    Route::middleware(['agent'])->prefix('/agent')->group(function () {
         Route::post('{deposit}/confirm', 'confirm');
         Route::post('{deposit}/cancel', 'cancel');
         Route::post('', 'store');
+        Route::get('', 'index');
     });
-    Route::middleware(['auth:sanctum'])->group(function(){
+    Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('', 'index');
     });
 });
 
-Route::middleware(['agent'])->controller(WithdrawController::class)->prefix('/withdraws')->group(function () {
-    Route::post('', 'store');
-    Route::post('{withdraw}/confirm', 'confirm');
+Route::controller(WithdrawController::class)->prefix('/withdraws')->group(function () {
+    Route::middleware(['agent'])->prefix('/agent')->group(function () {
+        Route::post('', 'store');
+        Route::get('', 'index');
+        Route::post('{withdraw}/confirm', 'confirm');
+    });
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('', 'index');
+    });
 });
 
 Route::middleware(['agent'])->controller(TransferController::class)->prefix('/transfers')->group(function () {

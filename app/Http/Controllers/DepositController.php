@@ -59,9 +59,13 @@ class DepositController extends Controller
 
     public function confirm(Deposit $deposit)
     {
-        abort_if($deposit->status != DepositStatus::PENDING->value, ResponseStatus::BAD_REQUEST->value, 'Can only confirm a pending deposit');
+        abort_unless(
+            $deposit->status == DepositStatus::PENDING->value || $deposit->status == DepositStatus::EXPIRED->value,
+            ResponseStatus::BAD_REQUEST->value,
+            'Can only confirm a pending deposit'
+        );
 
-        $deposit->update(['status' => DepositStatus::CONFIRMED->value]);
+        $deposit->update(['status' => DepositStatus::CONFIRMED->value, 'attempts'=> 0]);
 
         ProcessConfirmedDeposit::dispatch($deposit->id);
 

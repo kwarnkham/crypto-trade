@@ -53,7 +53,6 @@ class Tron
 
     public static function sendUSDT(string $to, int $amount, string $privateKey)
     {
-        $amount /= Tron::DIGITS;
         $toFormat = Formatter::toAddressFormat(Conversion::base58check2HexString($to));
 
         try {

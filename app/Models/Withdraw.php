@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ResponseStatus;
 use App\Enums\WithdrawStatus;
 use App\Jobs\ProcessConfirmWithdraw;
 use App\Services\Tron;
@@ -47,13 +48,21 @@ class Withdraw extends Model
     {
         $wallet = Wallet::withdrawable($this->amount);
         if ($wallet == null || $this->to == $wallet->base58_check) return;
+        [$result, $txid, $response] = DB::transaction(function () use ($wallet) {
+            $response = $wallet->sendUSDT($this->to, $this->amount - $this->fee);
+            if ($response->code ?? '' == "SIGERROR") abort(ResponseStatus::BAD_REQUEST->value, "Sign Error");
+            $result = $response->result ?? false;
+            $txid = $response->txid ?? false;
+            return [$result, $txid, $response];
+        });
 
-        $this->update(['status' => WithdrawStatus::CONFIRMED->value, 'wallet_id' => $wallet->id]);
-        $response = $wallet->sendUSDT($this->to, $this->amount - $this->fee);
-        $result = $response->result ?? false;
-        $txid = $response->txid ?? false;
         if ($result == true && $txid != false) {
-            $this->update(['txid' => $txid]);
+            $this->update([
+                'status' => WithdrawStatus::CONFIRMED->value,
+                'wallet_id' => $wallet->id,
+                'txid' => $txid
+            ]);
+
             ProcessConfirmWithdraw::dispatch($txid, $this->id)->delay(now()->addMinute());
             return $response;
         }
