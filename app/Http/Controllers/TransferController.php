@@ -31,8 +31,8 @@ class TransferController extends Controller
             $transfer = Transfer::create([
                 'user_id' => $from->id,
                 'recipient_id' => $to->id,
-                'amount' => $data['amount'] * Tron::DIGITS,
-                'fee' => Tron::DIGITS
+                'amount' => $data['amount'],
+                'fee' => 1
             ]);
 
             $from->decrement('balance', $transfer->amount);

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\WithdrawStatus;
 use App\Jobs\ProcessConfirmWithdraw;
+use App\Services\Tron;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +24,22 @@ class Withdraw extends Model
     public function wallet()
     {
         return $this->belongsTo(Wallet::class);
+    }
+
+    protected function amount(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ($value ?? 0) / Tron::DIGITS,
+            set: fn (string $value) => ($value ?? 0) * Tron::DIGITS,
+        );
+    }
+
+    protected function fee(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ($value ?? 0) / Tron::DIGITS,
+            set: fn (string $value) => ($value ?? 0) * Tron::DIGITS,
+        );
     }
 
 

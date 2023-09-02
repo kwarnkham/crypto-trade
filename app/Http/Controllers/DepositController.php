@@ -44,7 +44,7 @@ class DepositController extends Controller
             $wallet->update(['reserved_at' => now()]);
             return $user->deposits()->create([
                 'wallet_id' => $wallet->id,
-                'amount' => $data['amount'] * Tron::DIGITS
+                'amount' => $data['amount']
             ]);
         });
 

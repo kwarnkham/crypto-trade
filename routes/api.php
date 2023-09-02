@@ -28,7 +28,6 @@ Route::controller(DepositController::class)->prefix('/deposits')->group(function
     });
     Route::middleware(['auth:sanctum'])->group(function(){
         Route::get('', 'index');
-        Route::post('{deposit}/cancel', 'cancel');
     });
 });
 

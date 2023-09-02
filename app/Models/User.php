@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Enums\DepositStatus;
+use App\Services\Tron;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,5 +35,13 @@ class User extends Model
     public function withdraws()
     {
         return $this->hasMany(Withdraw::class);
+    }
+
+    protected function balance(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ($value ?? 0) / Tron::DIGITS,
+            set: fn (string $value) => ($value ?? 0) * Tron::DIGITS,
+        );
     }
 }
