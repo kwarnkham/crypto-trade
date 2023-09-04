@@ -113,8 +113,8 @@ class Wallet extends Model
                 [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
             )
             ->where(function ($q) {
-                return $q->where('trx', '>=', 10 * Tron::DIGITS)->orWhere(function ($query) {
-                    $query->where('energy', '>=', 15000)
+                return $q->where('trx', '>=', 40 * Tron::DIGITS)->orWhere(function ($query) {
+                    $query->where('energy', '>=', 50000)
                         ->where('bandwidth', '>=', 500);
                 });
             })
