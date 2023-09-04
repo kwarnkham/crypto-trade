@@ -100,21 +100,27 @@ class Wallet extends Model
         return $response->result;
     }
 
-    public static function withdrawable(int $amount): ?Wallet
+    public static function withdrawable(int $amount, array $excluded = []): ?Wallet
     {
-        $wallet = Wallet::query()->whereRaw(
-            'balance >= IFNULL((
+        if ($amount < (1 * Tron::DIGITS)) return null;
+        $wallet = Wallet::query()
+            ->whereRaw(
+                'balance >= IFNULL((
             SELECT SUM(amount)
             FROM withdraws
             WHERE withdraws.wallet_id = wallets.id
             AND status IN (?, ?)), 0) + ?',
-            [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
-        )->where(function ($q) {
-            return $q->where('trx', '>=', 10 * Tron::DIGITS)->orWhere(function ($query) {
-                $query->where('energy', '>=', 15000)
-                    ->where('bandwidth', '>=', 500);
-            });
-        })->first();
+                [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
+            )
+            ->where(function ($q) {
+                return $q->where('trx', '>=', 10 * Tron::DIGITS)->orWhere(function ($query) {
+                    $query->where('energy', '>=', 15000)
+                        ->where('bandwidth', '>=', 500);
+                });
+            })
+            ->when(count($excluded) > 0, fn ($q) => $q->whereNotIn('id', $excluded))
+            ->whereNotNull('activated_at')
+            ->first();
 
         if ($wallet == null) return $wallet;
 
@@ -123,15 +129,7 @@ class Wallet extends Model
         $wallet->updateBalance();
 
         if ($wallet->balance < $oldBalance) {
-            $wallets = Wallet::query()
-                ->whereNotNull('activated_at')
-                ->where('id', '!=', $wallet->id)
-                ->get();
-            $wallet = $wallets->first(function ($w) use ($amount) {
-                return $w->updateBalance()->balance >= $amount + $w->withdraws()->whereIn('status', [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value])->sum('amount');
-            });
-            if ($wallet == null) return $wallet;
-            $wallet->refresh();
+            return Wallet::withdrawable($amount, [$wallet->id, ...$excluded]);
         }
         return $wallet;
     }

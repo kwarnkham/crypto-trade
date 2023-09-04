@@ -37,6 +37,7 @@ Route::controller(WithdrawController::class)->prefix('/withdraws')->group(functi
         Route::post('', 'store');
         Route::get('', 'index');
         Route::post('{withdraw}/confirm', 'confirm');
+        Route::post('{withdraw}/cancel', 'cancel');
     });
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('', 'index');

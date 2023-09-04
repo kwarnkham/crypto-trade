@@ -55,4 +55,13 @@ class WithdrawController extends Controller
         $query = Withdraw::query()->with(['user.agent', 'wallet']);
         return response()->json($query->paginate($request->per_page ?? 10));
     }
+
+    public function cancel(Withdraw $withdraw)
+    {
+        abort_if($withdraw->status != WithdrawStatus::PENDING->value, ResponseStatus::BAD_REQUEST->value, 'Can only cancel a pending withdraw');
+        $withdraw->update([
+            'status' => WithdrawStatus::CANCELED->value
+        ]);
+        return response()->json(['withdraw' => $withdraw]);
+    }
 }

@@ -46,7 +46,7 @@ class Withdraw extends Model
 
     public function confirm()
     {
-        $wallet = Wallet::withdrawable($this->amount);
+        $wallet = Wallet::withdrawable($this->getRawOriginal('amount'));
         if ($wallet == null || $this->to == $wallet->base58_check) abort(ResponseStatus::BAD_REQUEST->value, 'No wallet availabe');
         [$result, $txid, $response] = DB::transaction(function () use ($wallet) {
             $response = $wallet->sendUSDT($this->to, $this->amount - $this->fee);
@@ -85,6 +85,7 @@ class Withdraw extends Model
             $this->update(['status' => WithdrawStatus::COMPLETED->value, 'transaction_id' => $transaction->id]);
             $user = $this->user;
             $user->update(['balance' => $user->balance - $this->amount]);
+            $this->wallet->updateBalance();
         });
     }
 }
