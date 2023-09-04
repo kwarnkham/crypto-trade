@@ -6,6 +6,7 @@ use App\Http\Controllers\DepositController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WithdrawController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,6 +40,12 @@ Route::controller(WithdrawController::class)->prefix('/withdraws')->group(functi
         Route::post('{withdraw}/confirm', 'confirm');
         Route::post('{withdraw}/cancel', 'cancel');
     });
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('', 'index');
+    });
+});
+
+Route::controller(TransactionController::class)->prefix('/transactions')->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('', 'index');
     });

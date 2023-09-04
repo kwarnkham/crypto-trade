@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Wallet extends Model
 {
@@ -113,8 +114,8 @@ class Wallet extends Model
                 [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
             )
             ->where(function ($q) {
-                return $q->where('trx', '>=', 40 * Tron::DIGITS)->orWhere(function ($query) {
-                    $query->where('energy', '>=', 50000)
+                return $q->where('trx', '>=', (config('app')['min_trx_for_transaction']) * Tron::DIGITS)->orWhere(function ($query) {
+                    $query->where('energy', '>=', config('app')['min_energy_for_transaction'])
                         ->where('bandwidth', '>=', 500);
                 });
             })
@@ -207,15 +208,37 @@ class Wallet extends Model
 
     public function syncTxs(array $options = [])
     {
-        $response = Tron::getTransactionInfoByAccountAddress($this->base58_check, $options);
+        $response = Tron::getTransactionInfoByAccountAddress($this->base58_check, [...$options, 'only_confirmed' => true]);
+        Log::info($response->data[0]->txID);
         if (($response->meta->fingerprint ?? false) && ($response->meta->links ?? false) && $response->meta->links->next) {
-            $this->getTxs([...$options, 'fingerprint' => $response->meta->fingerprint]);
+            $this->syncTxs([...$options, 'fingerprint' => $response->meta->fingerprint]);
         }
     }
 
-    public function getTxs(array $options = [])
+    public function syncTrc20Txs(array $options = [])
     {
-        $response = Tron::getTransactionInfoByAccountAddress($this->base58_check, $options);
-        return $response;
+        ['data' => $data, 'meta' => $meta] = get_object_vars(Tron::getTRC20TransactionInfoByAccountAddress($this->base58_check, [...$options, 'only_confirmed' => true]));
+        $transactions = collect($data);
+        $transactions->each(function ($tx) {
+            if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
+                $res = Tron::getSolidityTransactionInfoById($tx->transaction_id);
+                Transaction::create([
+                    'from' => $tx->from,
+                    'to' => $tx->to,
+                    'transaction_id' => $tx->transaction_id,
+                    'token_address' => $tx->token_info->address,
+                    'block_timestamp' => $tx->block_timestamp,
+                    'value' => $tx->value,
+                    'type' => $tx->type,
+                    'receipt' => $res->receipt ?? [],
+                    'fee' => $res->fee ?? 0
+                ]);
+            }
+        });
+        if (($meta->fingerprint ?? false) && ($meta->links ?? false) && $meta->links->next) {
+            $transactions = null;
+            $data = null;
+            $this->syncTrc20Txs([...$options, 'fingerprint' => $meta->fingerprint]);
+        }
     }
 }

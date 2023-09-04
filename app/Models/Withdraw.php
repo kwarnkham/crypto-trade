@@ -77,7 +77,7 @@ class Withdraw extends Model
                 'transaction_id' => $tx['id'],
                 'token_address' => $tx['token_address'],
                 'block_timestamp' => $tx['block_timestamp'],
-                'value' => $this->amount - $this->fee,
+                'value' => ($this->amount - $this->fee) * Tron::DIGITS,
                 'type' => 'Transfer',
                 'fee' => $tx['fee'],
                 'receipt' => $tx['receipt']

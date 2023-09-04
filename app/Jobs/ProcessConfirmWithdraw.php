@@ -43,8 +43,8 @@ class ProcessConfirmWithdraw implements ShouldQueue
             $tx['id'] = $response->id;
             $tx['block_timestamp'] = $response->blockTimeStamp;
             $tx['token_address'] = Conversion::hexString2Base58check($response->contract_address);
-            $tx['fee'] = $response->fee?? 0;
-            $tx['receipt'] = json_encode($response->receipt);
+            $tx['fee'] = $response->fee ?? 0;
+            $tx['receipt'] = $response->receipt;
             $response = Tron::getSolidityTransactionById($this->txid);
             $ret = $response->ret ?? null;
             if ($ret != null) {

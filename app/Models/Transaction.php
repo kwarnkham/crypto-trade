@@ -17,6 +17,7 @@ class Transaction extends Model
     {
         return Attribute::make(
             get: fn (?string $value) => json_decode($value ?? ''),
+            set: fn ($value) => json_encode($value ?? []),
         );
     }
 
@@ -24,8 +25,14 @@ class Transaction extends Model
     protected function fee(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => ($value ?? 0) / Tron::DIGITS,
-            set: fn (string $value) => ($value ?? 0) * Tron::DIGITS,
+            get: fn (?string $value) => ($value ?? 0) / Tron::DIGITS,
+        );
+    }
+
+    protected function value(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => ($value ?? 0) / Tron::DIGITS,
         );
     }
 }

@@ -41,6 +41,12 @@ return [
     'tron_api_key2' => env('TRON_API_KEY2', '747f1d4f-de2d-4393-929a-bf99019dbaa4'),
     'tron_api_key3' => env('TRON_API_KEY3', '659e3a1b-e4ae-4dd0-9219-b56215e919d0'),
 
+    'min_energy_for_transaction' => env('APP_ENV', 'production') == 'production' ?
+        50000 : 15000,
+    'min_trx_for_transaction' => env('APP_ENV', 'production') == 'production' ?
+        40 : 15,
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode

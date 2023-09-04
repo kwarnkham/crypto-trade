@@ -58,6 +58,7 @@ class Deposit extends Model
             DB::transaction(function () use ($tx) {
                 if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
                     if (($this->amount * Tron::DIGITS) == $tx->value) {
+                        $res = Tron::getSolidityTransactionInfoById($tx->transaction_id);
                         $transaction = Transaction::create([
                             'from' => $tx->from,
                             'to' => $tx->to,
@@ -65,7 +66,9 @@ class Deposit extends Model
                             'token_address' => $tx->token_info->address,
                             'block_timestamp' => $tx->block_timestamp,
                             'value' => $tx->value,
-                            'type' => $tx->type
+                            'type' => $tx->type,
+                            'receipt' => $res->receipt ?? [],
+                            'fee' => $res->fee ?? 0
                         ]);
                         $this->complete($transaction);
                         $this->wallet->updateBalance();
