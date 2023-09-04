@@ -57,7 +57,7 @@ class Deposit extends Model
         $transactions->each(function ($tx) {
             DB::transaction(function () use ($tx) {
                 if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
-                    if (($this->amount * Tron::DIGITS) == $tx->value) {
+                    if (($this->getRawOriginal('amount')) == $tx->value) {
                         $res = Tron::getSolidityTransactionInfoById($tx->transaction_id);
                         $transaction = Transaction::create([
                             'from' => $tx->from,

@@ -103,7 +103,7 @@ class Wallet extends Model
 
     public static function withdrawable(int $amount, array $excluded = []): ?Wallet
     {
-        if ($amount < (1 * Tron::DIGITS)) return null;
+        if ($amount < Tron::DIGITS) return null;
         $wallet = Wallet::query()
             ->whereRaw(
                 'balance >= IFNULL((

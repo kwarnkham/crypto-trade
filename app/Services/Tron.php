@@ -66,7 +66,7 @@ class Tron
             "function_selector" => "transfer(address,uint256)",
             "parameter" => "{$toFormat}{$numberFormat}",
             "owner_address" => Conversion::base58check2HexString($from),
-            "fee_limit" => 40 * Tron::DIGITS,
+            "fee_limit" => config('app')['min_trx_for_transaction'] * Tron::DIGITS,
             "call_value" => 0,
         ])->json()['transaction'];
 

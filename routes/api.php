@@ -51,8 +51,10 @@ Route::controller(TransactionController::class)->prefix('/transactions')->group(
     });
 });
 
-Route::middleware(['agent'])->controller(TransferController::class)->prefix('/transfers')->group(function () {
-    Route::post('', 'store');
+Route::controller(TransferController::class)->prefix('/transfers')->group(function () {
+    Route::middleware(['agent'])->prefix('/agent')->group(function () {
+        Route::post('', 'store');
+    });
 });
 
 

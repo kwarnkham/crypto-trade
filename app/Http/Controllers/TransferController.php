@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
 use App\Models\Agent;
 use App\Models\Transfer;
 use App\Models\User;
@@ -22,22 +23,21 @@ class TransferController extends Controller
             'amount' => ['required', 'numeric', 'integer', 'gt:1'],
         ]);
 
-
-
-
-        $transfer = DB::transaction(function () use ($data) {
-            $from = User::where('code', $data['from'])->first();
+        $from = User::where('code', $data['from'])->first();
+        if ($data['amount'] > $from->balance) abort(ResponseStatus::BAD_REQUEST->value, 'User does not have enough balance');
+        $transfer = DB::transaction(function () use ($data, $from) {
             $to = User::where('code', $data['to'])->first();
+            $fee = 1;
             $transfer = Transfer::create([
                 'user_id' => $from->id,
                 'recipient_id' => $to->id,
                 'amount' => $data['amount'],
-                'fee' => 1
+                'fee' => $fee
             ]);
 
-            $from->decrement('balance', $transfer->amount);
+            $from->update(['balance' => $from->balance - $data['amount']]);
 
-            $to->increment('balance', $transfer->amount - $transfer->fee);
+            $to->update(['balance' => $to->balance + $data['amount'] - $fee]);
 
             return $transfer;
         });
