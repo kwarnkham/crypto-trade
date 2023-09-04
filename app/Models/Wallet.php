@@ -31,7 +31,7 @@ class Wallet extends Model
     {
         return Attribute::make(
             get: fn (?string $value) => json_decode($value ?? ''),
-            set: fn (?array $value) => json_encode($value ?? ''),
+            set: fn ($value) => json_encode($value ?? ''),
         );
     }
 

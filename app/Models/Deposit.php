@@ -57,17 +57,16 @@ class Deposit extends Model
         $transactions->each(function ($tx) {
             DB::transaction(function () use ($tx) {
                 if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
-                    $transaction = Transaction::create([
-                        'from' => $tx->from,
-                        'to' => $tx->to,
-                        'transaction_id' => $tx->transaction_id,
-                        'token_address' => $tx->token_info->address,
-                        'block_timestamp' => $tx->block_timestamp,
-                        'value' => $tx->value,
-                        'type' => $tx->type
-                    ]);
-
-                    if ($this->amount == $transaction->value) {
+                    if (($this->amount * Tron::DIGITS) == $tx->value) {
+                        $transaction = Transaction::create([
+                            'from' => $tx->from,
+                            'to' => $tx->to,
+                            'transaction_id' => $tx->transaction_id,
+                            'token_address' => $tx->token_info->address,
+                            'block_timestamp' => $tx->block_timestamp,
+                            'value' => $tx->value,
+                            'type' => $tx->type
+                        ]);
                         $this->complete($transaction);
                         $this->wallet->updateBalance();
                     }
