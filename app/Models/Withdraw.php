@@ -9,6 +9,7 @@ use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Facades\DB;
 
 class Withdraw extends Model
@@ -16,6 +17,11 @@ class Withdraw extends Model
     use HasFactory;
 
     protected $guarded = [''];
+
+    public function charge(): MorphOne
+    {
+        return $this->morphOne(Charge::class, 'chargeable');
+    }
 
     public function user()
     {
@@ -85,6 +91,9 @@ class Withdraw extends Model
             $this->update(['status' => WithdrawStatus::COMPLETED->value, 'transaction_id' => $transaction->id]);
             $user = $this->user;
             $user->update(['balance' => $user->balance - $this->amount]);
+
+            $this->charge()->create(['amount' => $this->fee]);
+
             $this->wallet->updateBalance();
         });
     }

@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Enums\DepositStatus;
+use App\Enums\WithdrawStatus;
 use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,5 +44,10 @@ class User extends Model
             get: fn (string $value) => ($value ?? 0) / Tron::DIGITS,
             set: fn (string $value) => ($value ?? 0) * Tron::DIGITS,
         );
+    }
+
+    public function withdrawingAmount(): int
+    {
+        return $this->withdraws()->whereIn('status', [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value])->sum('amount') / Tron::DIGITS;
     }
 }

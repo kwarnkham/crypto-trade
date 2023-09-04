@@ -23,10 +23,10 @@ class WithdrawController extends Controller
         ]);
         abort_unless(Str::startsWith($data['to'], 'T') && Wallet::validate($data['to']), ResponseStatus::BAD_REQUEST->value, 'Wallet is invalid');
         $user = $agent->users()->where('code', $data['code'])->first();
-        $withdrawAmount = $user->withdraws()->whereIn('status', [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value])->sum('amount');
+
         $fee = 1;
         $amount = $data['amount'];
-        $deductibleAmount  = $amount + $withdrawAmount;
+        $deductibleAmount  = $amount + $user->withdrawingAmount();
 
         if ($user->balance < $deductibleAmount) abort(ResponseStatus::BAD_REQUEST->value, 'User has not enough balance');
 

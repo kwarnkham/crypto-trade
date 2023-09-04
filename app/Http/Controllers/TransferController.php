@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ResponseStatus;
+use App\Enums\WithdrawStatus;
 use App\Models\Agent;
 use App\Models\Transfer;
 use App\Models\User;
-use App\Services\Tron;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -24,7 +24,11 @@ class TransferController extends Controller
         ]);
 
         $from = User::where('code', $data['from'])->first();
-        if ($data['amount'] > $from->balance) abort(ResponseStatus::BAD_REQUEST->value, 'User does not have enough balance');
+        if (
+            $data['amount'] >
+            $from->balance - $from->withdrawingAmount()
+        )
+            abort(ResponseStatus::BAD_REQUEST->value, 'User does not have enough balance');
         $transfer = DB::transaction(function () use ($data, $from) {
             $to = User::where('code', $data['to'])->first();
             $fee = 1;
@@ -38,6 +42,8 @@ class TransferController extends Controller
             $from->update(['balance' => $from->balance - $data['amount']]);
 
             $to->update(['balance' => $to->balance + $data['amount'] - $fee]);
+
+            $transfer->charge()->create(['amount' => $fee]);
 
             return $transfer;
         });
