@@ -53,4 +53,10 @@ class TransferController extends Controller
             'transfer' => $transfer
         ]);
     }
+
+    public function index(Request $request)
+    {
+        $query = Transfer::query()->with(['user', 'recipient'])->latest('id');
+        return response()->json($query->paginate($request->per_page ?? 10));
+    }
 }

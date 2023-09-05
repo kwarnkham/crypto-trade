@@ -54,6 +54,10 @@ Route::controller(TransactionController::class)->prefix('/transactions')->group(
 Route::controller(TransferController::class)->prefix('/transfers')->group(function () {
     Route::middleware(['agent'])->prefix('/agent')->group(function () {
         Route::post('', 'store');
+        Route::get('', 'index');
+    });
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('', 'index');
     });
 });
 
