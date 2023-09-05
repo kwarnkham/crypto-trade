@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\DepositStatus;
 use App\Enums\WithdrawStatus;
+use App\Events\WalletUpdated;
 use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -166,6 +167,8 @@ class Wallet extends Model
                         'withdrawable_at' => Carbon::createFromTimestamp($unstake->unfreeze_expire_time / 1000)
                     ]);
             });
+
+            WalletUpdated::dispatch($this->load(['unstakes']));
 
             return $this;
         });
