@@ -2,10 +2,6 @@
 
 namespace App\Console;
 
-use App\Enums\DepositStatus;
-use App\Models\Transaction;
-use App\Models\Wallet;
-use App\Services\Tron;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
