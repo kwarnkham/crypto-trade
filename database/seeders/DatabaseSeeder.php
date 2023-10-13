@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Agent;
 use App\Models\Wallet;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\App;
@@ -36,10 +37,9 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-
-        DB::table('agents')->insert([
+        Agent::create([
             'name' => 'agent',
-            'key' => bcrypt('aGqFAEV84uk1V4SvSP8IHcPxkOA5FMNv19XGl8cYztoG2I7ngGNErJhsaxNh74k9'),
+            'key' => 'aGqFAEV84uk1V4SvSP8IHcPxkOA5FMNv19XGl8cYztoG2I7ngGNErJhsaxNh74k9',
             'ip' => '*'
         ]);
 
