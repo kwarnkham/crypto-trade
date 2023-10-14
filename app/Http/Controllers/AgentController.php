@@ -12,12 +12,12 @@ class AgentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'=> ['required', 'unique:agents,name']
+            'name' => ['required', 'unique:agents,name']
         ]);
 
         [$agent, $key] = Agent::make($request->name);
 
-        return response()->json(['agent'=>$agent, 'key'=>$key]);
+        return response()->json(['agent' => $agent, 'key' => $key]);
     }
 
     public function index(Request $request)
@@ -44,9 +44,9 @@ class AgentController extends Controller
     public function update(Request $request, Agent $agent)
     {
         $data = $request->validate([
-            'ip'=> ['exclude_if:ip,*','ip', 'required'],
-            'name'=> ['required', Rule::unique('agents', 'name')->ignoreModel($agent)],
-            'remark'=> ['']
+            'ip' => ['ip', 'required'],
+            'name' => ['required', Rule::unique('agents', 'name')->ignoreModel($agent)],
+            'remark' => ['']
         ]);
 
         $data['ip'] = $request->ip;

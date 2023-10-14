@@ -39,7 +39,7 @@ namespace App\Models{
  *
  * @property int $id
  * @property string $name
- * @property string $key
+ * @property mixed $key
  * @property string|null $remark
  * @property int $status
  * @property string $ip
@@ -64,6 +64,30 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * App\Models\Charge
+ *
+ * @property int $id
+ * @property int $amount
+ * @property int $chargeable_id
+ * @property string $chargeable_type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $chargeable
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge whereChargeableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge whereChargeableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge whereUpdatedAt($value)
+ */
+	class Charge extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\Deposit
  *
  * @property int $id
@@ -72,6 +96,7 @@ namespace App\Models{
  * @property int|null $transaction_id
  * @property int $amount
  * @property int $status
+ * @property int $attempts
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User $user
@@ -80,6 +105,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit query()
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereAttempts($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereStatus($value)
@@ -128,6 +154,60 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * App\Models\Transfer
+ *
+ * @property int $id
+ * @property int $user_id
+ * @property int $recipient_id
+ * @property float $amount
+ * @property float $fee
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Charge|null $charge
+ * @property-read \App\Models\User $recipient
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereFee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereRecipientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereUserId($value)
+ */
+	class Transfer extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Unstake
+ *
+ * @property int $id
+ * @property int $wallet_id
+ * @property string $type
+ * @property int $amount
+ * @property \Illuminate\Support\Carbon $withdrawable_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Wallet $wallet
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake whereWalletId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Unstake whereWithdrawableAt($value)
+ */
+	class Unstake extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\User
  *
  * @property int $id
@@ -163,7 +243,13 @@ namespace App\Models{
  *
  * @property int $id
  * @property int $balance
- * @property string|null $activated_at
+ * @property int $trx
+ * @property int $staked_for_energy
+ * @property int $staked_for_bandwidth
+ * @property mixed|null $resource
+ * @property int|null $energy
+ * @property int|null $bandwidth
+ * @property \Illuminate\Support\Carbon|null $activated_at
  * @property string $base58_check
  * @property string $public_key
  * @property string $hex_address
@@ -173,18 +259,28 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Deposit> $deposits
  * @property-read int|null $deposits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Unstake> $unstakes
+ * @property-read int|null $unstakes_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Withdraw> $withdraws
+ * @property-read int|null $withdraws_count
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet query()
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereActivatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereBalance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereBandwidth($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereBase58Check($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereBase64($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereEnergy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereHexAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet wherePrivateKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet wherePublicKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereResource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereStakedForBandwidth($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereStakedForEnergy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereTrx($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet whereUpdatedAt($value)
  */
 	class Wallet extends \Eloquent {}
@@ -196,28 +292,34 @@ namespace App\Models{
  *
  * @property int $id
  * @property int $user_id
- * @property string|null $from
+ * @property int|null $wallet_id
  * @property string $to
  * @property float $amount
  * @property float|null $fee
  * @property int $status
+ * @property string|null $txid
  * @property int|null $transaction_id
+ * @property int $attempts
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Charge|null $charge
  * @property-read \App\Models\User $user
+ * @property-read \App\Models\Wallet|null $wallet
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw query()
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereAttempts($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereFee($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereFrom($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereTo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereTxid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereWalletId($value)
  */
 	class Withdraw extends \Eloquent {}
 }
