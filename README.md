@@ -105,6 +105,7 @@ curl --location --request POST 'http://127.0.0.1:8000/api/deposits/agent/3/confi
 4. After trying 5 times and cannot confirm, the deposit will be come exipred
 5. Only after the deposit is 'canceled', 'completed' or 'expired', the user can request a new deposit
 6. You can only confirm a pending deposit
+7. When the depoist is confirmed you can give me a callback url to notify you the updated deposit
 
 > Deposit Status
 
@@ -116,5 +117,48 @@ enum DepositStatus: int
     case COMPLETED = 3;
     case CANCELED = 4;
     case EXPIRED = 5;
+}
+```
+
+## Cancel a pending deposit
+
+> A request can be sent to cancel a pending deposit
+
+-   **POST** (http://127.0.0.1:8000/api/deposits/agent/{deposit_id}/cancel)
+-   **URL param**
+    1. deposit_id
+
+```
+curl --location --request POST 'http://127.0.0.1:8000/api/deposits/agent/7/cancel' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJmVHN2SXNNNDJKQjBJS2d4RTFyYUxoUmRxN3BYZFdJMHJVR1RzbEp3b0xOZTNpa3VjeXN2Q1h6Y2VLZHZ5SlJCIn0.bm75Ryp8LnqAa1ue_CHlhmOL-xCYnhuWgeAYv8xGMEs' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+-   **depoist** > The canceled deposit instance
+-   **user** > The user instance relating to the deposit
+-   **wallet** > The wallet instance relating to the deposit
+
+```
+{
+    "deposit": {
+        "id": 7,
+        "user_id": 1,
+        "wallet_id": 1,
+        "transaction_id": null,
+        "amount": 1,
+        "status": 4,
+        "attempts": 0,
+        "created_at": "2023-10-16T10:06:19.000000Z",
+        "updated_at": "2023-10-16T10:06:31.000000Z",
+        "user": {
+
+        },
+        "wallet": {
+
+        }
+    }
 }
 ```
