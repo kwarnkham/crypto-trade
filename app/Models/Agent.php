@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Cache;
 
 class Agent extends Model
 {
@@ -57,7 +58,7 @@ class Agent extends Model
         return JWT::encode(['key' => $this->key], $this->key, 'HS256', null, ['alg' => 'HS256', 'typ' => 'JWT']);
     }
 
-    public static function make($name, $ip = "*", $remark = null): array
+    public static function make($name, $ip = "0.0.0.0", $remark = null): array
     {
         $key = Str::random(64);
         $agent = Agent::create([
@@ -85,5 +86,10 @@ class Agent extends Model
         $key = Str::random(64);
         $this->update(['key' => $key]);
         return $key;
+    }
+
+    public static function cacheIp()
+    {
+        return Cache::put('allowed_origins', Agent::query()->get(['id', 'ip'])->toArray());
     }
 }
