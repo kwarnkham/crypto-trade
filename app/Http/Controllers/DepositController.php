@@ -52,7 +52,11 @@ class DepositController extends Controller
 
     public function index(Request $request)
     {
-        $query = Deposit::query()->latest('id')->with(['wallet', 'user.agent']);
+        $agent = Agent::current($request);
+        //filter it with status
+        $query = Deposit::query()
+            ->whereRelation('user', 'agent_id', '=', $agent->id)
+            ->latest('id')->with(['wallet', 'user.agent']);
         return response()->json($query->paginate($request->per_page ?? 10));
     }
 
@@ -73,7 +77,6 @@ class DepositController extends Controller
 
     public function cancel(Deposit $deposit)
     {
-
         if ($deposit->status != DepositStatus::PENDING->value) abort(ResponseStatus::BAD_REQUEST->value, 'Can only cancel a pending deposit');
 
         $deposit->update(['status' => DepositStatus::CANCELED->value]);
