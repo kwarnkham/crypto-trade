@@ -162,3 +162,72 @@ curl --location --request POST 'http://127.0.0.1:8000/api/deposits/agent/7/cance
     }
 }
 ```
+
+## List deposits
+
+> A request can be sent to list all deposits
+
+-   **POST** (http://127.0.0.1:8000/api/deposits/agent/cancel)
+-   **Filter param**
+    1. status, either one of these [1,2,3,4,5]
+
+```
+curl --location 'http://127.0.0.1:8000/api/deposits/agent?status=1' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJmVHN2SXNNNDJKQjBJS2d4RTFyYUxoUmRxN3BYZFdJMHJVR1RzbEp3b0xOZTNpa3VjeXN2Q1h6Y2VLZHZ5SlJCIn0.bm75Ryp8LnqAa1ue_CHlhmOL-xCYnhuWgeAYv8xGMEs' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "current_page": 1,
+    "data": [
+        {
+            "id": 7,
+            "user_id": 1,
+            "wallet_id": 1,
+            "transaction_id": null,
+            "amount": 1,
+            "status": 4,
+            "attempts": 0,
+            "created_at": "2023-10-16T10:06:19.000000Z",
+            "updated_at": "2023-10-16T10:06:31.000000Z",
+            "wallet": {
+
+            },
+            "user": {
+
+            }
+        }
+    ],
+    "first_page_url": "http://127.0.0.1:8000/api/deposits/agent?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "http://127.0.0.1:8000/api/deposits/agent?page=1",
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "http://127.0.0.1:8000/api/deposits/agent?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "next_page_url": null,
+    "path": "http://127.0.0.1:8000/api/deposits/agent",
+    "per_page": 10,
+    "prev_page_url": null,
+    "to": 7,
+    "total": 7
+}
+```
