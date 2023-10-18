@@ -22,7 +22,10 @@ class AgentController extends Controller
 
     public function index(Request $request)
     {
-        $query = Agent::query();
+        $filters = $request->validate([
+            'status' => ['sometimes']
+        ]);
+        $query = Agent::query()->filter($filters);
         return response()->json($query->paginate($request->per_page ?? 10));
     }
 

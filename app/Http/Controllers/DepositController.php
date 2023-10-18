@@ -52,9 +52,12 @@ class DepositController extends Controller
 
     public function index(Request $request)
     {
+        $filters = $request->validate([
+            'status' => ['sometimes']
+        ]);
         $agent = Agent::current($request);
 
-        $query = Deposit::query()->latest('id')->with(['wallet', 'user.agent']);
+        $query = Deposit::query()->filter($filters)->latest('id')->with(['wallet', 'user.agent']);
         if ($agent) $query->whereRelation('user', 'agent_id', '=', $agent->id);
         return response()->json($query->paginate($request->per_page ?? 10));
     }

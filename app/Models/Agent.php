@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AgentStatus;
+use App\Traits\StatusFilterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
 
 class Agent extends Model
 {
-    use HasFactory;
+    use HasFactory, StatusFilterable;
 
     protected $guarded = ['id'];
     protected $hidden = ['key'];
