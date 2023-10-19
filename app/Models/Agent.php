@@ -35,7 +35,7 @@ class Agent extends Model
 
         $agent = Agent::where(['name' => $name, 'status' => AgentStatus::NORMAL->value])->first();
         if (!$agent) {
-            return 'No valid agent fournd';
+            return 'No valid agent found';
         }
 
         if ($agent->ip != $ip && $agent->ip != "*") {

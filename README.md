@@ -167,7 +167,7 @@ curl --location --request POST 'http://127.0.0.1:8000/api/deposits/agent/7/cance
 
 > A request can be sent to list all deposits
 
--   **POST** (http://127.0.0.1:8000/api/deposits/agent/cancel)
+-   **GET** (http://127.0.0.1:8000/api/deposits/agent)
 -   **Filter param**
     1. status, either one of these [1,2,3,4,5]
 
@@ -229,5 +229,137 @@ curl --location 'http://127.0.0.1:8000/api/deposits/agent?status=1' \
     "prev_page_url": null,
     "to": 7,
     "total": 7
+}
+```
+
+# Withdraw
+
+## Create a new withdraw
+
+> User can withdraw TRC-20 USDT to the platform
+
+-   **POST** (http://127.0.0.1:8000/api/withdraws/agent)
+-   **Data**
+    1. code (Unique user's id from agent platform) [String || Integer]
+    2. to (Wallet's address) [String]
+    3. amount (Withdraw amount) [integer]
+
+```
+curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJHRkJ4YjhzZnV3eXA3WlNZaTU1NVVHb0FSVVp6UkhuQnRXTm1FSkVGTGVXNUFvVWhWMzk0VTJqTld2S0t4b2xGIn0.R-fmd_RwWReRScoTUQcxfZUq6MF_-Daj4Pkg0hmtaWk' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--form 'code="1"' \
+--form 'to="TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y"' \
+--form 'amount="2"'
+```
+
+> Response
+
+-   **withdraw** > The created withdraw instance. Please save it because you will need it for another request
+
+```
+{
+    "withdraw": {
+        "user_id": 1,
+        "to": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+        "amount": 2,
+        "fee": 1,
+        "updated_at": "2023-10-19T07:04:19.000000Z",
+        "created_at": "2023-10-19T07:04:19.000000Z",
+        "id": 2
+    }
+}
+```
+
+> Note
+
+1. Only wallet address is valid, the withdraw can be continued
+2. The withdraw amount must be greather than balance amount
+
+
+## List Withdraw
+
+> A request can be sent to list all withdraw
+
+-   **GET** (http://127.0.0.1:8000/api/withdraws/agent)
+-   **Filter param**
+    1. status, either one of these [1,2,3,4]
+
+```
+curl --location 'http://127.0.0.1:8000/api/withdraws/agent?status=1' \
+--header 'Accept: application/json' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJHRkJ4YjhzZnV3eXA3WlNZaTU1NVVHb0FSVVp6UkhuQnRXTm1FSkVGTGVXNUFvVWhWMzk0VTJqTld2S0t4b2xGIn0.R-fmd_RwWReRScoTUQcxfZUq6MF_-Daj4Pkg0hmtaWk'
+```
+
+> Response
+
+```
+{
+    "current_page": 1,
+    "data": [
+        {
+            "id": 1,
+            "user_id": 1,
+            "wallet_id": null,
+            "to": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "amount": 2,
+            "fee": 1,
+            "status": 1,
+            "txid": null,
+            "transaction_id": null,
+            "attempts": 0,
+            "created_at": "2023-10-19T07:03:46.000000Z",
+            "updated_at": "2023-10-19T07:03:46.000000Z",
+            "user": {
+                "id": 1,
+                "code": "1",
+                "name": "agent",
+                "balance": 4,
+                "agent_id": 1,
+                "created_at": "2023-10-19T04:49:59.000000Z",
+                "updated_at": "2023-10-19T05:20:56.000000Z",
+                "agent": {
+                    "id": 1,
+                    "name": "agent",
+                    "remark": null,
+                    "status": 1,
+                    "ip": "103.213.30.137",
+                    "created_at": null,
+                    "updated_at": "2023-10-19T03:42:36.000000Z"
+                }
+            },
+            "wallet": null
+        }
+    ],
+    "first_page_url": "http://127.0.0.1:8000/api/withdraws/agent?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "http://127.0.0.1:8000/api/withdraws/agent?page=1",
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "http://127.0.0.1:8000/api/withdraws/agent?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "next_page_url": null,
+    "path": "http://127.0.0.1:8000/api/withdraws/agent",
+    "per_page": 10,
+    "prev_page_url": null,
+    "to": 2,
+    "total": 2
 }
 ```
