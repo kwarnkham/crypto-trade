@@ -15,5 +15,13 @@ trait StatusFilterable
                 explode(',', $status)
             )
         );
+
+        $query->when(
+            $filters['name'] ?? null,
+            fn (Builder $query, $name) => $query->where(
+                'name',
+                $name
+            )
+        );
     }
 }

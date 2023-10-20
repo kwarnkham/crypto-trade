@@ -23,7 +23,8 @@ class AgentController extends Controller
     public function index(Request $request)
     {
         $filters = $request->validate([
-            'status' => ['sometimes']
+            'status' => ['sometimes', 'required'],
+            'name' => ['sometimes', 'required']
         ]);
         $query = Agent::query()->filter($filters);
         return response()->json($query->paginate($request->per_page ?? 10));
