@@ -6,7 +6,7 @@ use App\Enums\ResponseStatus;
 use App\Enums\WithdrawStatus;
 use App\Jobs\ProcessConfirmWithdraw;
 use App\Services\Tron;
-use App\Traits\StatusFilterable;
+use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class Withdraw extends Model
 {
-    use HasFactory, StatusFilterable;
+    use HasFactory, Filterable;
 
     protected $guarded = [''];
 
