@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class Agent extends Model
 {
@@ -29,16 +30,21 @@ class Agent extends Model
         $name = $request->header('x-agent');
         $jwt = $request->header('x-api-key');
         $ip = $request->ip();
+
+
         if (!$name || !$jwt || !$ip) {
             return 'Cannot find key and agent';
         }
 
         $agent = Agent::where(['name' => $name, 'status' => AgentStatus::NORMAL->value])->first();
+
         if (!$agent) {
             return 'No valid agent fournd';
         }
 
         if ($agent->ip != $ip && $agent->ip != "*") {
+            Log::info("Request IP is " . $ip);
+            Log::info("Whitelisted IP is" . $agent->ip);
             return 'Invalid IP';
         }
 
