@@ -28,7 +28,7 @@ Route::controller(DepositController::class)->prefix('/deposits')->group(function
         Route::post('', 'store');
         Route::get('', 'index');
     });
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::get('', 'index');
     });
 });
@@ -40,13 +40,13 @@ Route::controller(WithdrawController::class)->prefix('/withdraws')->group(functi
         Route::post('{withdraw}/confirm', 'confirm');
         Route::post('{withdraw}/cancel', 'cancel');
     });
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::get('', 'index');
     });
 });
 
 Route::controller(TransactionController::class)->prefix('/transactions')->group(function () {
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::get('', 'index');
     });
 });
@@ -56,7 +56,7 @@ Route::controller(TransferController::class)->prefix('/transfers')->group(functi
         Route::post('', 'store');
         Route::get('', 'index');
     });
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::get('', 'index');
     });
 });
@@ -64,13 +64,13 @@ Route::controller(TransferController::class)->prefix('/transfers')->group(functi
 
 Route::controller(AuthController::class)->prefix('/admin')->group(function () {
     Route::post('login', 'login');
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::post('change-password', 'changePassword');
         Route::post('logout', 'logout');
     });
 });
 
-Route::controller(WalletController::class)->middleware(['auth:sanctum'])->prefix('/wallets')->group(function () {
+Route::controller(WalletController::class)->middleware(['auth:sanctum', 'admin'])->prefix('/wallets')->group(function () {
     Route::post('', 'store');
     Route::get('', 'index');
     Route::post('{wallet}/activate', 'activate');
