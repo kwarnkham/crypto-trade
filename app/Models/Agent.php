@@ -44,7 +44,7 @@ class Agent extends Model
 
         if ($agent->ip != $ip && $agent->ip != "*") {
             Log::info("Request IP is " . $ip);
-            Log::info("Whitelisted IP is" . $agent->ip);
+            Log::info("Whitelisted IP is " . $agent->ip);
             return 'Invalid IP';
         }
 
