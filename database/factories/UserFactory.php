@@ -19,6 +19,7 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'code'  => rand(1,10)
         ];
     }
 
@@ -29,6 +30,9 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+            'name' => fake()->unique()->lastName(),
+            'code'  =>  rand(1,10),
+
         ]);
     }
 }
