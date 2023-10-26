@@ -102,21 +102,19 @@ curl --location --request POST 'http://127.0.0.1:8000/api/deposits/agent/3/confi
 1. After confirming the depoist, the system will do check up with the network to confirm if the user really sent the specific amount USDT
 2. The check up will happen every minute
 3. The check up will be performed up to 5 times
-4. After trying 5 times and cannot confirm, the deposit will be come exipred
-5. Only after the deposit is 'canceled', 'completed' or 'expired', the user can request a new deposit
-6. You can only confirm a pending deposit
-7. When the depoist is confirmed you can give me a callback url to notify you the updated deposit
+4. After trying 5 times and cannot confirm, the deposit will become canceled
+5. You can only confirm a pending withdraw
+6. When the withdraw is confirmed you can give me a callback url to notify you the updated withdraw
 
 > Deposit Status
 
 ```
-enum DepositStatus: int
+enum WithdrawStatus: int
 {
     case PENDING = 1;
     case CONFIRMED = 2;
     case COMPLETED = 3;
     case CANCELED = 4;
-    case EXPIRED = 5;
 }
 ```
 
@@ -276,8 +274,8 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
 > Note
 
 1. Only wallet address is valid, the withdraw can be continued
-2. The withdraw amount must be greather than balance amount
-
+2. The withdraw amount cannot be greather than balance amount
+3. The withdraw amount must be greater than the withdraw fee
 
 ## List Withdraw
 
@@ -363,6 +361,7 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent?status=1' \
     "total": 2
 }
 ```
+
 ## Confirm the created withdraw
 
 > After sending USDT to the wallet responded from **Create a new withdraw** api, you must request this api to confirm the withdraw
@@ -465,7 +464,7 @@ curl --location --request POST 'http://127.0.0.1:8000/api/withdraws/agent/1/canc
 
 ## Create a new transfer
 
-> User can transfer TRC-20 USDT to the platform
+> User can transfer TRC-20 USDT to each other in the platform
 
 -   **POST** (http://127.0.0.1:8000/api/transfers/agent)
 -   **Data**
@@ -504,10 +503,9 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
 
 > Note
 
-1. From and to user id must be valid 
+1. From and to user id must be valid
 2. Only users from same agent can transfer
 3. The transfer amount must be greather than balance amount of from user
-
 
 ## List Transfer
 
@@ -585,197 +583,5 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
     "prev_page_url": null,
     "to": 1,
     "total": 1
-}
-```
-
-# Agent
-
-## Create a new agent
-
--   **POST** (http://127.0.0.1:8000/api/agents)
--   **Data**
-    1. name (Unique agent name) [String || Integer]
-    
-```
-curl --location 'http://127.0.0.1:8000/api/agents' \
---header 'Accept: application/json' \
---header 'Content-Type: application/x-www-form-urlencoded' \
---header 'x-agent: agent' \
---header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJHRkJ4YjhzZnV3eXA3WlNZaTU1NVVHb0FSVVp6UkhuQnRXTm1FSkVGTGVXNUFvVWhWMzk0VTJqTld2S0t4b2xGIn0.R-fmd_RwWReRScoTUQcxfZUq6MF_-Daj4Pkg0hmtaWk' \
---header 'Authorization: Bearer 3|hhURpwuS1mqRl4uvud7NDUBhyeo3uzC0IhHPkCq9' \
---form 'name="Test Agent"'
-
-> Response
-
--   **agent** > The created agent instance
--   **key**   > Agent key of created agent
-
-```
-{
-    "agent": {
-        "name": "Test Agent",
-        "ip": "0.0.0.0",
-        "remark": null,
-        "status": 1,
-        "updated_at": "2023-10-24T04:52:12.000000Z",
-        "created_at": "2023-10-24T04:52:12.000000Z",
-        "id": 3
-    },
-    "key": "tf04ZJtCux73JSgGgVoh9ZPm7tiuYxp0FiI506mq13ELHcMikzBV7Svcn6JwahoN"
-}
-
-
-## List Agent
-
-> A request can be sent to list all transfer
-
--   **GET** (http://127.0.0.1:8000/api/agents)
--   **Filter param**
-    1. status, either one of these [1,2]
-    2. name of the agent
-
-```
-curl --location 'http://127.0.0.1:8000/api/agents?status=1' \
---header 'Accept: application/json' \
---header 'x-agent: agent' \
---header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJHRkJ4YjhzZnV3eXA3WlNZaTU1NVVHb0FSVVp6UkhuQnRXTm1FSkVGTGVXNUFvVWhWMzk0VTJqTld2S0t4b2xGIn0.R-fmd_RwWReRScoTUQcxfZUq6MF_-Daj4Pkg0hmtaWk' \
---header 'Authorization: Bearer 5|MRS6EpEqjGo8OsKN9lyV0567WaGqXhTd9mIJhLML'
-```
-
-> Response
-
-```
-{
-    "current_page": 1,
-    "data": [
-        {
-            "id": 1,
-            "name": "agent",
-            "remark": null,
-            "status": 1,
-            "ip": "103.213.30.137",
-            "created_at": null,
-            "updated_at": "2023-10-19T03:42:36.000000Z"
-        },
-        {
-            "id": 2,
-            "name": "Agent B",
-            "remark": null,
-            "status": 1,
-            "ip": "103.213.30.16",
-            "created_at": "2023-10-24T04:11:46.000000Z",
-            "updated_at": "2023-10-24T04:11:46.000000Z"
-        }
-    ],
-    "first_page_url": "http://127.0.0.1:8000/api/agents?page=1",
-    "from": 1,
-    "last_page": 1,
-    "last_page_url": "http://127.0.0.1:8000/api/agents?page=1",
-    "links": [
-        {
-            "url": null,
-            "label": "&laquo; Previous",
-            "active": false
-        },
-        {
-            "url": "http://127.0.0.1:8000/api/agents?page=1",
-            "label": "1",
-            "active": true
-        },
-        {
-            "url": null,
-            "label": "Next &raquo;",
-            "active": false
-        }
-    ],
-    "next_page_url": null,
-    "path": "http://127.0.0.1:8000/api/agents",
-    "per_page": 10,
-    "prev_page_url": null,
-    "to": 2,
-    "total": 2
-}
-```
-
-## Restrict agent status
-
--   **POST** (http://127.0.0.1:8000/api/agents/{agent_id}/toggle-status)
--   **URL param**
-    1. agent_id
-
-```
-curl --location --request POST 'http://127.0.0.1:8000/api/agents/1/toggle-status' \
---header 'Accept: application/json' \
---header 'x-agent: agent' \
---header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJHRkJ4YjhzZnV3eXA3WlNZaTU1NVVHb0FSVVp6UkhuQnRXTm1FSkVGTGVXNUFvVWhWMzk0VTJqTld2S0t4b2xGIn0.R-fmd_RwWReRScoTUQcxfZUq6MF_-Daj4Pkg0hmtaWk' \
---header 'Authorization: Bearer 5|MRS6EpEqjGo8OsKN9lyV0567WaGqXhTd9mIJhLML'
-```
-
-> Response
-
--   **agent** > The changed restriction agent instance
-
-```
-{
-    "agent": {
-        "id": 1,
-        "name": "agent",
-        "remark": null,
-        "status": 2,
-        "ip": "103.213.30.137",
-        "created_at": null,
-        "updated_at": "2023-10-24T05:01:45.000000Z"
-    }
-}
-```
-
-> Note
-
-1. If the agent original status is normal, the status will change to restricted status otherwise restricted status to normal status.
-
-> Agent Status
-
-```
-enum AgentStatus: int
-{
-    case NORMAL = 1;
-    case RESTRICTED = 2;
-}
-```
-
-## Update agent data
-
--   **PUT** (http://127.0.0.1:8000/api/agents/{agent_id})
--   **URL param**
-    1. agent_id
--   **Data**
-    1. ip (Agent ip) [String]
-    2. name (Agent name) [String || Integer]
-    3. remark (Remark for agent) [String]
-
-```
-curl --location --request PUT 'http://127.0.0.1:8000/api/agents/1?name=Test%20Admin&ip=103.213.30.137&remark=Change%20name' \
---header 'Accept: application/json' \
---header 'Content-Type: application/x-www-form-urlencoded' \
---header 'x-agent: agent' \
---header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJHRkJ4YjhzZnV3eXA3WlNZaTU1NVVHb0FSVVp6UkhuQnRXTm1FSkVGTGVXNUFvVWhWMzk0VTJqTld2S0t4b2xGIn0.R-fmd_RwWReRScoTUQcxfZUq6MF_-Daj4Pkg0hmtaWk' \
---header 'Authorization: Bearer 5|MRS6EpEqjGo8OsKN9lyV0567WaGqXhTd9mIJhLML'
-```
-
-> Response
-
--   **agent** > The updated data of agent instance
-
-```
-{
-    "agent": {
-        "id": 1,
-        "name": "Test Admin",
-        "remark": "Change name",
-        "status": 2,
-        "ip": "103.213.30.137",
-        "created_at": null,
-        "updated_at": "2023-10-24T05:16:39.000000Z"
-    }
 }
 ```
