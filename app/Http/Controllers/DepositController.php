@@ -30,7 +30,7 @@ class DepositController extends Controller
 
         $wallet = Wallet::findAvailable();
 
-        if ($wallet == null) return response()->json(['wallet' => '']);
+        if ($wallet == null) abort(ResponseStatus::BAD_REQUEST->value, 'There is no avaliable wallet to be complete deposit.');
 
         if ($user == null)
             $user = User::create([
