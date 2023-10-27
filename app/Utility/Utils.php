@@ -2,6 +2,7 @@
 
 namespace App\Utility;
 
+use App\Utility\Keccak;
 use Exception;
 use phpseclib3\Math\BigInteger;
 
@@ -28,8 +29,8 @@ class Utils
      * toHex
      * Encoding string or integer or numeric string(is not zero prefixed) or big number to hex.
      *
-     * @param  string|int|BigInteger  $value
-     * @param  bool  $isPrefix
+     * @param string|int|BigInteger $value
+     * @param bool $isPrefix
      * @return string
      */
     public static function toHex($value, $isPrefix = false)
@@ -49,9 +50,8 @@ class Utils
             throw new Exception('The value to toHex function is not support.');
         }
         if ($isPrefix) {
-            return '0x'.$hex;
+            return '0x' . $hex;
         }
-
         return $hex;
     }
 
@@ -63,14 +63,13 @@ class Utils
      */
     public static function hexToBin($value)
     {
-        if (! is_string($value)) {
+        if (!is_string($value)) {
             throw new Exception('The value to hexToBin function must be string.');
         }
         if (self::isZeroPrefixed($value)) {
             $count = 1;
             $value = str_replace('0x', '', $value, $count);
         }
-
         return pack('H*', $value);
     }
 
@@ -82,27 +81,24 @@ class Utils
      */
     public static function isZeroPrefixed($value)
     {
-        if (! is_string($value)) {
+        if (!is_string($value)) {
             throw new Exception('The value to isZeroPrefixed function must be string.');
         }
-
-        return strpos($value, '0x') === 0;
+        return (strpos($value, '0x') === 0);
     }
 
     /**
      * stripZero
      *
-     * @param  string  $value
+     * @param string $value
      * @return string
      */
     public static function stripZero($value)
     {
         if (self::isZeroPrefixed($value)) {
             $count = 1;
-
             return str_replace('0x', '', $value, $count);
         }
-
         return $value;
     }
 
@@ -114,22 +110,21 @@ class Utils
      */
     public static function isNegative($value)
     {
-        if (! is_string($value)) {
+        if (!is_string($value)) {
             throw new Exception('The value to isNegative function must be string.');
         }
-
-        return strpos($value, '-') === 0;
+        return (strpos($value, '-') === 0);
     }
 
     /**
      * isAddress
      *
-     * @param  string  $value
+     * @param string $value
      * @return bool
      */
     public static function isAddress($value)
     {
-        if (! is_string($value)) {
+        if (!is_string($value)) {
             throw new Exception('The value to isAddress function must be string.');
         }
         if (preg_match('/^(0x|0X)?[a-f0-9A-F]{40}$/', $value) !== 1) {
@@ -137,19 +132,18 @@ class Utils
         } elseif (preg_match('/^(0x|0X)?[a-f0-9]{40}$/', $value) === 1 || preg_match('/^(0x|0X)?[A-F0-9]{40}$/', $value) === 1) {
             return true;
         }
-
         return self::isAddressChecksum($value);
     }
 
     /**
      * isAddressChecksum
      *
-     * @param  string  $value
+     * @param string $value
      * @return bool
      */
     public static function isAddressChecksum($value)
     {
-        if (! is_string($value)) {
+        if (!is_string($value)) {
             throw new Exception('The value to isAddressChecksum function must be string.');
         }
         $value = self::stripZero($value);
@@ -163,31 +157,30 @@ class Utils
                 return false;
             }
         }
-
         return true;
     }
 
     /**
      * isHex
      *
-     * @param  string  $value
+     * @param string $value
      * @return bool
      */
     public static function isHex($value)
     {
-        return is_string($value) && preg_match('/^(0x)?[a-f0-9A-F]*$/', $value) === 1;
+        return (is_string($value) && preg_match('/^(0x)?[a-f0-9A-F]*$/', $value) === 1);
     }
 
     /**
      * sha3
      * keccak256
      *
-     * @param  string  $value
+     * @param string $value
      * @return string
      */
     public static function sha3($value)
     {
-        if (! is_string($value)) {
+        if (!is_string($value)) {
             throw new Exception('The value to sha3 function must be string.');
         }
         if (strpos($value, '0x') === 0) {
@@ -198,7 +191,6 @@ class Utils
         if ($hash === self::SHA3_NULL_HASH) {
             return null;
         }
-
         return $hash;
     }
 
@@ -206,7 +198,7 @@ class Utils
      * toBn
      * Change number or number string to BigInteger.
      *
-     * @param  BigInteger|string|int  $number
+     * @param BigInteger|string|int $number
      * @return array|BigInteger
      */
     public static function toBn($number)
@@ -236,7 +228,7 @@ class Utils
                     new BigInteger($whole),
                     new BigInteger($fraction),
                     strlen($comps[1]),
-                    isset($negative1) ? $negative1 : false,
+                    isset($negative1) ? $negative1 : false
                 ];
             } else {
                 $bn = new BigInteger($number);
@@ -266,13 +258,13 @@ class Utils
         } else {
             throw new Exception('toBn number must be BigInteger, string or int.');
         }
-
         return $bn;
     }
 
     /**
      * 根据精度展示资产
-     *
+     * @param $number
+     * @param int $decimals
      * @return string
      */
     public static function toDisplayAmount($number, int $decimals)
@@ -286,10 +278,10 @@ class Utils
 
     public static function divideDisplay(array $divResult, int $decimals)
     {
-        [$bnq, $bnr] = $divResult;
+        list($bnq, $bnr) = $divResult;
         $ret = "$bnq->value";
         if ($bnr->value > 0) {
-            $ret .= '.'.rtrim(sprintf("%0{$decimals}d", $bnr->value), '0');
+            $ret .= '.' . rtrim(sprintf("%0{$decimals}d", $bnr->value), '0');
         }
 
         return $ret;
@@ -302,7 +294,7 @@ class Utils
 
         if (is_array($bn)) {
             // fraction number
-            [$whole, $fraction, $fractionLength, $negative1] = $bn;
+            list($whole, $fraction, $fractionLength, $negative1) = $bn;
 
             $whole = $whole->multiply($bnt);
 
@@ -321,7 +313,6 @@ class Utils
             if ($negative1 !== false) {
                 return $whole->add($fraction)->multiply($negative1);
             }
-
             return $whole->add($fraction);
         }
 

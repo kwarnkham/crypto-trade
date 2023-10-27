@@ -10,9 +10,7 @@ use Tests\TestCase;
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
-
     private $adminPassword;
-
     private $admin;
 
     public function setUp(): void
@@ -26,7 +24,7 @@ class AuthTest extends TestCase
     {
         $response = $this->postJson('api/admin/login', [
             'name' => $this->admin->name,
-            'password' => $this->adminPassword,
+            'password' => $this->adminPassword
         ]);
 
         $response->assertStatus(200);
@@ -41,16 +39,17 @@ class AuthTest extends TestCase
             'new_password_confirmation' => $updatedPassword,
         ]);
 
+
         $response->assertStatus(200);
 
         $this->postJson('api/admin/login', [
             'name' => $this->admin->name,
-            'password' => $this->adminPassword,
+            'password' => $this->adminPassword
         ])->assertStatus(401);
 
         $this->postJson('api/admin/login', [
             'name' => $this->admin->name,
-            'password' => $updatedPassword,
+            'password' => $updatedPassword
         ])->assertOk();
     }
 }

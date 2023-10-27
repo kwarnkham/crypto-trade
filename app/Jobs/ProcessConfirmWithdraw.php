@@ -7,6 +7,7 @@ use App\Models\Withdraw;
 use App\Services\Tron;
 use App\Utility\Conversion;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -32,14 +33,12 @@ class ProcessConfirmWithdraw implements ShouldQueue
         $maxAttempts = 5;
         $withdraw = Withdraw::find($this->withdrawId);
         $withdraw->increment('attempts');
-        if ($withdraw->status != WithdrawStatus::CONFIRMED->value) {
-            return;
-        }
+        if ($withdraw->status != WithdrawStatus::CONFIRMED->value) return;
 
         $response = Tron::getSolidityTransactionInfoById($this->txid);
         $receipt = $response->receipt ?? null;
 
-        if ($receipt != null && $receipt->result === 'SUCCESS') {
+        if ($receipt != null && $receipt->result === "SUCCESS") {
             $tx = [];
             $tx['id'] = $response->id;
             $tx['block_timestamp'] = $response->blockTimeStamp;
@@ -55,17 +54,14 @@ class ProcessConfirmWithdraw implements ShouldQueue
                     $result = $ret->contractRet ?? false;
                 }
 
-                if ($result === 'SUCCESS') {
+                if ($result === "SUCCESS") {
                     $withdraw->complete($tx);
-
                     return;
                 }
             }
         }
-        if ($withdraw->attempts < $maxAttempts) {
+        if ($withdraw->attempts < $maxAttempts)
             ProcessConfirmWithdraw::dispatch($this->txid, $this->withdrawId)->delay(now()->addMinute());
-        } else {
-            $withdraw->update(['status' => WithdrawStatus::CANCELED->value]);
-        }
+        else $withdraw->update(['status' => WithdrawStatus::CANCELED->value]);
     }
 }

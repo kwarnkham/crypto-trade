@@ -29,7 +29,6 @@ class WalletController extends Controller
             $wallet->update(['activated_at' => now()]);
             $wallet->updateBalance();
         }
-
         return response()->json(['wallet' => $wallet]);
     }
 
@@ -42,17 +41,15 @@ class WalletController extends Controller
     {
         $data = $request->validate([
             'type' => ['required', 'in:ENERGY,BANDWIDTH'],
-            'amount' => ['required', 'numeric', 'gt:0', 'integer', 'lte:'.($wallet->trx)],
+            'amount' => ['required', 'numeric', 'gt:0', 'integer', 'lte:' . ($wallet->trx)]
         ]);
 
-        $response = $wallet->freezeBalance($data['amount'], $data['type']);
+        $response =  $wallet->freezeBalance($data['amount'], $data['type']);
 
-        if (($response->result ?? false) != true) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
-        }
+        if (($response->result ?? false) != true) abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
 
         return response()->json([
-            'wallet' => $wallet->updateBalance()->load(['unstakes']),
+            'wallet' => $wallet->updateBalance()->load(['unstakes'])
         ]);
     }
 
@@ -65,42 +62,35 @@ class WalletController extends Controller
                 'numeric',
                 'gt:0',
                 'integer',
-                'lte:'.($request->type == 'ENERGY' ? $wallet->staked_for_energy : $wallet->staked_for_bandwidth),
-            ],
+                'lte:' . ($request->type == 'ENERGY' ? $wallet->staked_for_energy : $wallet->staked_for_bandwidth)
+            ]
         ]);
 
-        $response = $wallet->unfreezeBalance($data['amount'], $data['type']);
+        $response =  $wallet->unfreezeBalance($data['amount'], $data['type']);
 
-        if (($response->result ?? false) != true) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
-        }
+        if (($response->result ?? false) != true) abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
 
         return response()->json([
-            'wallet' => $wallet->updateBalance()->load('unstakes'),
+            'wallet' => $wallet->updateBalance()->load('unstakes')
         ]);
     }
 
+
     public function withdrawUnstake(Wallet $wallet)
     {
-        $response = $wallet->withdrawUnfreezeBalance();
-        if (($response->result ?? false) != true) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
-        }
-
+        $response =  $wallet->withdrawUnfreezeBalance();
+        if (($response->result ?? false) != true) abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
         return response()->json([
-            'wallet' => $wallet->updateBalance()->load('unstakes')->load('unstakes'),
+            'wallet' => $wallet->updateBalance()->load('unstakes')->load('unstakes')
         ]);
     }
 
     public function cancelUnstake(Wallet $wallet)
     {
-        $response = $wallet->cancelAllUnfreezeV2();
-        if (($response->result ?? false) != true) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
-        }
-
+        $response =  $wallet->cancelAllUnfreezeV2();
+        if (($response->result ?? false) != true) abort(ResponseStatus::BAD_REQUEST->value, 'Tron network error');
         return response()->json([
-            'wallet' => $wallet->updateBalance()->load('unstakes')->load('unstakes'),
+            'wallet' => $wallet->updateBalance()->load('unstakes')->load('unstakes')
         ]);
     }
 }

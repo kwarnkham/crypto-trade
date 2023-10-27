@@ -3,10 +3,10 @@
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepositController;
-use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WithdrawController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 
 Route::controller(DepositController::class)->prefix('/deposits')->group(function () {
     Route::middleware(['agent'])->prefix('/agent')->group(function () {
@@ -60,6 +61,7 @@ Route::controller(TransferController::class)->prefix('/transfers')->group(functi
     });
 });
 
+
 Route::controller(AuthController::class)->prefix('/admin')->group(function () {
     Route::post('login', 'login');
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
@@ -78,6 +80,7 @@ Route::controller(WalletController::class)->middleware(['auth:sanctum', 'admin']
     Route::post('{wallet}/withdraw-unstake', 'withdrawUnstake');
     Route::post('{wallet}/cancel-unstake', 'cancelUnstake');
 });
+
 
 Route::controller(AgentController::class)->middleware(['auth:sanctum'])->prefix('/agents')->group(function () {
     Route::post('', 'store');

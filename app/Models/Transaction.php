@@ -21,6 +21,7 @@ class Transaction extends Model
         );
     }
 
+
     protected function fee(): Attribute
     {
         return Attribute::make(

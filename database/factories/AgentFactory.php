@@ -18,7 +18,7 @@ class AgentFactory extends Factory
     {
         return [
             'name' => fake()->unique()->lastName(),
-            'ip' => '*',
+            'ip'    =>'*'
         ];
     }
 }

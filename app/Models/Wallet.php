@@ -19,13 +19,14 @@ class Wallet extends Model
 
     protected $guarded = ['id'];
 
+
     protected $hidden = [
-        'private_key', 'public_key', 'base64', 'hex_address',
+        'private_key', 'public_key', 'base64', 'hex_address'
     ];
 
     protected $casts = [
         'private_key' => 'encrypted',
-        'activated_at' => 'datetime',
+        'activated_at' => 'datetime'
     ];
 
     protected function resource(): Attribute
@@ -35,6 +36,7 @@ class Wallet extends Model
             set: fn ($value) => json_encode($value ?? ''),
         );
     }
+
 
     protected function balance(): Attribute
     {
@@ -97,15 +99,12 @@ class Wallet extends Model
     public static function validate(string $address)
     {
         $response = Tron::validateAddress($address);
-
         return $response->result;
     }
 
     public static function withdrawable(int $amount, array $excluded = []): ?Wallet
     {
-        if ($amount < Tron::DIGITS) {
-            return null;
-        }
+        if ($amount < Tron::DIGITS) return null;
         $wallet = Wallet::query()
             ->whereRaw(
                 'balance >= IFNULL((
@@ -125,9 +124,7 @@ class Wallet extends Model
             ->whereNotNull('activated_at')
             ->first();
 
-        if ($wallet == null) {
-            return $wallet;
-        }
+        if ($wallet == null) return $wallet;
 
         $oldBalance = $wallet->balance;
 
@@ -136,7 +133,6 @@ class Wallet extends Model
         if ($wallet->balance < $oldBalance) {
             return Wallet::withdrawable($amount, [$wallet->id, ...$excluded]);
         }
-
         return $wallet;
     }
 
@@ -145,7 +141,7 @@ class Wallet extends Model
         return DB::transaction(function () {
             $resource = Tron::getAccountResource($this->base58_check);
             $trc20_address = config('app')['trc20_address'];
-            $response = Tron::getAccountInfoByAddress($this->base58_check)->data[0];
+            $response =  Tron::getAccountInfoByAddress($this->base58_check)->data[0];
             $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20_address));
             $frozenV2 = collect($response->frozenV2);
             $unfrozenV2 = collect($response->unfrozenV2 ?? []);
@@ -158,19 +154,18 @@ class Wallet extends Model
                 'energy' => $energy,
                 'bandwidth' => $bandwidth,
                 'staked_for_energy' => $frozenV2->first(fn ($v) => $v->type ?? null == 'ENERGY')->amount ?? 0,
-                'staked_for_bandwidth' => $frozenV2->first(fn ($v) => ! property_exists($v, 'type'))->amount ?? 0,
+                'staked_for_bandwidth' => $frozenV2->first(fn ($v) => !property_exists($v, 'type'))->amount ?? 0,
             ]);
 
             $this->unstakes()->delete();
 
             $unfrozenV2->each(function ($unstake) {
-                if ($unstake->unfreeze_amount ?? null != null) {
+                if ($unstake->unfreeze_amount ?? null != null)
                     $this->unstakes()->create([
                         'amount' => $unstake->unfreeze_amount,
                         'type' => property_exists($unstake, 'type') ? $unstake->type : 'BANDWIDTH',
-                        'withdrawable_at' => Carbon::createFromTimestamp($unstake->unfreeze_expire_time / 1000),
+                        'withdrawable_at' => Carbon::createFromTimestamp($unstake->unfreeze_expire_time / 1000)
                     ]);
-                }
             });
 
             WalletUpdated::dispatch($this->load(['unstakes']));
@@ -186,33 +181,31 @@ class Wallet extends Model
 
     public function freezeBalance(int $amount, string $resource = 'BANDWIDTH')
     {
-        $tx = Tron::freezeBalance($this->base58_check, $resource, $amount * Tron::DIGITS);
+        $tx =  Tron::freezeBalance($this->base58_check, $resource, $amount * Tron::DIGITS);
         $signed = Tron::signTransaction($tx, $this->private_key);
-
         return Tron::broadcastTransaction($signed);
     }
 
+
     public function cancelAllUnfreezeV2()
     {
-        $tx = Tron::cancelAllUnfreezeV2($this->base58_check);
+        $tx =  Tron::cancelAllUnfreezeV2($this->base58_check);
         $signed = Tron::signTransaction($tx, $this->private_key);
-
         return Tron::broadcastTransaction($signed);
     }
 
     public function unfreezeBalance(int $amount, string $resource = 'BANDWIDTH')
     {
-        $tx = Tron::unfreezeBalance($this->base58_check, $resource, $amount * Tron::DIGITS);
+        $tx =  Tron::unfreezeBalance($this->base58_check, $resource, $amount * Tron::DIGITS);
         $signed = Tron::signTransaction($tx, $this->private_key);
-
         return Tron::broadcastTransaction($signed);
     }
 
+
     public function withdrawUnfreezeBalance()
     {
-        $tx = Tron::withdrawExpireUnfreeze($this->base58_check);
+        $tx =  Tron::withdrawExpireUnfreeze($this->base58_check);
         $signed = Tron::signTransaction($tx, $this->private_key);
-
         return Tron::broadcastTransaction($signed);
     }
 
@@ -241,7 +234,7 @@ class Wallet extends Model
                     'value' => $tx->value,
                     'type' => $tx->type,
                     'receipt' => $res->receipt ?? [],
-                    'fee' => $res->fee ?? 0,
+                    'fee' => $res->fee ?? 0
                 ]);
             }
         });

@@ -18,10 +18,7 @@ class VerifyAgent
     public function handle(Request $request, Closure $next): Response
     {
         $result = Agent::verify($request);
-        if ($result !== true) {
-            abort(ResponseStatus::UNAUTHENTICATED->value, $result);
-        }
-
+        if ($result !== true) abort(ResponseStatus::UNAUTHENTICATED->value, $result);
         return $next($request);
     }
 }

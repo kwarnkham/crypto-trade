@@ -16,10 +16,7 @@ class VerifyClient
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->header('Origin') != config('app.frontend_url')) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'Not trusted');
-        }
-
+        if ($request->header('Origin') != config('app.frontend_url')) abort(ResponseStatus::BAD_REQUEST->value, 'Not trusted');
         return $next($request);
     }
 }

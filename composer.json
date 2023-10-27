@@ -24,7 +24,7 @@
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.13",
         "fakerphp/faker": "^1.9.1",
-        "laravel/pint": "^1.13",
+        "laravel/pint": "^1.0",
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
@@ -62,9 +62,6 @@
             "@php artisan ide-helper:generate",
             "@php artisan ide-helper:models -N",
             "@php artisan ide-helper:meta"
-        ],
-        "pint": [
-            "./vendor/bin/pint"
         ]
     },
     "extra": {

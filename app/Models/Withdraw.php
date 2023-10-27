@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class Withdraw extends Model
 {
-    use Filterable, HasFactory;
+    use HasFactory, Filterable;
 
     protected $guarded = [''];
 
@@ -50,20 +50,16 @@ class Withdraw extends Model
         );
     }
 
+
     public function confirm()
     {
         $wallet = Wallet::withdrawable($this->getRawOriginal('amount'));
-        if ($wallet == null || $this->to == $wallet->base58_check) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'No wallet availabe');
-        }
+        if ($wallet == null || $this->to == $wallet->base58_check) abort(ResponseStatus::BAD_REQUEST->value, 'No wallet availabe');
         [$result, $txid, $response] = DB::transaction(function () use ($wallet) {
             $response = $wallet->sendUSDT($this->to, $this->amount - $this->fee);
-            if (($response->code ?? null) != null) {
-                abort(ResponseStatus::BAD_REQUEST->value, $response->code);
-            }
+            if (($response->code ?? null) != null) abort(ResponseStatus::BAD_REQUEST->value, $response->code);
             $result = $response->result ?? false;
             $txid = $response->txid ?? false;
-
             return [$result, $txid, $response];
         });
 
@@ -71,11 +67,10 @@ class Withdraw extends Model
             $this->update([
                 'status' => WithdrawStatus::CONFIRMED->value,
                 'wallet_id' => $wallet->id,
-                'txid' => $txid,
+                'txid' => $txid
             ]);
 
             ProcessConfirmWithdraw::dispatch($txid, $this->id)->delay(now()->addMinute());
-
             return $response;
         }
     }
@@ -92,7 +87,7 @@ class Withdraw extends Model
                 'value' => ($this->amount - $this->fee) * Tron::DIGITS,
                 'type' => 'Transfer',
                 'fee' => $tx['fee'],
-                'receipt' => $tx['receipt'],
+                'receipt' => $tx['receipt']
             ]);
             $this->update(['status' => WithdrawStatus::COMPLETED->value, 'transaction_id' => $transaction->id]);
             $user = $this->user;

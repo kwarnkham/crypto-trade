@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Services\Tron;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Services\Tron;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Wallet>

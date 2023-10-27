@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class Deposit extends Model
 {
-    use Filterable, HasFactory;
+    use HasFactory, Filterable;
 
     protected $guarded = ['id'];
 
@@ -25,6 +25,7 @@ class Deposit extends Model
     {
         return $this->belongsTo(Wallet::class);
     }
+
 
     protected function amount(): Attribute
     {
@@ -44,16 +45,14 @@ class Deposit extends Model
 
     public function attemptToComplete()
     {
-        if ($this->status != DepositStatus::CONFIRMED->value) {
-            return;
-        }
+        if ($this->status != DepositStatus::CONFIRMED->value) return;
         $this->increment('attempts');
 
         $transactions = collect(Tron::getTRC20TransactionInfoByAccountAddress($this->wallet->base58_check, [
             'only_confirmed' => true,
             'limit' => 10,
             'contract_address' => config('app')['trc20_address'],
-            'only_to' => true,
+            'only_to' => true
         ])->data);
 
         $transactions->each(function ($tx) {
@@ -70,7 +69,7 @@ class Deposit extends Model
                             'value' => $tx->value,
                             'type' => $tx->type,
                             'receipt' => $res->receipt ?? [],
-                            'fee' => $res->fee ?? 0,
+                            'fee' => $res->fee ?? 0
                         ]);
                         $this->complete($transaction);
                         $this->wallet->updateBalance();

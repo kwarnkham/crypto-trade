@@ -17,9 +17,9 @@ class DepositFactory extends Factory
     public function definition(): array
     {
         return [
-            'amount' => rand(1, 10),
+            'amount' => rand(1, 10) ,
             'status' => 1,
-            'attempts' => 0,
+            'attempts' => 0
         ];
     }
 }

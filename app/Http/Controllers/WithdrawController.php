@@ -26,17 +26,15 @@ class WithdrawController extends Controller
 
         $fee = 1;
         $amount = $data['amount'];
-        $deductibleAmount = $amount + $user->withdrawingAmount();
+        $deductibleAmount  = $amount + $user->withdrawingAmount();
 
-        if ($user->balance < $deductibleAmount) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'User has not enough balance');
-        }
+        if ($user->balance < $deductibleAmount) abort(ResponseStatus::BAD_REQUEST->value, 'User has not enough balance');
 
         $withdraw = Withdraw::create([
             'user_id' => $user->id,
             'to' => $data['to'],
             'amount' => $amount,
-            'fee' => $fee,
+            'fee' => $fee
         ]);
 
         return response()->json(['withdraw' => $withdraw]);
@@ -44,26 +42,20 @@ class WithdrawController extends Controller
 
     public function confirm(Withdraw $withdraw)
     {
-        if ($withdraw->status != WithdrawStatus::PENDING->value) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'Can only confirm a pending withdraw');
-        }
+        if ($withdraw->status != WithdrawStatus::PENDING->value) abort(ResponseStatus::BAD_REQUEST->value, 'Can only confirm a pending withdraw');
         $result = $withdraw->confirm();
-        if ($result == null) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'Send usdt failed');
-        }
-
+        if ($result == null) abort(ResponseStatus::BAD_REQUEST->value, 'Send usdt failed');
         return response()->json([
-            'withdraw' => $withdraw,
+            'withdraw' => $withdraw
         ]);
     }
 
     public function index(Request $request)
     {
         $filters = $request->validate([
-            'status' => ['sometimes'],
+            'status' => ['sometimes']
         ]);
         $query = Withdraw::query()->filter($filters)->with(['user.agent', 'wallet']);
-
         return response()->json($query->paginate($request->per_page ?? 10));
     }
 
@@ -71,9 +63,8 @@ class WithdrawController extends Controller
     {
         abort_if($withdraw->status != WithdrawStatus::PENDING->value, ResponseStatus::BAD_REQUEST->value, 'Can only cancel a pending withdraw');
         $withdraw->update([
-            'status' => WithdrawStatus::CANCELED->value,
+            'status' => WithdrawStatus::CANCELED->value
         ]);
-
         return response()->json(['withdraw' => $withdraw]);
     }
 }

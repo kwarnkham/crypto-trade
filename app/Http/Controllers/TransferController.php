@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ResponseStatus;
+use App\Enums\WithdrawStatus;
 use App\Models\Agent;
 use App\Models\Transfer;
 use App\Models\User;
@@ -26,9 +27,8 @@ class TransferController extends Controller
         if (
             $data['amount'] >
             $from->balance - $from->withdrawingAmount()
-        ) {
+        )
             abort(ResponseStatus::BAD_REQUEST->value, 'User does not have enough balance');
-        }
         $transfer = DB::transaction(function () use ($data, $from) {
             $to = User::where('code', $data['to'])->first();
             $fee = 1;
@@ -36,7 +36,7 @@ class TransferController extends Controller
                 'user_id' => $from->id,
                 'recipient_id' => $to->id,
                 'amount' => $data['amount'],
-                'fee' => $fee,
+                'fee' => $fee
             ]);
 
             $from->update(['balance' => $from->balance - $data['amount']]);
@@ -48,15 +48,15 @@ class TransferController extends Controller
             return $transfer;
         });
 
+
         return response()->json([
-            'transfer' => $transfer,
+            'transfer' => $transfer
         ]);
     }
 
     public function index(Request $request)
     {
         $query = Transfer::query()->with(['user', 'recipient'])->latest('id');
-
         return response()->json($query->paginate($request->per_page ?? 10));
     }
 }

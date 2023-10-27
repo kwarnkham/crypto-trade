@@ -13,14 +13,13 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'exists:admins,name'],
-            'password' => ['required'],
+            'password' => ['required']
         ]);
 
         $admin = Admin::query()->where('name', $data['name'])->first();
         if (Hash::check($data['password'], $admin->password)) {
             $admin->tokens()->delete();
             $token = $admin->createToken('admin');
-
             return ['token' => $token->plainTextToken, 'admin' => $admin];
         }
 
@@ -31,14 +30,13 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'password' => ['required'],
-            'new_password' => ['required', 'confirmed'],
+            'new_password' => ['required', 'confirmed']
         ]);
 
         $admin = $request->user();
 
         if (Hash::check($data['password'], $admin->password)) {
             $admin->update(['password' => bcrypt($data['new_password'])]);
-
             return response()->json(['message' => 'ok']);
         }
 
