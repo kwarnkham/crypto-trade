@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\DepositStatus;
 use App\Enums\ResponseStatus;
+use App\Http\Resources\DepositResource;
 use App\Jobs\ProcessConfirmedDeposit;
 use App\Models\Agent;
 use App\Models\Deposit;
@@ -61,6 +62,12 @@ class DepositController extends Controller
         if ($agent) $query->whereRelation('user', 'agent_id', '=', $agent->id);
         return response()->json($query->paginate($request->per_page ?? 10));
     }
+
+    public function find(Request $request, Deposit $deposit)
+    {
+        return response()->json(['deposit' =>  new DepositResource($deposit)]);
+    }
+
 
     public function confirm(Deposit $deposit)
     {
