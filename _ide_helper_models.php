@@ -47,6 +47,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read int|null $users_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Agent filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Agent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Agent query()
@@ -101,6 +102,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Wallet $wallet
+ * @method static \Illuminate\Database\Eloquent\Builder|Deposit filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit query()
@@ -305,6 +307,7 @@ namespace App\Models{
  * @property-read \App\Models\Charge|null $charge
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Wallet|null $wallet
+ * @method static \Illuminate\Database\Eloquent\Builder|Withdraw filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw query()

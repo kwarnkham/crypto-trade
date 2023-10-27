@@ -4,7 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 
-trait StatusFilterable
+trait Filterable
 {
     public function scopeFilter(Builder $query, $filters)
     {
