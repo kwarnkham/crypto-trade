@@ -21,7 +21,7 @@ class Wallet extends Model
 
 
     protected $hidden = [
-        'private_key', 'public_key', 'base64', 'hex_address'
+        'private_key', 'public_key', 'base64', 'hex_address', 'balance', 'trx', 'staked_for_energy', 'staked_for_bandwidth', 'resource', 'energy', 'bandwidth', 'activated_at', 'created_at', 'updated_at', 'id'
     ];
 
     protected $casts = [
