@@ -30,7 +30,6 @@ Route::controller(DepositController::class)->prefix('/deposits')->group(function
     });
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::get('', 'index');
-        Route::get('{deposit}', 'find');
     });
 });
 
