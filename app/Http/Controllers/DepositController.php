@@ -85,4 +85,9 @@ class DepositController extends Controller
 
         return response()->json(['deposit' => $deposit->load(['user.agent', 'wallet'])]);
     }
+
+    public function find(Deposit $deposit)
+    {
+        return response()->json(['deposit' => $deposit->load(['user.agent', 'wallet'])]);
+    }
 }
