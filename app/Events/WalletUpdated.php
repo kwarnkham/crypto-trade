@@ -45,7 +45,7 @@ class WalletUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("wallets"),
+            new PrivateChannel('wallets'),
         ];
     }
 

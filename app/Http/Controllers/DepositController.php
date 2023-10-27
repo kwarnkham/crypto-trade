@@ -20,7 +20,7 @@ class DepositController extends Controller
         $data = $request->validate([
             'code' => ['required'],
             'name' => ['required'],
-            'amount' => ['required', 'numeric', 'integer', 'gt:0']
+            'amount' => ['required', 'numeric', 'integer', 'gt:0'],
         ]);
 
         $user = $agent->users()->where('code', $data['code'])->first();
@@ -30,35 +30,42 @@ class DepositController extends Controller
 
         $wallet = Wallet::findAvailable();
 
-        if ($wallet == null) abort(ResponseStatus::BAD_REQUEST->value, 'There is no avaliable wallet to be complete deposit.');
+        if ($wallet == null) {
+            abort(ResponseStatus::BAD_REQUEST->value, 'There is no avaliable wallet to be complete deposit.');
+        }
 
-        if ($user == null)
+        if ($user == null) {
             $user = User::create([
                 'code' => $data['code'],
                 'name' => $data['name'],
-                'agent_id' => $agent->id
+                'agent_id' => $agent->id,
             ]);
+        }
 
         $deposit = DB::transaction(function () use ($wallet, $user, $data) {
             $wallet->update(['reserved_at' => now()]);
+
             return $user->deposits()->create([
                 'wallet_id' => $wallet->id,
-                'amount' => $data['amount']
+                'amount' => $data['amount'],
             ]);
         });
 
-        return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => $deposit]);
+        return response()->json(['wallet' => $wallet->base58_check, 'deposit' => $deposit]);
     }
 
     public function index(Request $request)
     {
         $filters = $request->validate([
-            'status' => ['sometimes']
+            'status' => ['sometimes'],
         ]);
         $agent = Agent::current($request);
 
         $query = Deposit::query()->filter($filters)->latest('id')->with(['wallet', 'user.agent']);
-        if ($agent) $query->whereRelation('user', 'agent_id', '=', $agent->id);
+        if ($agent) {
+            $query->whereRelation('user', 'agent_id', '=', $agent->id);
+        }
+
         return response()->json($query->paginate($request->per_page ?? 10));
     }
 
@@ -79,7 +86,9 @@ class DepositController extends Controller
 
     public function cancel(Deposit $deposit)
     {
-        if ($deposit->status != DepositStatus::PENDING->value) abort(ResponseStatus::BAD_REQUEST->value, 'Can only cancel a pending deposit');
+        if ($deposit->status != DepositStatus::PENDING->value) {
+            abort(ResponseStatus::BAD_REQUEST->value, 'Can only cancel a pending deposit');
+        }
 
         $deposit->update(['status' => DepositStatus::CANCELED->value]);
 

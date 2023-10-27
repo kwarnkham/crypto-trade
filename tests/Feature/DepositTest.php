@@ -3,22 +3,27 @@
 namespace Tests\Feature;
 
 use App\Enums\DepositStatus;
+use App\Models\Agent;
+use App\Models\Deposit;
+use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Str;
 use Tests\TestCase;
-use App\Models\Agent;
-use App\Models\User;
-use App\Models\Wallet;
-use App\Models\Deposit;
 
 class DepositTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
+
     private $agent;
+
     private $user;
+
     private $wallet;
+
     private $deposit;
+
     private $deposit_id;
 
     public function setUp(): void
@@ -27,10 +32,10 @@ class DepositTest extends TestCase
         $this->seed();
         $this->agent = Agent::query()->first();
         $this->withHeaders([
-            'x-agent'   => $this->agent->name,
+            'x-agent' => $this->agent->name,
             'x-api-key' => $this->agent->jwtKey(),
-            'Content-Type'  => 'application/x-www-form-urlencoded',
-            'Accept' => 'application/json'
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            'Accept' => 'application/json',
         ]);
     }
 
@@ -42,7 +47,7 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => Str::random('3'),
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
         ]);
 
         $response->assertStatus(200);
@@ -54,7 +59,7 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => Str::random('3'),
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
         ]);
 
         $this->assertEquals(
@@ -71,7 +76,7 @@ class DepositTest extends TestCase
         $responseData = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
         ])->json();
 
         $this->assertDatabaseCount('users', 1);
@@ -79,14 +84,14 @@ class DepositTest extends TestCase
         $existedUser = User::where('code', $code)->first();
         $this->assertNotNull($existedUser);
 
-        $response = $this->postJson('api/deposits/agent/' . $responseData['depoist']['id'] . '/cancel');
+        $response = $this->postJson('api/deposits/agent/'.$responseData['depoist']['id'].'/cancel');
 
         $response->assertOk();
 
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
         ]);
 
         $this->assertDatabaseCount('users', 1);
@@ -95,11 +100,11 @@ class DepositTest extends TestCase
     public function test_agent_cant_create_if_pendind_deposit_exist(): void
     {
         $code = Str::random('3');
-        $name =  $this->faker()->lastName();
+        $name = $this->faker()->lastName();
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
         ]);
 
         $this->assertEquals(
@@ -110,7 +115,7 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
         ]);
         $response->assertStatus(400);
     }
@@ -118,13 +123,13 @@ class DepositTest extends TestCase
     public function test_avaliable_wallet_exists_to_accept_deposit(): void
     {
         $code = Str::random('3');
-        $name =  $this->faker()->lastName();
+        $name = $this->faker()->lastName();
         $existAvaliableWallet = Wallet::findAvailable();
         $this->assertNotNull($existAvaliableWallet);
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
         ]);
 
         $existAvaliableWallet = Wallet::findAvailable();
@@ -137,10 +142,10 @@ class DepositTest extends TestCase
 
     public function test_agent_user_confirm_deposit(): void
     {
-        $response = $this->postJson('api/deposits/agent/' . $this->deposit->id . '/confirm');
+        $response = $this->postJson('api/deposits/agent/'.$this->deposit->id.'/confirm');
         $response->assertStatus(200);
 
-        $response = $this->postJson('api/deposits/agent/' . $this->deposit->id . '/confirm');
+        $response = $this->postJson('api/deposits/agent/'.$this->deposit->id.'/confirm');
         $response->assertStatus(400);
     }
 
@@ -153,9 +158,9 @@ class DepositTest extends TestCase
 
     public function test_agent_user_cancel_deposit(): void
     {
-        $response = $this->postJson('api/deposits/agent/' . $this->deposit->id . '/cancel');
+        $response = $this->postJson('api/deposits/agent/'.$this->deposit->id.'/cancel');
         $response->assertStatus(200);
-        $response = $this->postJson('api/deposits/agent/' . $this->deposit->id . '/cancel');
+        $response = $this->postJson('api/deposits/agent/'.$this->deposit->id.'/cancel');
         $response->assertStatus(400);
     }
 }

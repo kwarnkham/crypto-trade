@@ -5,17 +5,15 @@ namespace App\Jobs;
 use App\Enums\DepositStatus;
 use App\Models\Deposit;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Queue\SerializesModels;
 
 class ProcessConfirmedDeposit implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
 
     /**
      * Create a new job instance.
@@ -33,9 +31,9 @@ class ProcessConfirmedDeposit implements ShouldQueue
         $maxAttempts = 5;
         $deposit = Deposit::find($this->depositId);
         $deposit->attemptToComplete();
-        if ($deposit->refresh()->status == DepositStatus::CONFIRMED->value && $deposit->attempts < $maxAttempts)
+        if ($deposit->refresh()->status == DepositStatus::CONFIRMED->value && $deposit->attempts < $maxAttempts) {
             ProcessConfirmedDeposit::dispatch($deposit->id)->delay(now()->addMinute());
-        else if ($deposit->attempts >= $maxAttempts) {
+        } elseif ($deposit->attempts >= $maxAttempts) {
             $deposit->update(['status' => DepositStatus::EXPIRED->value]);
         }
     }

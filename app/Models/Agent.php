@@ -4,21 +4,22 @@ namespace App\Models;
 
 use App\Enums\AgentStatus;
 use App\Traits\Filterable;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class Agent extends Model
 {
-    use HasFactory, Filterable;
+    use Filterable, HasFactory;
 
     protected $guarded = ['id'];
+
     protected $hidden = ['key'];
 
     protected $casts = [
@@ -31,20 +32,20 @@ class Agent extends Model
         $jwt = $request->header('x-api-key');
         $ip = $request->ip();
 
-
-        if (!$name || !$jwt || !$ip) {
+        if (! $name || ! $jwt || ! $ip) {
             return 'Cannot find key and agent';
         }
 
         $agent = Agent::where(['name' => $name, 'status' => AgentStatus::NORMAL->value])->first();
 
-        if (!$agent) {
+        if (! $agent) {
             return 'No valid agent found';
         }
 
-        if ($agent->ip != $ip && $agent->ip != "*") {
-            Log::info("Request IP is " . $ip);
-            Log::info("Whitelisted IP is " . $agent->ip);
+        if ($agent->ip != $ip && $agent->ip != '*') {
+            Log::info('Request IP is '.$ip);
+            Log::info('Whitelisted IP is '.$agent->ip);
+
             return 'Invalid IP';
         }
 
@@ -57,6 +58,7 @@ class Agent extends Model
         if ($agent->key != $decoded->key) {
             return 'Invalid Key';
         }
+
         return true;
     }
 
@@ -65,7 +67,7 @@ class Agent extends Model
         return JWT::encode(['key' => $this->key], $this->key, 'HS256', null, ['alg' => 'HS256', 'typ' => 'JWT']);
     }
 
-    public static function make($name, $ip = "0.0.0.0", $remark = null): array
+    public static function make($name, $ip = '0.0.0.0', $remark = null): array
     {
         $key = Str::random(64);
         $agent = Agent::create([
@@ -73,8 +75,9 @@ class Agent extends Model
             'ip' => $ip,
             'key' => $key,
             'remark' => $remark,
-            'status' => AgentStatus::NORMAL->value
+            'status' => AgentStatus::NORMAL->value,
         ]);
+
         return [$agent, $key];
     }
 
@@ -92,6 +95,7 @@ class Agent extends Model
     {
         $key = Str::random(64);
         $this->update(['key' => $key]);
+
         return $key;
     }
 

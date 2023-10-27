@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class User extends Model
 {
     use HasFactory;
+
     protected $guarded = ['id'];
 
     public function agent(): BelongsTo

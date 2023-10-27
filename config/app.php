@@ -46,7 +46,6 @@ return [
     'min_trx_for_transaction' => env('APP_ENV', 'production') == 'production' ?
         40 : 15,
 
-
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode

@@ -2,11 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Transaction;
 use App\Models\Wallet;
-use App\Services\Tron;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class GetWalletsTransactions extends Command
 {

@@ -4,9 +4,7 @@ namespace App\Utility;
 
 class Formatter
 {
-
     /**
-     * @param $method
      * @return string
      */
     public static function toMethodFormat($method)
@@ -15,7 +13,6 @@ class Formatter
     }
 
     /**
-     * @param $address
      * @return string
      */
     public static function toAddressFormat($address)
@@ -27,12 +24,12 @@ class Formatter
                 $address = Utils::stripZero($address);
             }
         }
-        return implode('', array_fill(0, 64 - strlen($address), 0)) . $address;
+
+        return implode('', array_fill(0, 64 - strlen($address), 0)).$address;
     }
 
     /**
-     * @param $value
-     * @param int $digit
+     * @param  int  $digit
      * @return string
      */
     public static function toIntegerFormat($value, $digit = 64)
@@ -44,6 +41,7 @@ class Formatter
         if ($padded !== 'f') {
             $padded = '0';
         }
-        return implode('', array_fill(0, $digit - mb_strlen($bnHex), $padded)) . $bnHex;
+
+        return implode('', array_fill(0, $digit - mb_strlen($bnHex), $padded)).$bnHex;
     }
 }

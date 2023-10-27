@@ -33,11 +33,13 @@ class Conversion
         $output = strrev($output);
         foreach ($bytes as $byte) {
             if ($byte === 0) {
-                $output = $alphabet[0] . $output;
+                $output = $alphabet[0].$output;
+
                 continue;
             }
             break;
         }
+
         return (string) $output;
     }
 
@@ -66,26 +68,29 @@ class Conversion
         $output = '';
         while ($decimal > 0) {
             $byte = bcmod($decimal, 256);
-            $output = pack('C', $byte) . $output;
+            $output = pack('C', $byte).$output;
             $decimal = bcdiv($decimal, 256, 0);
         }
         foreach ($chars as $char) {
             if ($indexes[$char] === 0) {
-                $output = "\x00" . $output;
+                $output = "\x00".$output;
+
                 continue;
             }
             break;
         }
+
         return $output;
     }
 
     public static function base58check_en($address)
     {
-        $hash0 = hash("sha256", $address);
-        $hash1 = hash("sha256", hex2bin($hash0));
+        $hash0 = hash('sha256', $address);
+        $hash1 = hash('sha256', hex2bin($hash0));
         $checksum = substr($hash1, 0, 8);
-        $address = $address . hex2bin($checksum);
+        $address = $address.hex2bin($checksum);
         $base58add = static::base58_encode($address);
+
         return $base58add;
     }
 
@@ -98,13 +103,14 @@ class Conversion
         }
         $checksum = substr($address, 21);
         $address = substr($address, 0, 21);
-        $hash0 = hash("sha256", $address);
-        $hash1 = hash("sha256", hex2bin($hash0));
+        $hash0 = hash('sha256', $address);
+        $hash1 = hash('sha256', hex2bin($hash0));
         $checksum0 = substr($hash1, 0, 8);
         $checksum1 = bin2hex($checksum);
         if (strcmp($checksum0, $checksum1)) {
             return false;
         }
+
         return $address;
     }
 
@@ -112,6 +118,7 @@ class Conversion
     {
         $address = hex2bin($hexString);
         $base58add = static::base58check_en($address);
+
         return $base58add;
     }
 
@@ -119,6 +126,7 @@ class Conversion
     {
         $address = static::base58check_de($base58add);
         $hexString = bin2hex($address);
+
         return $hexString;
     }
 
@@ -126,6 +134,7 @@ class Conversion
     {
         $address = hex2bin($hexString);
         $base64 = base64_encode($address);
+
         return $base64;
     }
 
@@ -133,20 +142,23 @@ class Conversion
     {
         $address = base64_decode($base64);
         $hexString = bin2hex($address);
+
         return $hexString;
     }
 
-    function base58check2Base64($base58add)
+    public function base58check2Base64($base58add)
     {
         $address = static::base58check_de($base58add);
         $base64 = base64_encode($address);
+
         return $base64;
     }
 
-    function base642Base58check($base64)
+    public function base642Base58check($base64)
     {
         $address = base64_decode($base64);
         $base58add = static::base58check_en($address);
+
         return $base58add;
     }
 }

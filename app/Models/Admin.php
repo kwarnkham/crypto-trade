@@ -8,8 +8,9 @@ use Laravel\Sanctum\HasApiTokens;
 
 class Admin extends User
 {
-    use HasFactory, HasApiTokens;
+    use HasApiTokens, HasFactory;
 
     protected $hidden = ['password'];
+
     protected $guarded = ['id'];
 }
