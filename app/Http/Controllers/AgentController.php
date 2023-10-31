@@ -64,7 +64,8 @@ class AgentController extends Controller
         $data = $request->validate([
             'ip' => ['ip', 'required'],
             'name' => ['required', Rule::unique('agents', 'name')->ignoreModel($agent)],
-            'remark' => ['']
+            'remark' => [''],
+            'aes_key' => ['sometimes', 'required']
         ]);
 
         $data['ip'] = $request->ip;

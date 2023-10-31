@@ -18,7 +18,7 @@ class Agent extends Model
     use Filterable;
 
     protected $guarded = ['id'];
-    protected $hidden = ['key'];
+    protected $hidden = ['key', 'aes_key'];
 
     protected $casts = [
         'key' => 'encrypted',
