@@ -59,7 +59,7 @@ class DepositTest extends TestCase
 
         $this->assertEquals(
             DepositStatus::PENDING->value,
-            Deposit::find($response->json()['id'])->status
+            Deposit::find($response->json()['deposit']['id'])->status
         );
     }
 
@@ -79,7 +79,7 @@ class DepositTest extends TestCase
         $existedUser = User::where('code', $code)->first();
         $this->assertNotNull($existedUser);
 
-        $response = $this->postJson('api/deposits/agent/' . $responseData['id'] . '/cancel');
+        $response = $this->postJson('api/deposits/agent/' . $responseData['deposit']['id'] . '/cancel');
 
         $response->assertOk();
 
@@ -104,7 +104,7 @@ class DepositTest extends TestCase
 
         $this->assertEquals(
             DepositStatus::PENDING->value,
-            Deposit::find($response->json()['id'])->status
+            Deposit::find($response->json()['deposit']['id'])->status
         );
 
         $response = $this->postJson('api/deposits/agent', [
@@ -187,9 +187,9 @@ class DepositTest extends TestCase
         ]);
         $this->assertEquals(
             DepositStatus::PENDING->value,
-            Deposit::find($response->json()['id'])->status
+            Deposit::find($response->json()['deposit']['id'])->status
         );
-        $confirmResponse = $this->postJson('api/deposits/agent/' . $response->json()['id'] . '/confirm');
+        $confirmResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/confirm');
         $confirmResponse->assertStatus(200);
     }
 
@@ -200,13 +200,13 @@ class DepositTest extends TestCase
             'name' => $this->faker()->lastName(),
             'amount' => rand(1, 5)
         ]);
-        $confirmResponse = $this->postJson('api/deposits/agent/' . $response->json()['id'] . '/confirm');
+        $confirmResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/confirm');
         $confirmResponse->assertStatus(200);
         $this->assertNotEquals(
             DepositStatus::PENDING->value,
-            Deposit::find($response->json()['id'])->status
+            Deposit::find($response->json()['deposit']['id'])->status
         );
-        $response = $this->postJson('api/deposits/agent/' . $response->json()['id'] . '/confirm');
+        $response = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/confirm');
         $response->assertStatus(400);
     }
 
@@ -226,10 +226,10 @@ class DepositTest extends TestCase
         ]);
         $this->assertEquals(
             DepositStatus::PENDING->value,
-            Deposit::find($response->json()['id'])->status
+            Deposit::find($response->json()['deposit']['id'])->status
         );
 
-        $cancelResponse = $this->postJson('api/deposits/agent/' . $response->json()['id'] . '/cancel');
+        $cancelResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/cancel');
         $cancelResponse->assertStatus(200);
     }
 
@@ -240,14 +240,14 @@ class DepositTest extends TestCase
             'name' => $this->faker()->lastName(),
             'amount' => rand(1, 5)
         ]);
-        $cancelResponse = $this->postJson('api/deposits/agent/' . $response->json()['id'] . '/cancel');
+        $cancelResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/cancel');
         $cancelResponse->assertStatus(200);
 
         $this->assertNotEquals(
             DepositStatus::PENDING->value,
-            Deposit::find($response->json()['id'])->status
+            Deposit::find($response->json()['deposit']['id'])->status
         );
-        $response = $this->postJson('api/deposits/agent/' . $response->json()['id'] . '/cancel');
+        $response = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/cancel');
         $response->assertStatus(400);
     }
 }
