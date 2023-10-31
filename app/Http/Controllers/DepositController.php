@@ -11,6 +11,8 @@ use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\DepositResource;
+use App\Http\Resources\DepositCollection;
 
 class DepositController extends Controller
 {
@@ -47,7 +49,7 @@ class DepositController extends Controller
             ]);
         });
 
-        return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => $deposit]);
+        return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => new DepositResource($deposit)]);
     }
 
     public function index(Request $request)
@@ -59,7 +61,7 @@ class DepositController extends Controller
 
         $query = Deposit::query()->filter($filters)->latest('id')->with(['wallet', 'user.agent']);
         if ($agent) $query->whereRelation('user', 'agent_id', '=', $agent->id);
-        return response()->json($query->paginate($request->per_page ?? 10));
+        return response()->json(new DepositCollection($query->paginate($request->per_page ?? 10)));
     }
 
     public function confirm(Deposit $deposit)
@@ -74,7 +76,7 @@ class DepositController extends Controller
 
         ProcessConfirmedDeposit::dispatch($deposit->id);
 
-        return response()->json(['deposit' => $deposit]);
+        return response()->json(['deposit' => new DepositResource($deposit)]);
     }
 
     public function cancel(Deposit $deposit)
@@ -83,6 +85,6 @@ class DepositController extends Controller
 
         $deposit->update(['status' => DepositStatus::CANCELED->value]);
 
-        return response()->json(['deposit' => $deposit->load(['user.agent', 'wallet'])]);
+        return response()->json(['deposit' => new DepositResource($deposit->load(['user.agent', 'wallet']))]);
     }
 }
