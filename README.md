@@ -586,7 +586,7 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
 }
 ```
 
-## List Transfer
+## Get user info
 
 > A request can be sent query the user info
 > Note that the url param is user_id, not code
