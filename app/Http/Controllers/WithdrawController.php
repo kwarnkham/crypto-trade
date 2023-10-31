@@ -67,4 +67,13 @@ class WithdrawController extends Controller
         ]);
         return response()->json(['withdraw' => $withdraw]);
     }
+
+    public function find(Request $request, Withdraw $withdraw)
+    {
+        $agent = Agent::current($request);
+        if ($agent) {
+            abort_unless($withdraw->user->agent_id == $agent->id, ResponseStatus::NOT_FOUND->value);
+        }
+        return response()->json(['withdraw' => $withdraw->load(['user.agent', 'wallet'])]);
+    }
 }

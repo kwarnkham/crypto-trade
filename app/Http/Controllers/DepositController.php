@@ -86,8 +86,12 @@ class DepositController extends Controller
         return response()->json(['deposit' => $deposit->load(['user.agent', 'wallet'])]);
     }
 
-    public function find(Deposit $deposit)
+    public function find(Request $request, Deposit $deposit)
     {
+        $agent = Agent::current($request);
+        if ($agent) {
+            abort_unless($deposit->user->agent_id == $agent->id, ResponseStatus::NOT_FOUND->value);
+        }
         return response()->json(['deposit' => $deposit->load(['user.agent', 'wallet'])]);
     }
 }

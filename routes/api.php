@@ -28,6 +28,7 @@ Route::controller(DepositController::class)->prefix('/deposits')->group(function
         Route::post('{deposit}/cancel', 'cancel');
         Route::post('', 'store');
         Route::get('', 'index');
+        Route::get('{deposit}', 'find');
     });
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::get('', 'index');
@@ -41,6 +42,7 @@ Route::controller(WithdrawController::class)->prefix('/withdraws')->group(functi
         Route::get('', 'index');
         Route::post('{withdraw}/confirm', 'confirm');
         Route::post('{withdraw}/cancel', 'cancel');
+        Route::get('{withdraw}', 'find');
     });
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::get('', 'index');

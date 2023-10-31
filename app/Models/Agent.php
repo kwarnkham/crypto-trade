@@ -85,7 +85,9 @@ class Agent extends Model
 
     public static function current(Request $request)
     {
-        return Agent::where('name', $request->header('x-agent'))->first();
+        $agentName = $request->header('x-agent');
+        if (!$agentName) return;
+        return Agent::where('name', $agentName)->first();
     }
 
     public function resetKey()

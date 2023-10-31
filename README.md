@@ -161,6 +161,60 @@ curl --location --request POST 'http://127.0.0.1:8000/api/deposits/agent/7/cance
 }
 ```
 
+## Find a deposit
+
+> A request can be sent to find a deposit
+
+-   **GET** (http://127.0.0.1:8000/api/deposits/agent/{id})
+
+```
+curl --location 'http://127.0.0.1:8000/api/deposits/agent/1' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+-   **depoist** > The deposit instance
+
+```
+{
+    "deposit": {
+        "id": 1,
+        "user_id": 1,
+        "wallet_id": 1,
+        "transaction_id": null,
+        "amount": 2,
+        "status": 1,
+        "attempts": 0,
+        "created_at": "2023-10-31T08:47:40.000000Z",
+        "updated_at": "2023-10-31T08:47:40.000000Z",
+        "user": {
+            "id": 1,
+            "code": "2",
+            "name": "Moon",
+            "balance": 0,
+            "agent_id": 1,
+            "created_at": "2023-10-31T08:47:40.000000Z",
+            "updated_at": "2023-10-31T08:47:40.000000Z",
+            "agent": {
+                "id": 1,
+                "name": "agent",
+                "remark": null,
+                "status": 1,
+                "ip": "*",
+                "created_at": "2023-10-31T08:47:38.000000Z",
+                "updated_at": "2023-10-31T08:47:38.000000Z"
+            }
+        },
+        "wallet": {
+            "base58_check": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y"
+        }
+    }
+}
+```
+
 ## List deposits
 
 > A request can be sent to list all deposits
@@ -276,6 +330,61 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
 1. Only wallet address is valid, the withdraw can be continued
 2. The withdraw amount cannot be greather than balance amount
 3. The withdraw amount must be greater than the withdraw fee
+
+## Find a withdraw
+
+> A request can be sent to find a withdraw
+
+-   **GET** (http://127.0.0.1:8000/api/withdraws/agent/{id})
+
+```
+curl --location 'http://127.0.0.1:8000/api/withdraws/agent/1' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+-   **withdraw** > The withdraw instance
+
+```
+{
+    "withdraw": {
+        "id": 1,
+        "user_id": 1,
+        "wallet_id": null,
+        "to": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+        "amount": 2,
+        "fee": 1,
+        "status": 1,
+        "txid": null,
+        "transaction_id": null,
+        "attempts": 0,
+        "created_at": "2023-10-31T08:49:19.000000Z",
+        "updated_at": "2023-10-31T08:49:19.000000Z",
+        "user": {
+            "id": 1,
+            "code": "2",
+            "name": "Moon",
+            "balance": 2,
+            "agent_id": 1,
+            "created_at": "2023-10-31T08:47:40.000000Z",
+            "updated_at": "2023-10-31T08:47:40.000000Z",
+            "agent": {
+                "id": 1,
+                "name": "agent",
+                "remark": null,
+                "status": 1,
+                "ip": "*",
+                "created_at": "2023-10-31T08:47:38.000000Z",
+                "updated_at": "2023-10-31T08:47:38.000000Z"
+            }
+        },
+        "wallet": null
+    }
+}
+```
 
 ## List Withdraw
 
