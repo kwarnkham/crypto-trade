@@ -94,6 +94,12 @@ Route::controller(AgentController::class)->middleware(['auth:sanctum'])->prefix(
     Route::get('', 'index');
 });
 
+Route::controller(AgentController::class)
+    ->middleware(['agent'])
+    ->prefix('/agents')->group(function () {
+        Route::post('callback', 'setCallback');
+    });
+
 Route::controller(UserController::class)->prefix('/users')->group(function () {
     Route::middleware(['agent'])->prefix('/agent')->group(function () {
         Route::get('{user}', 'find');

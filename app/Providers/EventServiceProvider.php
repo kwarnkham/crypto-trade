@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Agent;
+use App\Models\Deposit;
 use App\Observers\AgentObserver;
+use App\Observers\DepositOberver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -27,6 +29,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Deposit::observe(DepositOberver::class);
     }
 
     /**

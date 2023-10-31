@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\Log;
 
 class Wallet extends Model
 {
-    use HasFactory;
-
     protected $guarded = ['id'];
 
 

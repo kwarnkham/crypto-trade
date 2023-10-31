@@ -45,6 +45,20 @@ class AgentController extends Controller
         ]);
     }
 
+    public function setCallback(Request $request)
+    {
+        $data = $request->validate([
+            'deposit_callback' => ['sometimes', 'required', 'url'],
+            'withdraw_callback' => ['sometimes', 'required', 'url'],
+        ]);
+        $agent = Agent::current($request);
+        $agent->update($data);
+
+        return response()->json([
+            'agent' => $agent
+        ]);
+    }
+
     public function update(Request $request, Agent $agent)
     {
         $data = $request->validate([

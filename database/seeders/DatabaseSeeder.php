@@ -40,7 +40,8 @@ class DatabaseSeeder extends Seeder
         Agent::create([
             'name' => 'agent',
             'key' => 'aGqFAEV84uk1V4SvSP8IHcPxkOA5FMNv19XGl8cYztoG2I7ngGNErJhsaxNh74k9',
-            'ip' => '*'
+            'ip' => '*',
+            'aes_key' => 'oPi4eLhhJ9lBV5oo'
         ]);
 
         DB::table('admins')->insert([

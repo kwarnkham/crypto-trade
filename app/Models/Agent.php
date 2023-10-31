@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\AgentStatus;
 use App\Traits\Filterable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
@@ -16,13 +15,14 @@ use Illuminate\Support\Facades\Log;
 
 class Agent extends Model
 {
-    use HasFactory, Filterable;
+    use Filterable;
 
     protected $guarded = ['id'];
     protected $hidden = ['key'];
 
     protected $casts = [
         'key' => 'encrypted',
+        'aes_key' => 'encrypted'
     ];
 
     public static function verify(Request $request)

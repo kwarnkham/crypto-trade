@@ -797,3 +797,40 @@ curl --location 'http://127.0.0.1:8000/api/users/agent' \
     }
 }
 ```
+
+# Agent
+
+## Set agent callback url
+
+> A request can be sent to set the callback url for deposits and withdraws
+
+-   **POST** (http://127.0.0.1:8000/api/agents/callback)
+-   **Data**
+    1. deposit_callback [URL]
+    2. withdraw_callback [URL]
+
+```
+curl --location 'http://127.0.0.1:8000/api/agents/callback' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'deposit_callback=http://localhost:8014/api/callback/crypto_trade/deposits' \
+--data-urlencode 'withdraw_callback=http://localhost:8014/api/callback/crypto_trade/withdraws'
+```
+
+> Response
+
+```
+{
+    "user": {
+        "id": 1,
+        "code": "3",
+        "name": "Moon",
+        "balance": 0,
+        "agent_id": 1,
+        "created_at": "2023-10-27T08:30:42.000000Z",
+        "updated_at": "2023-10-27T08:30:42.000000Z"
+    }
+}
+```
