@@ -585,3 +585,33 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
     "total": 1
 }
 ```
+
+## List Transfer
+
+> A request can be sent query the user info
+> Note that the url param is user_id, not code
+
+-   **GET** (http://127.0.0.1:8000/api/users/agent/{user_id})
+
+```
+curl --location 'http://127.0.0.1:8000/api/users/agent/1' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "user": {
+        "id": 1,
+        "code": "3",
+        "name": "Moon",
+        "balance": 0,
+        "agent_id": 1,
+        "created_at": "2023-10-27T08:30:42.000000Z",
+        "updated_at": "2023-10-27T08:30:42.000000Z"
+    }
+}
+```

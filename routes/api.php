@@ -7,6 +7,7 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WithdrawController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -89,4 +90,10 @@ Route::controller(AgentController::class)->middleware(['auth:sanctum'])->prefix(
     Route::post('{agent}/reset-key', 'resetKey');
     Route::put('{agent}', 'update');
     Route::get('', 'index');
+});
+
+Route::controller(UserController::class)->prefix('/users')->group(function () {
+    Route::middleware(['agent'])->prefix('/agent')->group(function () {
+        Route::get('{user}', 'find');
+    });
 });
