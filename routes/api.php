@@ -95,5 +95,6 @@ Route::controller(AgentController::class)->middleware(['auth:sanctum'])->prefix(
 Route::controller(UserController::class)->prefix('/users')->group(function () {
     Route::middleware(['agent'])->prefix('/agent')->group(function () {
         Route::get('{user}', 'find');
+        Route::get('', 'index');
     });
 });

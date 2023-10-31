@@ -586,6 +586,8 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
 }
 ```
 
+# User
+
 ## Get user info
 
 > A request can be sent query the user info
@@ -613,6 +615,76 @@ curl --location 'http://127.0.0.1:8000/api/users/agent/1' \
         "agent_id": 1,
         "created_at": "2023-10-27T08:30:42.000000Z",
         "updated_at": "2023-10-27T08:30:42.000000Z"
+    }
+}
+```
+
+## List users
+
+> A request can be sent to list the users
+
+-   **GET** (http://127.0.0.1:8000/api/users/agent)
+
+```
+curl --location 'http://127.0.0.1:8000/api/users/agent' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "data": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 1,
+                "code": "3",
+                "name": "Moon",
+                "balance": 0,
+                "agent_id": 1,
+                "created_at": "2023-10-27T08:30:42.000000Z",
+                "updated_at": "2023-10-27T08:30:42.000000Z"
+            },
+            {
+                "id": 2,
+                "code": "4",
+                "name": "Moon",
+                "balance": 0,
+                "agent_id": 1,
+                "created_at": "2023-10-27T09:28:59.000000Z",
+                "updated_at": "2023-10-27T09:28:59.000000Z"
+            }
+        ],
+        "first_page_url": "http://127.0.0.1:8000/api/users/agent?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "http://127.0.0.1:8000/api/users/agent?page=1",
+        "links": [
+            {
+                "url": null,
+                "label": "&laquo; Previous",
+                "active": false
+            },
+            {
+                "url": "http://127.0.0.1:8000/api/users/agent?page=1",
+                "label": "1",
+                "active": true
+            },
+            {
+                "url": null,
+                "label": "Next &raquo;",
+                "active": false
+            }
+        ],
+        "next_page_url": null,
+        "path": "http://127.0.0.1:8000/api/users/agent",
+        "per_page": 10,
+        "prev_page_url": null,
+        "to": 2,
+        "total": 2
     }
 }
 ```

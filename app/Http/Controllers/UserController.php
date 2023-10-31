@@ -15,4 +15,11 @@ class UserController extends Controller
         abort_unless($user->agent_id == $agent->id, ResponseStatus::NOT_FOUND->value);
         return response()->json(['user' => $user]);
     }
+
+    public function index(Request $request)
+    {
+        $agent = Agent::current($request);
+        $query = User::query()->where('agent_id', $agent->id);
+        return response()->json(['data' => $query->paginate($request->per_page ?? 10)]);
+    }
 }
