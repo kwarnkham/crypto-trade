@@ -823,14 +823,16 @@ curl --location 'http://127.0.0.1:8000/api/agents/callback' \
 
 ```
 {
-    "user": {
+    "agent": {
         "id": 1,
-        "code": "3",
-        "name": "Moon",
-        "balance": 0,
-        "agent_id": 1,
-        "created_at": "2023-10-27T08:30:42.000000Z",
-        "updated_at": "2023-10-27T08:30:42.000000Z"
+        "name": "agent",
+        "remark": "vip",
+        "status": 1,
+        "ip": "127.0.0.1",
+        "deposit_callback": "http://localhost:8014/api/callback/crypto_trade/deposits",
+        "withdraw_callback": "http://localhost:8014/api/callback/crypto_trade/withdraws",
+        "created_at": "2023-10-31T09:42:17.000000Z",
+        "updated_at": "2023-10-31T10:23:42.000000Z"
     }
 }
 ```
