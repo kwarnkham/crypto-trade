@@ -18,7 +18,8 @@ class AuthController extends Controller
 
         $admin = Admin::query()->where('name', $data['name'])->first();
         if (Hash::check($data['password'], $admin->password)) {
-            $admin->tokens()->delete();
+            if (!config('app.multi_login'))
+                $admin->tokens()->delete();
             $token = $admin->createToken('admin');
             return ['token' => $token->plainTextToken, 'admin' => $admin];
         }

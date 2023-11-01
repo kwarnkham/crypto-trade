@@ -46,6 +46,7 @@ namespace App\Models{
  * @property string $ip
  * @property string|null $deposit_callback
  * @property string|null $withdraw_callback
+ * @property mixed|null $aes_key
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
@@ -54,6 +55,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Agent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Agent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Agent query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Agent whereAesKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereDepositCallback($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereId($value)

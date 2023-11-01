@@ -836,3 +836,110 @@ curl --location 'http://127.0.0.1:8000/api/agents/callback' \
     }
 }
 ```
+
+# Wallet
+
+## List wallets
+
+> A request can be sent to list the wallet
+
+-   **POST** (http://127.0.0.1:8000/api/wallets/agent)
+
+```
+curl --location 'http://127.0.0.1:8000/api/wallets/agent' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJpd1NQbnl1Y2ZGclFNeVhUVGxzV2VnUlVGcHZiZm9QU2ladVZ5cWI4cWZUdkowbGhYc3R4OXc3R1dFSnJqbGdsIn0.vuSP1-qyJfNSeBir0hZ6ZMInnfyWyKpLSDOPT5qdb3M' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "current_page": 1,
+    "data": [
+        {
+            "id": 1,
+            "balance": 9988,
+            "trx": 21629.34308,
+            "staked_for_energy": 0,
+            "staked_for_bandwidth": 0,
+            "resource": {
+                "freeNetUsed": 265,
+                "freeNetLimit": 600,
+                "TotalNetLimit": 43200000000,
+                "TotalNetWeight": 84633046534,
+                "TotalEnergyLimit": 50000000000000,
+                "TotalEnergyWeight": 564246283677
+            },
+            "energy": 0,
+            "bandwidth": 335,
+            "activated_at": "2023-11-01T13:25:17.000000Z",
+            "base58_check": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "total_deposit": 2,
+            "total_withdraw": 2,
+            "unstakes": []
+        },
+        {
+            "id": 2,
+            "balance": 4994,
+            "trx": 93.5087,
+            "staked_for_energy": 0,
+            "staked_for_bandwidth": 10,
+            "resource": {
+                "freeNetLimit": 600,
+                "NetLimit": 5,
+                "TotalNetLimit": 43200000000,
+                "TotalNetWeight": 84633046534,
+                "tronPowerLimit": 10,
+                "TotalEnergyLimit": 50000000000000,
+                "TotalEnergyWeight": 564246283677
+            },
+            "energy": 0,
+            "bandwidth": 605,
+            "activated_at": "2023-11-01T13:25:32.000000Z",
+            "base58_check": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+            "total_deposit": 0,
+            "total_withdraw": 0,
+            "unstakes": [
+                {
+                    "id": 3,
+                    "wallet_id": 2,
+                    "type": "ENERGY",
+                    "amount": 100,
+                    "withdrawable_at": "2023-10-31T03:26:18.000000Z",
+                    "created_at": "2023-11-01T13:26:48.000000Z",
+                    "updated_at": "2023-11-01T13:26:48.000000Z"
+                }
+            ]
+        }
+    ],
+    "first_page_url": "http://127.0.0.1:8000/api/wallets/agent?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "http://127.0.0.1:8000/api/wallets/agent?page=1",
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "http://127.0.0.1:8000/api/wallets/agent?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "next_page_url": null,
+    "path": "http://127.0.0.1:8000/api/wallets/agent",
+    "per_page": 20,
+    "prev_page_url": null,
+    "to": 2,
+    "total": 2
+}
+```

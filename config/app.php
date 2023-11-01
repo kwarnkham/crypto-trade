@@ -31,6 +31,8 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
+    'multi_login' => env('MULTI_LOGIN', false),
+
     'trc20_address' => env('APP_ENV', 'production') == 'production' ?
         'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t' : 'TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs',
 
@@ -42,9 +44,9 @@ return [
     'tron_api_key3' => env('TRON_API_KEY3', '659e3a1b-e4ae-4dd0-9219-b56215e919d0'),
 
     'min_energy_for_transaction' => env('APP_ENV', 'production') == 'production' ?
-        50000 : 15000,
+        200000 : 15000,
     'min_trx_for_transaction' => env('APP_ENV', 'production') == 'production' ?
-        40 : 15,
+        100 : 15,
 
 
     /*

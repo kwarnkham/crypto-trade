@@ -74,16 +74,23 @@ Route::controller(AuthController::class)->prefix('/admin')->group(function () {
     });
 });
 
-Route::controller(WalletController::class)->middleware(['auth:sanctum', 'admin'])->prefix('/wallets')->group(function () {
-    Route::post('', 'store');
-    Route::get('', 'index');
-    Route::post('{wallet}/activate', 'activate');
-    Route::get('{wallet}', 'find');
-    Route::post('{wallet}/stake', 'stake');
-    Route::post('{wallet}/unstake', 'unstake');
-    Route::post('{wallet}/withdraw-unstake', 'withdrawUnstake');
-    Route::post('{wallet}/cancel-unstake', 'cancelUnstake');
+Route::controller(WalletController::class)->prefix('/wallets')->group(function () {
+    Route::middleware(['agent'])->prefix('agent')->group(function () {
+        Route::get('', 'index');
+    });
+
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        Route::post('', 'store');
+        Route::get('', 'index');
+        Route::post('{wallet}/activate', 'activate');
+        Route::get('{wallet}', 'find');
+        Route::post('{wallet}/stake', 'stake');
+        Route::post('{wallet}/unstake', 'unstake');
+        Route::post('{wallet}/withdraw-unstake', 'withdrawUnstake');
+        Route::post('{wallet}/cancel-unstake', 'cancelUnstake');
+    });
 });
+
 
 
 Route::controller(AgentController::class)->middleware(['auth:sanctum'])->prefix('/agents')->group(function () {
