@@ -3,6 +3,7 @@
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepositController;
+use App\Http\Controllers\ExtractController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WithdrawController;
@@ -46,6 +47,12 @@ Route::controller(WithdrawController::class)->prefix('/withdraws')->group(functi
     });
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::get('', 'index');
+    });
+});
+
+Route::controller(ExtractController::class)->prefix('/extracts')->group(function () {
+    Route::middleware(['agent'])->prefix('/agent')->group(function () {
+        Route::post('', 'store');
     });
 });
 

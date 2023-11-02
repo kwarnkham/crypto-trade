@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Enums\ResponseStatus;
 use App\Enums\WithdrawStatus;
-use App\Jobs\ProcessConfirmWithdraw;
+use App\Jobs\ProcessConfirmedWithdraw;
 use App\Services\Tron;
 use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -70,7 +70,7 @@ class Withdraw extends Model
                 'txid' => $txid
             ]);
 
-            ProcessConfirmWithdraw::dispatch($txid, $this->id)->delay(now()->addMinute());
+            ProcessConfirmedWithdraw::dispatch($txid, $this->id)->delay(now()->addMinute());
             return $response;
         }
     }

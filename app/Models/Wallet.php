@@ -7,7 +7,6 @@ use App\Enums\WithdrawStatus;
 use App\Events\WalletUpdated;
 use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -91,6 +90,11 @@ class Wallet extends Model
     public function withdraws()
     {
         return $this->hasMany(Withdraw::class);
+    }
+
+    public function extracts()
+    {
+        return $this->hasMany(Extract::class);
     }
 
     public function deposits()
@@ -189,6 +193,11 @@ class Wallet extends Model
     public function sendUSDT(string $to, int $amount)
     {
         return Tron::sendUSDT($to, $amount, $this->private_key, $this->base58_check);
+    }
+
+    public function sendTRX(string $to, int $amount)
+    {
+        return Tron::sendTRX($to, $amount, $this->private_key, $this->base58_check);
     }
 
     public function freezeBalance(int $amount, string $resource = 'BANDWIDTH')
