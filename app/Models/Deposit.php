@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class Deposit extends Model
 {
-    use HasFactory, Filterable;
+    use Filterable;
 
     protected $guarded = ['id'];
 

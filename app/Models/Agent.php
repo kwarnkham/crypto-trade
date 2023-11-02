@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\AgentStatus;
 use App\Traits\Filterable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
@@ -16,13 +15,14 @@ use Illuminate\Support\Facades\Log;
 
 class Agent extends Model
 {
-    use HasFactory, Filterable;
+    use Filterable;
 
     protected $guarded = ['id'];
-    protected $hidden = ['key'];
+    protected $hidden = ['key', 'aes_key'];
 
     protected $casts = [
         'key' => 'encrypted',
+        'aes_key' => 'encrypted'
     ];
 
     public static function verify(Request $request)
@@ -85,7 +85,9 @@ class Agent extends Model
 
     public static function current(Request $request)
     {
-        return Agent::where('name', $request->header('x-agent'))->first();
+        $agentName = $request->header('x-agent');
+        if (!$agentName) return;
+        return Agent::where('name', $agentName)->first();
     }
 
     public function resetKey()

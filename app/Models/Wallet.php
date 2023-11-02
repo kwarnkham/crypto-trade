@@ -15,13 +15,11 @@ use Illuminate\Support\Facades\Log;
 
 class Wallet extends Model
 {
-    use HasFactory;
-
     protected $guarded = ['id'];
 
-
+    protected $appends = ['total_deposit', 'total_withdraw'];
     protected $hidden = [
-        'private_key', 'public_key', 'base64', 'hex_address'
+        'private_key', 'public_key', 'base64', 'hex_address', 'created_at', 'updated_at'
     ];
 
     protected $casts = [
@@ -34,6 +32,20 @@ class Wallet extends Model
         return Attribute::make(
             get: fn (?string $value) => json_decode($value ?? ''),
             set: fn ($value) => json_encode($value ?? ''),
+        );
+    }
+
+    protected function totalDeposit(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->deposits()->where('status', DepositStatus::COMPLETED->value)->sum('amount') / Tron::DIGITS,
+        );
+    }
+
+    protected function totalWithdraw(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->withdraws()->where('status', WithdrawStatus::COMPLETED->value)->sum('amount') / Tron::DIGITS,
         );
     }
 

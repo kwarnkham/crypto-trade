@@ -21,6 +21,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
+ * @method static \Database\Factories\AdminFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Admin newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Admin newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Admin query()
@@ -43,6 +44,9 @@ namespace App\Models{
  * @property string|null $remark
  * @property int $status
  * @property string $ip
+ * @property string|null $deposit_callback
+ * @property string|null $withdraw_callback
+ * @property mixed|null $aes_key
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
@@ -51,7 +55,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Agent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Agent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Agent query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Agent whereAesKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Agent whereDepositCallback($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereIp($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereKey($value)
@@ -59,6 +65,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereRemark($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Agent whereWithdrawCallback($value)
  */
 	class Agent extends \Eloquent {}
 }

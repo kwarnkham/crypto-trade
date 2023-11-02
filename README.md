@@ -161,6 +161,60 @@ curl --location --request POST 'http://127.0.0.1:8000/api/deposits/agent/7/cance
 }
 ```
 
+## Find a deposit
+
+> A request can be sent to find a deposit
+
+-   **GET** (http://127.0.0.1:8000/api/deposits/agent/{id})
+
+```
+curl --location 'http://127.0.0.1:8000/api/deposits/agent/1' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+-   **depoist** > The deposit instance
+
+```
+{
+    "deposit": {
+        "id": 1,
+        "user_id": 1,
+        "wallet_id": 1,
+        "transaction_id": null,
+        "amount": 2,
+        "status": 1,
+        "attempts": 0,
+        "created_at": "2023-10-31T08:47:40.000000Z",
+        "updated_at": "2023-10-31T08:47:40.000000Z",
+        "user": {
+            "id": 1,
+            "code": "2",
+            "name": "Moon",
+            "balance": 0,
+            "agent_id": 1,
+            "created_at": "2023-10-31T08:47:40.000000Z",
+            "updated_at": "2023-10-31T08:47:40.000000Z",
+            "agent": {
+                "id": 1,
+                "name": "agent",
+                "remark": null,
+                "status": 1,
+                "ip": "*",
+                "created_at": "2023-10-31T08:47:38.000000Z",
+                "updated_at": "2023-10-31T08:47:38.000000Z"
+            }
+        },
+        "wallet": {
+            "base58_check": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y"
+        }
+    }
+}
+```
+
 ## List deposits
 
 > A request can be sent to list all deposits
@@ -276,6 +330,61 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
 1. Only wallet address is valid, the withdraw can be continued
 2. The withdraw amount cannot be greather than balance amount
 3. The withdraw amount must be greater than the withdraw fee
+
+## Find a withdraw
+
+> A request can be sent to find a withdraw
+
+-   **GET** (http://127.0.0.1:8000/api/withdraws/agent/{id})
+
+```
+curl --location 'http://127.0.0.1:8000/api/withdraws/agent/1' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+-   **withdraw** > The withdraw instance
+
+```
+{
+    "withdraw": {
+        "id": 1,
+        "user_id": 1,
+        "wallet_id": null,
+        "to": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+        "amount": 2,
+        "fee": 1,
+        "status": 1,
+        "txid": null,
+        "transaction_id": null,
+        "attempts": 0,
+        "created_at": "2023-10-31T08:49:19.000000Z",
+        "updated_at": "2023-10-31T08:49:19.000000Z",
+        "user": {
+            "id": 1,
+            "code": "2",
+            "name": "Moon",
+            "balance": 2,
+            "agent_id": 1,
+            "created_at": "2023-10-31T08:47:40.000000Z",
+            "updated_at": "2023-10-31T08:47:40.000000Z",
+            "agent": {
+                "id": 1,
+                "name": "agent",
+                "remark": null,
+                "status": 1,
+                "ip": "*",
+                "created_at": "2023-10-31T08:47:38.000000Z",
+                "updated_at": "2023-10-31T08:47:38.000000Z"
+            }
+        },
+        "wallet": null
+    }
+}
+```
 
 ## List Withdraw
 
@@ -583,5 +692,254 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
     "prev_page_url": null,
     "to": 1,
     "total": 1
+}
+```
+
+# User
+
+## Get user info
+
+> A request can be sent query the user info
+>
+> > Note that the url param is user_id, not code
+
+-   **GET** (http://127.0.0.1:8000/api/users/agent/{user_id})
+
+```
+curl --location 'http://127.0.0.1:8000/api/users/agent/1' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "user": {
+        "id": 1,
+        "code": "3",
+        "name": "Moon",
+        "balance": 0,
+        "agent_id": 1,
+        "created_at": "2023-10-27T08:30:42.000000Z",
+        "updated_at": "2023-10-27T08:30:42.000000Z"
+    }
+}
+```
+
+## List users
+
+> A request can be sent to list the users
+
+-   **GET** (http://127.0.0.1:8000/api/users/agent)
+
+```
+curl --location 'http://127.0.0.1:8000/api/users/agent' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "data": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 1,
+                "code": "3",
+                "name": "Moon",
+                "balance": 0,
+                "agent_id": 1,
+                "created_at": "2023-10-27T08:30:42.000000Z",
+                "updated_at": "2023-10-27T08:30:42.000000Z"
+            },
+            {
+                "id": 2,
+                "code": "4",
+                "name": "Moon",
+                "balance": 0,
+                "agent_id": 1,
+                "created_at": "2023-10-27T09:28:59.000000Z",
+                "updated_at": "2023-10-27T09:28:59.000000Z"
+            }
+        ],
+        "first_page_url": "http://127.0.0.1:8000/api/users/agent?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "http://127.0.0.1:8000/api/users/agent?page=1",
+        "links": [
+            {
+                "url": null,
+                "label": "&laquo; Previous",
+                "active": false
+            },
+            {
+                "url": "http://127.0.0.1:8000/api/users/agent?page=1",
+                "label": "1",
+                "active": true
+            },
+            {
+                "url": null,
+                "label": "Next &raquo;",
+                "active": false
+            }
+        ],
+        "next_page_url": null,
+        "path": "http://127.0.0.1:8000/api/users/agent",
+        "per_page": 10,
+        "prev_page_url": null,
+        "to": 2,
+        "total": 2
+    }
+}
+```
+
+# Agent
+
+## Set agent callback url
+
+> A request can be sent to set the callback url for deposits and withdraws
+
+-   **POST** (http://127.0.0.1:8000/api/agents/callback)
+-   **Data**
+    1. deposit_callback [URL]
+    2. withdraw_callback [URL]
+
+```
+curl --location 'http://127.0.0.1:8000/api/agents/callback' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'deposit_callback=http://localhost:8014/api/callback/crypto_trade/deposits' \
+--data-urlencode 'withdraw_callback=http://localhost:8014/api/callback/crypto_trade/withdraws'
+```
+
+> Response
+
+```
+{
+    "agent": {
+        "id": 1,
+        "name": "agent",
+        "remark": "vip",
+        "status": 1,
+        "ip": "127.0.0.1",
+        "deposit_callback": "http://localhost:8014/api/callback/crypto_trade/deposits",
+        "withdraw_callback": "http://localhost:8014/api/callback/crypto_trade/withdraws",
+        "created_at": "2023-10-31T09:42:17.000000Z",
+        "updated_at": "2023-10-31T10:23:42.000000Z"
+    }
+}
+```
+
+# Wallet
+
+## List wallets
+
+> A request can be sent to list the wallet
+
+-   **POST** (http://127.0.0.1:8000/api/wallets/agent)
+
+```
+curl --location 'http://127.0.0.1:8000/api/wallets/agent' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJpd1NQbnl1Y2ZGclFNeVhUVGxzV2VnUlVGcHZiZm9QU2ladVZ5cWI4cWZUdkowbGhYc3R4OXc3R1dFSnJqbGdsIn0.vuSP1-qyJfNSeBir0hZ6ZMInnfyWyKpLSDOPT5qdb3M' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "current_page": 1,
+    "data": [
+        {
+            "id": 1,
+            "balance": 9988,
+            "trx": 21629.34308,
+            "staked_for_energy": 0,
+            "staked_for_bandwidth": 0,
+            "resource": {
+                "freeNetUsed": 265,
+                "freeNetLimit": 600,
+                "TotalNetLimit": 43200000000,
+                "TotalNetWeight": 84633046534,
+                "TotalEnergyLimit": 50000000000000,
+                "TotalEnergyWeight": 564246283677
+            },
+            "energy": 0,
+            "bandwidth": 335,
+            "activated_at": "2023-11-01T13:25:17.000000Z",
+            "base58_check": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "total_deposit": 2,
+            "total_withdraw": 2,
+            "unstakes": []
+        },
+        {
+            "id": 2,
+            "balance": 4994,
+            "trx": 93.5087,
+            "staked_for_energy": 0,
+            "staked_for_bandwidth": 10,
+            "resource": {
+                "freeNetLimit": 600,
+                "NetLimit": 5,
+                "TotalNetLimit": 43200000000,
+                "TotalNetWeight": 84633046534,
+                "tronPowerLimit": 10,
+                "TotalEnergyLimit": 50000000000000,
+                "TotalEnergyWeight": 564246283677
+            },
+            "energy": 0,
+            "bandwidth": 605,
+            "activated_at": "2023-11-01T13:25:32.000000Z",
+            "base58_check": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+            "total_deposit": 0,
+            "total_withdraw": 0,
+            "unstakes": [
+                {
+                    "id": 3,
+                    "wallet_id": 2,
+                    "type": "ENERGY",
+                    "amount": 100,
+                    "withdrawable_at": "2023-10-31T03:26:18.000000Z",
+                    "created_at": "2023-11-01T13:26:48.000000Z",
+                    "updated_at": "2023-11-01T13:26:48.000000Z"
+                }
+            ]
+        }
+    ],
+    "first_page_url": "http://127.0.0.1:8000/api/wallets/agent?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "http://127.0.0.1:8000/api/wallets/agent?page=1",
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "http://127.0.0.1:8000/api/wallets/agent?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "next_page_url": null,
+    "path": "http://127.0.0.1:8000/api/wallets/agent",
+    "per_page": 20,
+    "prev_page_url": null,
+    "to": 2,
+    "total": 2
 }
 ```

@@ -19,6 +19,9 @@ return new class extends Migration
             $table->text('remark')->nullable();
             $table->tinyInteger('status')->default(AgentStatus::NORMAL->value);
             $table->ipAddress('ip');
+            $table->string('deposit_callback')->nullable();
+            $table->string('withdraw_callback')->nullable();
+            $table->string('aes_key')->nullable();
             $table->timestamps();
         });
     }

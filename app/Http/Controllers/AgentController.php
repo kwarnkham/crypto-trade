@@ -45,12 +45,27 @@ class AgentController extends Controller
         ]);
     }
 
+    public function setCallback(Request $request)
+    {
+        $data = $request->validate([
+            'deposit_callback' => ['sometimes', 'required', 'url'],
+            'withdraw_callback' => ['sometimes', 'required', 'url'],
+        ]);
+        $agent = Agent::current($request);
+        $agent->update($data);
+
+        return response()->json([
+            'agent' => $agent
+        ]);
+    }
+
     public function update(Request $request, Agent $agent)
     {
         $data = $request->validate([
             'ip' => ['ip', 'required'],
             'name' => ['required', Rule::unique('agents', 'name')->ignoreModel($agent)],
-            'remark' => ['']
+            'remark' => [''],
+            'aes_key' => ['sometimes', 'required']
         ]);
 
         $data['ip'] = $request->ip;
