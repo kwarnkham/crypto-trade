@@ -943,3 +943,47 @@ curl --location 'http://127.0.0.1:8000/api/wallets/agent' \
     "total": 2
 }
 ```
+
+# Extract
+
+## Make an extract
+
+> A request can be sent to extract TRX or USDT to a wallet
+
+-   **POST** (http://127.0.0.1:8000/api/extracts/agent)
+-   **Rquest Data**
+    1. type ['1' or '2'] {1:USDT} {2:TRX}
+    2. amount [int]
+    3. to ['Tron wallet address in base58_check']
+    4. wallet_id [ID of the walelt to extract USDT/TRX from]
+
+```
+curl --location 'http://127.0.0.1:8000/api/extracts/agent' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJpd1NQbnl1Y2ZGclFNeVhUVGxzV2VnUlVGcHZiZm9QU2ladVZ5cWI4cWZUdkowbGhYc3R4OXc3R1dFSnJqbGdsIn0.vuSP1-qyJfNSeBir0hZ6ZMInnfyWyKpLSDOPT5qdb3M' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'type=1' \
+--data-urlencode 'amount=2' \
+--data-urlencode 'to=TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ' \
+--data-urlencode 'wallet_id=1'
+```
+
+> Response
+
+```
+{
+    "extract": {
+        "amount": 2,
+        "type": "1",
+        "to": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+        "wallet_id": 1,
+        "agent_id": 1,
+        "updated_at": "2023-11-02T03:58:09.000000Z",
+        "created_at": "2023-11-02T03:58:06.000000Z",
+        "id": 6,
+        "status": 2,
+        "txid": "2ed11623dace4319d3f344ef83828bba026e0cf304032b3d6576a285eb82b52e"
+    }
+}
+```

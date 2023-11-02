@@ -75,6 +75,25 @@ class Tron
         return static::broadcastTransaction($signed);
     }
 
+    public static function sendTRX(string $to, int $amount, string $privateKey, string $from)
+    {
+        $transaction = static::createTransaction($from, $to, $amount);
+
+        $signed = static::signTransaction($transaction, $privateKey);
+
+        return static::broadcastTransaction($signed);
+    }
+
+    public static function createTransaction(string $ownerAddress, string $toAddress, int $amount)
+    {
+        return Http::tron()->post("/wallet/createtransaction", [
+            'owner_address' => $ownerAddress,
+            'to_address' => $toAddress,
+            'amount' => $amount * Tron::DIGITS,
+            'visible' => true
+        ])->json();
+    }
+
     public static function getTransactionError(string $txID)
     {
         $txInfo = static::getTransactionInfoById($txID);
