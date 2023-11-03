@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Admin;
 use App\Models\Agent;
@@ -23,6 +24,7 @@ class TransferTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $this->seed();
         $this->agent = Agent::query()->first();
         $this->user = User::create([
@@ -44,6 +46,13 @@ class TransferTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' =>  'Bearer ' . $this->getToken()
         ]);
+    }
+
+    public function tearDown(): void
+    {
+        // Re-enable foreign key checks after the test
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        parent::tearDown();
     }
 
     public function test_agent_user_can_transfer_USDT_to_each_other(): void

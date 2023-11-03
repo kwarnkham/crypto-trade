@@ -28,7 +28,7 @@ class TransactionTest extends TestCase
     public function test_admin_can_view_transactions(): void
     {
         $transactions = Transaction::factory()->count(5)->create();
-        $response = $this->getJson('api/transactions')->dump();
+        $response = $this->getJson('api/transactions');
         $response->assertStatus(200);
     }
 

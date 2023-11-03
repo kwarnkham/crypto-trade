@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class WithdrawFactory extends Factory
@@ -11,7 +10,6 @@ class WithdrawFactory extends Factory
 
     public function definition(): array
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         return [
             'user_id' => 1 ,
             'wallet_id' => 1,

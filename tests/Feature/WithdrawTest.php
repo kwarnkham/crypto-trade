@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Enums\WithdrawStatus;
 use App\Models\Agent;
@@ -25,6 +26,7 @@ class WithdrawTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $this->seed();
         $this->agent = Agent::query()->first();
         $this->wallet = Wallet::query()->first();
@@ -43,6 +45,12 @@ class WithdrawTest extends TestCase
         ]);
     }
 
+    public function tearDown(): void
+    {
+        // Re-enable foreign key checks after the test
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        parent::tearDown();
+    }
 
     public function test_agent_can_create_withdraw(): void
     {
