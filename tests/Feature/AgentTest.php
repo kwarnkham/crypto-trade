@@ -19,12 +19,8 @@ class AgentTest extends TestCase
     {
         parent::setUp();
         $this->seed();
-        $this->agent = Agent::query()->first();
-        $this->withHeaders([
-            'Content-Type'  => 'application/x-www-form-urlencoded',
-            'Accept' => 'application/json',
-            'Authorization' =>  'Bearer ' . $this->getToken()
-        ]);
+        $this->agent = Agent::first();
+        $this->actingAs(Admin::first());
     }
 
     public function test_admin_can_create_agent(): void
@@ -33,8 +29,10 @@ class AgentTest extends TestCase
         $response = $this->postJson('api/agents', [
             'name' => $name
         ]);
-        $response->assertStatus(200);
+        $response->assertOk();
         $this->assertNotNull(Agent::where('name', $name)->first());
+        $this->assertArrayHasKey('agent', $response->json());
+        $this->assertArrayHasKey('key', $response->json());
     }
 
     public function test_newly_created_agent_status_is_default_to_normal(): void
@@ -50,41 +48,56 @@ class AgentTest extends TestCase
         );
     }
 
-    public function test_admin_can_view_agents(): void
+    public function test_admin_can_list_agents(): void
     {
         $response = $this->getJson('api/agents');
         $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response->json());
     }
 
-    public function test_admin_can_restrict_agent(): void
+    public function test_admin_can_toggle_agent_status(): void
     {
-        $response = $this->postJson('api/agents/' . $this->agent->id . '/toggle-status')->json();
+        $response = $this->postJson('api/agents/' . $this->agent->id . '/toggle-status');
         $this->assertEquals(
             AgentStatus::RESTRICTED->value,
-            $response['agent']['status']
+            $response->json()['agent']['status']
+        );
+
+        $response = $this->postJson('api/agents/' . $this->agent->id . '/toggle-status');
+        $this->assertEquals(
+            AgentStatus::NORMAL->value,
+            $response->json()['agent']['status']
         );
     }
 
     public function test_admin_can_change_agent_status_from_restrict_to_normal(): void
     {
-        $response = $this->postJson('api/agents/' . $this->agent->id . '/toggle-status')->json();
+        $response = $this->postJson('api/agents/' . $this->agent->id . '/toggle-status');
         $this->assertEquals(
             AgentStatus::RESTRICTED->value,
-            $response['agent']['status']
+            $response->json()['agent']['status']
         );
-        $response = $this->postJson('api/agents/' . $this->agent->id . '/toggle-status')->json();
+        $response = $this->postJson('api/agents/' . $this->agent->id . '/toggle-status');
         $this->assertEquals(
             AgentStatus::NORMAL->value,
-            $response['agent']['status']
+            $response->json()['agent']['status']
         );
     }
 
     public function test_admin_can_reset_agent_key(): void
     {
-        $response = $this->postJson('api/agents/' . $this->agent->id . '/reset-key')->json();
+        $oldKey = $this->agent->key;
+        $response = $this->postJson('api/agents/' . $this->agent->id . '/reset-key');
+
         $this->assertNotEquals(
-            $this->agent->key,
-            $response['key']
+            $oldKey,
+            $response->json()['key']
+        );
+
+
+        $this->assertEquals(
+            $this->agent->fresh()->key,
+            $response->json()['key']
         );
     }
 
@@ -97,19 +110,8 @@ class AgentTest extends TestCase
         ];
         $response = $this->putJson('api/agents/' . $this->agent->id, $updateData);
         $response->assertStatus(200);
-        $this->assertEquals(1, Agent::where(['id' => $this->agent->id])->where($updateData)->count());
-    }
-
-    function getToken()
-    {
-        // Login
-        $adminPassword = Str::random(6);
-        $this->admin = Admin::factory(['password' => bcrypt($adminPassword)])->create();
-        $responseAuth = $this->postJson('api/admin/login', [
-            'name' => $this->admin->name,
-            'password' => $adminPassword
-        ])->json();
-
-        return $responseAuth['token'];
+        $this->assertEquals(1, Agent::where(['id' => $this->agent->id])
+            ->where($updateData)->count());
+        $this->assertArrayHasKey('agent', $response->json());
     }
 }
