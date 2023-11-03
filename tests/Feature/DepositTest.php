@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\DepositStatus;
+use App\Jobs\ProcessConfirmedDeposit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Str;
@@ -11,6 +12,7 @@ use App\Models\Agent;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Deposit;
+use Illuminate\Support\Facades\Queue;
 
 class DepositTest extends TestCase
 {
@@ -32,6 +34,7 @@ class DepositTest extends TestCase
             'Content-Type'  => 'application/x-www-form-urlencoded',
             'Accept' => 'application/json'
         ]);
+        Queue::fake();
     }
 
     /**
@@ -92,7 +95,7 @@ class DepositTest extends TestCase
         $this->assertDatabaseCount('users', 1);
     }
 
-    public function test_agent_cant_create_if_pendind_deposit_exist(): void
+    public function test_agent_cannot_create_another_depoist_if_a_pending_deposit_exist(): void
     {
         $code = Str::random('3');
         $name =  $this->faker()->lastName();
@@ -115,67 +118,67 @@ class DepositTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_agent_user_can_deposit_if_avaliable_wallet_exist(): void
+    public function test_agent_user_can_deposit_only_if_avaliable_wallet_exist(): void
     {
-        $code = Str::random('3');
-        $name =  $this->faker()->lastName();
-        $existAvaliableWallet = Wallet::findAvailable();
-        $this->assertNotNull($existAvaliableWallet);
+        // make a unit test for Wallet::findAvailable()
+        while (Wallet::findAvailable() != null) {
+            $response = $this->postJson('api/deposits/agent', [
+                'code' => $this->faker()->unique()->randomNumber(3),
+                'name' => $this->faker()->lastName(),
+                'amount' => rand(1, 5)
+            ]);
+            $response->assertOk();
+        }
+
         $response = $this->postJson('api/deposits/agent', [
-            'code' => $code,
-            'name' => $name,
+            'code' => $this->faker()->unique()->randomNumber(3),
+            'name' => $this->faker()->lastName(),
             'amount' => rand(1, 5)
         ]);
-        $response->assertStatus(200);
+        $response->assertBadRequest();
     }
 
-    public function test_agent_user_cant_deposit_if_wallet_is_not_activate(): void
+    public function test_agent_user_cannot_depoist_again_if_existing_deposit_is_pending_or_confirmed(): void
     {
         $code = Str::random('3');
         $name =  $this->faker()->lastName();
-        $checkAvaliableWallet = Wallet::findAvailable();
-        $this->assertNotNull($checkAvaliableWallet);
-        $response = $this->postJson('api/deposits/agent', [
-            'code' => $code,
-            'name' => $name,
-            'amount' => rand(1, 5)
-        ]);
-        $response->assertStatus(200);
-
-        $deactivateSecondWalletFromDbSeed = Wallet::where('id', '!=', $checkAvaliableWallet->id)->update(['activated_at' => null]);
-        $checkAvaliableActivatedWallet = Wallet::findAvailable();
-        $this->assertNull($checkAvaliableActivatedWallet);
 
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
             'amount' => rand(1, 5)
-        ]);
-        $response->assertStatus(400);
-    }
+        ])->assertOk();
 
-    public function test_agent_user_cant_deposit_if_wallet_has_pending_or_confirmed_deposits(): void
-    {
-        $code = Str::random('3');
-        $name =  $this->faker()->lastName();
-        $checkAvaliableWallet = Wallet::findAvailable();
-        $this->assertNotNull($checkAvaliableWallet);
+        $depositId = $response->json()['deposit']['id'];
+
+        $this->postJson('api/deposits/agent', [
+            'code' => $code,
+            'name' => $name,
+            'amount' => rand(1, 5)
+        ])->assertBadRequest();
+
+        $this->postJson('api/deposits/agent/' . $depositId . '/confirm')->assertOk();
+
+        Queue::assertPushed(function (ProcessConfirmedDeposit $job) use ($depositId) {
+            return $job->depositId === $depositId;
+        });
+
+        $this->postJson('api/deposits/agent', [
+            'code' => $code,
+            'name' => $name,
+            'amount' => rand(1, 5)
+        ])->assertBadRequest();
+
+        //can only cancel a pending deposit
+        $this->postJson('api/deposits/agent/' . $depositId . '/cancel')->assertBadRequest();
+
+        Deposit::find($depositId)->update(['status' => DepositStatus::CANCELED->value]);
+
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
             'amount' => rand(1, 5)
-        ]);
-        $response->assertStatus(200);
-
-        $deleteSecondWalletFromDbSeed = Wallet::where('id', '!=', $checkAvaliableWallet->id)->delete();
-        $checkAvaliableWalletDepositStatus = Wallet::findAvailable();
-        $this->assertNull($checkAvaliableWalletDepositStatus);
-        $response = $this->postJson('api/deposits/agent', [
-            'code' => $code,
-            'name' => $name,
-            'amount' => rand(1, 5)
-        ]);
-        $response->assertStatus(400);
+        ])->assertOk();
     }
 
     public function test_agent_user_confirm_deposit(): void
