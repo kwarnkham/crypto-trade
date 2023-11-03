@@ -17,6 +17,7 @@ class TransferTest extends TestCase
     use RefreshDatabase, WithFaker;
     private $user;
     private $agent;
+    private $admin;
     private $recipientUser;
 
     public function setUp(): void

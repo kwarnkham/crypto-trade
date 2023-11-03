@@ -12,6 +12,7 @@ use Tests\TestCase;
 class TransactionTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
+    private $admin;
 
     public function setUp(): void
     {
@@ -27,7 +28,7 @@ class TransactionTest extends TestCase
     public function test_admin_can_view_transactions(): void
     {
         $transactions = Transaction::factory()->count(5)->create();
-        $response = $this->getJson('api/transactions');
+        $response = $this->getJson('api/transactions')->dump();
         $response->assertStatus(200);
     }
 
