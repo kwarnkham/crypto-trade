@@ -48,7 +48,7 @@ class DepositTest extends TestCase
             'amount' => rand(1, 5)
         ]);
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $this->assertDatabaseCount('deposits', 1);
     }
 
@@ -118,9 +118,9 @@ class DepositTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_agent_user_can_deposit_only_if_avaliable_wallet_exist(): void
+    public function test_agent_user_can_deposit_only_if_avaliable_wallet_exists(): void
     {
-        // make a unit test for Wallet::findAvailable()
+        //todo: make a unit test for Wallet::findAvailable()
         while (Wallet::findAvailable() != null) {
             $response = $this->postJson('api/deposits/agent', [
                 'code' => $this->faker()->unique()->randomNumber(3),
@@ -193,7 +193,13 @@ class DepositTest extends TestCase
             Deposit::find($response->json()['deposit']['id'])->status
         );
         $confirmResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/confirm');
+
         $confirmResponse->assertStatus(200);
+
+        $this->assertEquals(
+            DepositStatus::CONFIRMED->value,
+            Deposit::find($confirmResponse->json()['deposit']['id'])->status
+        );
     }
 
     public function test_only_pending_deposit_can_be_confirmed(): void
@@ -203,18 +209,24 @@ class DepositTest extends TestCase
             'name' => $this->faker()->lastName(),
             'amount' => rand(1, 5)
         ]);
+
         $confirmResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/confirm');
+
         $confirmResponse->assertStatus(200);
+
         $this->assertNotEquals(
             DepositStatus::PENDING->value,
             Deposit::find($response->json()['deposit']['id'])->status
         );
+
         $response = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/confirm');
-        $response->assertStatus(400);
+
+        $response->assertBadRequest();
     }
 
     public function test_agent_user_view_deposit(): void
     {
+        //todo:make sure the request contains data
         $response = $this->getJson('api/deposits/agent');
 
         $response->assertStatus(200);
@@ -227,13 +239,20 @@ class DepositTest extends TestCase
             'name' => $this->faker()->lastName(),
             'amount' => rand(1, 5)
         ]);
+
         $this->assertEquals(
             DepositStatus::PENDING->value,
             Deposit::find($response->json()['deposit']['id'])->status
         );
 
         $cancelResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/cancel');
-        $cancelResponse->assertStatus(200);
+
+        $cancelResponse->assertOk();
+
+        $this->assertEquals(
+            DepositStatus::CANCELED->value,
+            Deposit::find($response->json()['deposit']['id'])->status
+        );
     }
 
     public function test_only_pending_deposit_can_be_cancelled(): void
@@ -243,14 +262,18 @@ class DepositTest extends TestCase
             'name' => $this->faker()->lastName(),
             'amount' => rand(1, 5)
         ]);
+
         $cancelResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/cancel');
-        $cancelResponse->assertStatus(200);
+
+        $cancelResponse->assertOk();
 
         $this->assertNotEquals(
             DepositStatus::PENDING->value,
             Deposit::find($response->json()['deposit']['id'])->status
         );
+
         $response = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/cancel');
+
         $response->assertStatus(400);
     }
 }
