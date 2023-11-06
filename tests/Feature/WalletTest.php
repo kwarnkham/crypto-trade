@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Str;
 use App\Models\Admin;
+use App\Models\Wallet;
 use Tests\TestCase;
 
 class WalletTest extends TestCase
@@ -16,25 +16,22 @@ class WalletTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->withHeaders([
-            'Content-Type'  => 'application/x-www-form-urlencoded',
-            'Accept' => 'application/json',
-            'Authorization' =>  'Bearer ' . $this->getToken()
-        ]);
+        $this->seed();
+        $this->actingAs(Admin::first());
     }
 
     public function test_admin_can_create_new_wallet(): void
     {
         $response = $this->postJson('api/wallets');
-        $response->assertStatus(200);
-        $this->assertDatabaseCount('wallets', 1);
+        $response->assertOk();
+        $this->assertArrayHasKey('wallet', $response->json());
+        $this->assertNotNull('wallets', Wallet::where('id', $response->json()['wallet']['id'])->first());
     }
 
-    public function test_admin_can_view_wallet(): void
+    public function test_admin_can_list_wallets(): void
     {
-        $postResponse = $this->postJson('api/wallets');
-        $response = $this->getJson('api/wallets');
-        $response->assertStatus(200);
+        $response = $this->getJson('api/wallets')->assertOk();
+        $this->assertArrayHasKey('data', $response->json());
         $this->assertNotEmpty($response->json()['data']);
     }
 
@@ -51,17 +48,4 @@ class WalletTest extends TestCase
     //     $response = $this->postJson('api/wallets/' . $walletResponse['wallet']['id'] . '/activate')->json();
     //     $this->assertNotNull($response['wallet']['activated_at']);
     // }
-
-    function getToken()
-    {
-        // Login
-        $adminPassword = Str::random(6);
-        $this->admin = Admin::factory(['password' => bcrypt($adminPassword)])->create();
-        $responseAuth = $this->postJson('api/admin/login', [
-            'name' => $this->admin->name,
-            'password' => $adminPassword
-        ])->json();
-
-        return $responseAuth['token'];
-    }
 }

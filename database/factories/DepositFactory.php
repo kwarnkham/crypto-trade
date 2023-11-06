@@ -19,7 +19,9 @@ class DepositFactory extends Factory
         return [
             'amount' => rand(1, 10) ,
             'status' => 1,
-            'attempts' => 0
+            'attempts' => 0,
+            'user_id' => 1,
+            'wallet_id' => 1,
         ];
     }
 }

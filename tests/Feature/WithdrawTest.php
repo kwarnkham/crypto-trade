@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Queue;
+use App\Jobs\ProcessConfirmedWithdraw;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Enums\WithdrawStatus;
@@ -12,7 +14,6 @@ use App\Models\Admin;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Withdraw;
-use App\Models\Transaction;
 use Tests\TestCase;
 
 class WithdrawTest extends TestCase
@@ -27,9 +28,11 @@ class WithdrawTest extends TestCase
     {
         parent::setUp();
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Queue::fake();
         $this->seed();
-        $this->agent = Agent::query()->first();
-        $this->wallet = Wallet::query()->first();
+        $this->actingAs(Admin::first());
+        $this->agent = Agent::first();
+        $this->wallet = Wallet::first();
         $this->user = User::create([
             'code' =>  Str::random('3'),
             'name' => $this->faker()->lastName(),
@@ -40,8 +43,7 @@ class WithdrawTest extends TestCase
             'x-agent'   => $this->agent->name,
             'x-api-key' => $this->agent->jwtKey(),
             'Content-Type'  => 'application/x-www-form-urlencoded',
-            'Accept' => 'application/json',
-            'Authorization' =>  'Bearer ' . $this->getToken()
+            'Accept' => 'application/json'
         ]);
     }
 
@@ -54,53 +56,43 @@ class WithdrawTest extends TestCase
 
     public function test_agent_can_create_withdraw(): void
     {
-        // $depositResponse = $this->postJson('api/deposits/agent', [
-        //     'code' => $this->user->code,
-        //     'name' => $this->faker()->lastName(),
-        //     'amount' => rand(1, 5)
-        // ]);
-        // $depositResponse->assertStatus(200);
-        // $confirmResponse = $this->postJson('api/deposits/agent/' . $depositResponse->json()['deposit']['id'] . '/confirm');
-        // $confirmResponse->assertStatus(200);
-
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->wallet->base58_check,
             'amount' => rand(2, 5)
         ]);
 
-        $response->assertStatus(200);
+        $response->assertOk();
+        $this->assertArrayHasKey('withdraw', $response->json());
         $this->assertDatabaseCount('withdraws', 1);
     }
 
-    public function test_invalid_wallet_address_cant_be_withdrawed(): void
+    public function test_invalid_wallet_address_cannot_be_withdrawed(): void //................
     {
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
-            'to' => 'A' . $this->wallet->base58_check,
+            'to' => Str::random(10),
             'amount' => rand(2, 5)
         ]);
 
-        $response->assertStatus(400);
+        $response->assertBadRequest();
     }
 
-    public function test_user_balance_amount_is_checked_to_be_greather_than_withdraw_amount(): void
+    public function test_agent_user_can_withdraw_only_if_balance_amount_is_greather_than_withdraw_amount(): void
     {
-        $response = $this->postJson('api/withdraws/agent', [
+        $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->wallet->base58_check,
             'amount' => rand(6, 10)
-        ]);
-        $response->assertStatus(400);
+        ])->assertBadRequest();
         $this->assertDatabaseCount('withdraws', 0);
 
 
-        $response = $this->postJson('api/withdraws/agent', [
+        $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->wallet->base58_check,
             'amount' => rand(2, 5)
-        ]);
-        $response->assertStatus(200);
+        ])->assertOk();
         $this->assertDatabaseCount('withdraws', 1);
     }
 
@@ -118,46 +110,68 @@ class WithdrawTest extends TestCase
         );
     }
 
-    // public function test_agent_user_can_confirm_withdraw(): void //Not work
-    // {
-    //     $response = $this->postJson('api/withdraws/agent', [
-    //         'code' => $this->user->code,
-    //         'to' => $this->wallet->base58_check,
-    //         'amount' => rand(2, 5)
-    //     ]);
-    //     $confirmResponse = $this->postJson('api/withdraws/agent/' . $response->json()['withdraw']['id'] . '/confirm');
-    //     $confirmResponse->assertStatus(200);
-    // }
-
-    public function test_withdraw_cant_be_confirmed_if_withdraw_status_is_not_pending(): void
+    public function test_agent_user_can_confirm_withdraw(): void
     {
-        $withdrawCreate = Withdraw::factory(['status' => 2])->create();
+        $withdrawWallet = Wallet::latest('id')->first();
+        $response = $this->postJson('api/withdraws/agent', [
+            'code' => $this->user->code,
+            'to' => $withdrawWallet->base58_check,
+            'amount' => rand(2, 5)
+        ]);
+
+        $withdrawId = $response->json()['withdraw']['id'];
+
+        $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm')->assertOk();
+        Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
+            return $job->withdrawId === $withdrawId;
+        });
+    }
+
+    public function test_withdraw_can_be_confirmed_only_if_withdraw_status_is_pending(): void
+    {
+        $withdrawWallet = Wallet::latest('id')->first();
+        $response = $this->postJson('api/withdraws/agent', [
+            'code' => $this->user->code,
+            'to' => $withdrawWallet->base58_check,
+            'amount' => rand(2, 5)
+        ]);
+
+        $withdrawId = $response->json()['withdraw']['id'];
+
+        $confirmWithdraw = $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm');
+        $confirmWithdraw->assertOk();
+        Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
+            return $job->withdrawId === $withdrawId;
+        });
+
         $this->assertNotEquals(
             WithdrawStatus::PENDING->value,
-            $withdrawCreate->status
+            $confirmWithdraw->json()['withdraw']['status']
         );
-        $response = $this->postJson('api/withdraws/agent/' . $withdrawCreate->id . '/confirm');
-        $response->assertStatus(400);
+
+        $response = $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm');
+        $response->assertBadRequest();
     }
 
-
-    public function test_agent_user_can_view_withdraw(): void
+    public function test_agent_user_can_list_withdraws(): void
     {
-        $withdrawCreate = Withdraw::factory()->count(5)->create();
+        Withdraw::factory()->count(5)->create();
         $response = $this->getJson('api/withdraws/agent');
-        $response->assertStatus(200);
+        $response->assertOk();
+        $this->assertArrayHasKey('data', $response->json());
         $this->assertNotEmpty($response->json()['data']);
     }
 
-    public function test_admin_can_view_withdraw(): void
+    public function test_admin_can_list_withdraws(): void
     {
-        $withdrawCreate = Withdraw::factory()->count(5)->create();
+        Withdraw::factory()->count(5)->create();
         $response = $this->getJson('api/withdraws');
-        $response->assertStatus(200);
+        $response->assertOk();
+        $this->assertArrayHasKey('data', $response->json());
         $this->assertNotEmpty($response->json()['data']);
     }
 
-    public function test_agent_user_cancel_withdraw(): void
+    public function test_agent_user_can_cancel_withdraw(): void
     {
         $withdrawCreate = Withdraw::factory()->create();
 
@@ -166,34 +180,24 @@ class WithdrawTest extends TestCase
             $withdrawCreate->status
         );
 
-        $cancelResponse = $this->postJson('api/withdraws/agent/' . $withdrawCreate->id . '/cancel');
-        $cancelResponse->assertStatus(200);
+        $this->postJson('api/withdraws/agent/' . $withdrawCreate->id . '/cancel')->assertOk();
+        $this->assertEquals(
+            WithdrawStatus::CANCELED->value,
+            $withdrawCreate->refresh()->status
+        );
     }
 
-    public function test_only_pending_deposit_can_be_cancelled(): void
+    public function test_only_pending_withdraw_can_be_cancelled(): void
     {
         $withdrawCreate = Withdraw::factory()->create();
         $cancelResponse = $this->postJson('api/withdraws/agent/' .  $withdrawCreate->id . '/cancel');
-        $cancelResponse->assertStatus(200);
+        $cancelResponse->assertOk();
 
         $this->assertNotEquals(
             withdrawstatus::PENDING->value,
-            $cancelResponse->json()['withdraw']['status']
+            $withdrawCreate->refresh()->status
         );
-        $response = $this->postJson('api/withdraws/agent/' .   $cancelResponse->json()['withdraw']['id'] . '/cancel');
-        $response->assertStatus(400);
-    }
-
-    function getToken()
-    {
-        // Admin Login
-        $adminPassword = Str::random(6);
-        $this->admin = Admin::factory(['password' => bcrypt($adminPassword)])->create();
-        $responseAuth = $this->postJson('api/admin/login', [
-            'name' => $this->admin->name,
-            'password' => $adminPassword
-        ])->json();
-
-        return $responseAuth['token'];
+        $response = $this->postJson('api/withdraws/agent/' .   $withdrawCreate->id . '/cancel');
+        $response->assertBadRequest();
     }
 }

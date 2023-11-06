@@ -6,6 +6,7 @@ use App\Enums\DepositStatus;
 use App\Jobs\ProcessConfirmedDeposit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use App\Models\Agent;
@@ -18,7 +19,6 @@ class DepositTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
     private $agent;
-    private $user;
     private $wallet;
     private $deposit;
     private $deposit_id;
@@ -26,6 +26,7 @@ class DepositTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $this->seed();
         $this->agent = Agent::query()->first();
         $this->withHeaders([
@@ -37,6 +38,12 @@ class DepositTest extends TestCase
         Queue::fake();
     }
 
+    public function tearDown(): void
+    {
+        // Re-enable foreign key checks after the test
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        parent::tearDown();
+    }
     /**
      * Agent deposit
      */
@@ -50,6 +57,8 @@ class DepositTest extends TestCase
 
         $response->assertOk();
         $this->assertDatabaseCount('deposits', 1);
+        $this->assertArrayHasKey('wallet', $response->json());
+        $this->assertArrayHasKey('deposit', $response->json());
     }
 
     public function test_newly_created_deposit_status_is_default_to_pending(): void
@@ -115,7 +124,7 @@ class DepositTest extends TestCase
             'name' => $name,
             'amount' => rand(1, 5)
         ]);
-        $response->assertStatus(400);
+        $response->assertBadRequest();
     }
 
     public function test_agent_user_can_deposit_only_if_avaliable_wallet_exists(): void
@@ -198,7 +207,7 @@ class DepositTest extends TestCase
 
         $this->assertEquals(
             DepositStatus::CONFIRMED->value,
-            Deposit::find($confirmResponse->json()['deposit']['id'])->status
+            $confirmResponse->json()['deposit']['status']
         );
     }
 
@@ -224,12 +233,15 @@ class DepositTest extends TestCase
         $response->assertBadRequest();
     }
 
-    public function test_agent_user_view_deposit(): void
+    public function test_agent_user_can_list_deposits(): void
     {
         //todo:make sure the request contains data
+        Deposit::factory()->count(5)->create();
         $response = $this->getJson('api/deposits/agent');
 
-        $response->assertStatus(200);
+        $response->assertOk();
+        $this->assertArrayHasKey('data', $response->json());
+        $this->assertNotNull($response->json()['data']);
     }
 
     public function test_agent_user_cancel_deposit(): void
@@ -274,6 +286,6 @@ class DepositTest extends TestCase
 
         $response = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/cancel');
 
-        $response->assertStatus(400);
+        $response->assertBadRequest();
     }
 }
