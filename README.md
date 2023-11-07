@@ -949,6 +949,19 @@ curl --location 'http://127.0.0.1:8000/api/wallets/agent' \
 
 # Extract
 
+> Extract Status
+
+```
+enum ExtractStatus: int
+{
+    case PENDING = 1;
+    case CONFIRMED = 2;
+    case COMPLETED = 3;
+    case CANCELED = 4;
+}
+
+```
+
 ## Make an extract
 
 > A request can be sent to extract TRX or USDT to a wallet
@@ -987,6 +1000,47 @@ curl --location 'http://127.0.0.1:8000/api/extracts/agent' \
         "id": 6,
         "status": 2,
         "txid": "2ed11623dace4319d3f344ef83828bba026e0cf304032b3d6576a285eb82b52e"
+    }
+}
+```
+
+## Find an extract
+
+> A request can be sent to find an existing extract
+
+-   **GET** (http://127.0.0.1:8000/api/extracts/agent/1)
+-   **Route Param**
+    1. extract id
+
+```
+curl --location --request GET 'http://127.0.0.1:8000/api/extracts/agent/1' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'type=1' \
+--data-urlencode 'amount=2' \
+--data-urlencode 'to=TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ' \
+--data-urlencode 'wallet_id=1'
+```
+
+> Response
+
+```
+{
+    "extract": {
+        "id": 1,
+        "agent_id": 1,
+        "wallet_id": 1,
+        "to": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+        "amount": 1,
+        "status": 2,
+        "type": 1,
+        "txid": "51a20d38cf4b9eff6022074101fbdc28af2bd5702eff3edb34d22244b3246a0a",
+        "transaction_id": null,
+        "attempts": 0,
+        "created_at": "2023-11-07T02:49:24.000000Z",
+        "updated_at": "2023-11-07T02:49:26.000000Z"
     }
 }
 ```
