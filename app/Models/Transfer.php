@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Transfer extends Model
 {
-    use HasFactory;
 
     protected $guarded = ['id'];
 

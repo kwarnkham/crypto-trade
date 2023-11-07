@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class Withdraw extends Model
 {
-    use HasFactory, Filterable;
+    use Filterable;
 
     protected $guarded = [''];
 

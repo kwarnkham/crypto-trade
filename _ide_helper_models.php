@@ -46,6 +46,7 @@ namespace App\Models{
  * @property string $ip
  * @property string|null $deposit_callback
  * @property string|null $withdraw_callback
+ * @property string|null $extract_callback
  * @property mixed|null $aes_key
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -58,6 +59,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereAesKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereDepositCallback($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Agent whereExtractCallback($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereIp($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereKey($value)
@@ -124,6 +126,43 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereWalletId($value)
  */
 	class Deposit extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Extract
+ *
+ * @property int $id
+ * @property int $agent_id
+ * @property int $wallet_id
+ * @property string $to
+ * @property float $amount
+ * @property int $status
+ * @property int $type
+ * @property string|null $txid
+ * @property int|null $transaction_id
+ * @property int $attempts
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Agent $agent
+ * @property-read \App\Models\Wallet $wallet
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereAgentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereAttempts($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereTxid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereWalletId($value)
+ */
+	class Extract extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -268,6 +307,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Deposit> $deposits
  * @property-read int|null $deposits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Extract> $extracts
+ * @property-read int|null $extracts_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Unstake> $unstakes
  * @property-read int|null $unstakes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Withdraw> $withdraws
