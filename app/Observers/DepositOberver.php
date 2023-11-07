@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\DepositStatus;
+use App\Jobs\ProcessConfirmedDeposit;
 use App\Models\Deposit;
 use App\Utility\Encryption;
 use Illuminate\Support\Facades\Http;
@@ -34,6 +35,10 @@ class DepositOberver
                     ]), $deposit->user->agent->aes_key)
                 ]);
             }
+        }
+
+        if ($deposit->status == DepositStatus::CONFIRMED->value) {
+            ProcessConfirmedDeposit::dispatch($deposit->id);
         }
     }
 

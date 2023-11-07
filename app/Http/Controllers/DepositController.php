@@ -41,14 +41,10 @@ class DepositController extends Controller
                 'agent_id' => $agent->id
             ]);
 
-        $deposit = DB::transaction(function () use ($wallet, $user, $data) {
-            $wallet->update(['reserved_at' => now()]);
-            return $user->deposits()->create([
-                'wallet_id' => $wallet->id,
-                'amount' => $data['amount']
-            ]);
-        });
-
+        $deposit = $user->deposits()->create([
+            'wallet_id' => $wallet->id,
+            'amount' => $data['amount']
+        ]);
         return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => new DepositResource($deposit)]);
     }
 
@@ -73,8 +69,6 @@ class DepositController extends Controller
         );
 
         $deposit->update(['status' => DepositStatus::CONFIRMED->value]);
-
-        ProcessConfirmedDeposit::dispatch($deposit->id);
 
         return response()->json(['deposit' => new DepositResource($deposit)]);
     }
