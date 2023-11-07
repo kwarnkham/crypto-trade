@@ -21,6 +21,7 @@ return new class extends Migration
             $table->ipAddress('ip');
             $table->string('deposit_callback')->nullable();
             $table->string('withdraw_callback')->nullable();
+            $table->string('extract_callback')->nullable();
             $table->string('aes_key')->nullable();
             $table->timestamps();
         });

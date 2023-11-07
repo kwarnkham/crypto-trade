@@ -808,6 +808,7 @@ curl --location 'http://127.0.0.1:8000/api/users/agent' \
 -   **Data**
     1. deposit_callback [URL]
     2. withdraw_callback [URL]
+    3. extract_callback [URL]
 
 ```
 curl --location 'http://127.0.0.1:8000/api/agents/callback' \
@@ -816,7 +817,8 @@ curl --location 'http://127.0.0.1:8000/api/agents/callback' \
 --header 'Accept: application/json' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'deposit_callback=http://localhost:8014/api/callback/crypto_trade/deposits' \
---data-urlencode 'withdraw_callback=http://localhost:8014/api/callback/crypto_trade/withdraws'
+--data-urlencode 'withdraw_callback=http://localhost:8014/api/callback/crypto_trade/withdraws' \
+--data-urlencode 'extract_callback=http://localhost:8014/api/callback/crypto_trade/extracts'
 ```
 
 > Response
@@ -826,13 +828,14 @@ curl --location 'http://127.0.0.1:8000/api/agents/callback' \
     "agent": {
         "id": 1,
         "name": "agent",
-        "remark": "vip",
+        "remark": null,
         "status": 1,
-        "ip": "127.0.0.1",
+        "ip": "*",
         "deposit_callback": "http://localhost:8014/api/callback/crypto_trade/deposits",
         "withdraw_callback": "http://localhost:8014/api/callback/crypto_trade/withdraws",
-        "created_at": "2023-10-31T09:42:17.000000Z",
-        "updated_at": "2023-10-31T10:23:42.000000Z"
+        "extract_callback": "http://localhost:8014/api/callback/crypto_trade/extracts",
+        "created_at": "2023-11-07T02:47:05.000000Z",
+        "updated_at": "2023-11-07T02:47:30.000000Z"
     }
 }
 ```
