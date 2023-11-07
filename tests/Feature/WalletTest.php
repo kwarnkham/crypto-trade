@@ -35,17 +35,24 @@ class WalletTest extends TestCase
         $this->assertNotEmpty($response->json()['data']);
     }
 
-    // public function test_admin_can_find_wallet(): void
-    // {
-    //     $walletResponse = $this->postJson('api/wallets')->json(); // Not work need deposit confirm
-    //     $response = $this->getJson('api/wallets/' . $walletResponse['wallet']['id'])->json();
-    //     $this->assertNotEmpty($response['wallet']);
-    // }
+    public function test_admin_can_activate_wallet(): void
+    {
+        $wallet = Wallet::first();
+        $wallet->update(['activated_at' => null]);
 
-    // public function test_admin_can_activate_wallet(): void
-    // {
-    //     $walletResponse = $this->postJson('api/wallets')->json(); // Not work need deposit confirm
-    //     $response = $this->postJson('api/wallets/' . $walletResponse['wallet']['id'] . '/activate')->json();
-    //     $this->assertNotNull($response['wallet']['activated_at']);
-    // }
+        $response = $this->postJson('api/wallets/' . $wallet->id . '/activate');
+        $response->assertOk();
+
+        $this->assertArrayHasKey('wallet', $response->json());
+        $this->assertNotNull($response->json()['wallet']['activated_at']);
+    }
+
+    public function test_admin_can_find_wallet(): void
+    {
+        $wallet = Wallet::first();
+        $this->postJson('api/wallets/' . $wallet->id . '/activate')->assertOk();
+
+        $response = $this->getJson('api/wallets/' . $wallet->id);
+        $this->assertArrayHasKey('wallet', $response->json());
+    }
 }

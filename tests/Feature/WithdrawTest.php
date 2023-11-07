@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Enums\WithdrawStatus;
 use App\Models\Agent;
 use App\Models\Admin;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Withdraw;
@@ -27,7 +28,6 @@ class WithdrawTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Queue::fake();
         $this->seed();
         $this->actingAs(Admin::first());
@@ -45,13 +45,6 @@ class WithdrawTest extends TestCase
             'Content-Type'  => 'application/x-www-form-urlencoded',
             'Accept' => 'application/json'
         ]);
-    }
-
-    public function tearDown(): void
-    {
-        // Re-enable foreign key checks after the test
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        parent::tearDown();
     }
 
     public function test_agent_can_create_withdraw(): void
@@ -155,7 +148,7 @@ class WithdrawTest extends TestCase
 
     public function test_agent_user_can_list_withdraws(): void
     {
-        Withdraw::factory()->count(5)->create();
+        Withdraw::factory()->count(5)->for(User::factory()->for(Agent::factory()->create())->create())->for(Wallet::factory()->create())->create();
         $response = $this->getJson('api/withdraws/agent');
         $response->assertOk();
         $this->assertArrayHasKey('data', $response->json());
@@ -164,7 +157,7 @@ class WithdrawTest extends TestCase
 
     public function test_admin_can_list_withdraws(): void
     {
-        Withdraw::factory()->count(5)->create();
+        Withdraw::factory()->count(5)->for(User::factory()->for(Agent::factory()->create())->create())->for(Wallet::factory()->create())->create();
         $response = $this->getJson('api/withdraws');
         $response->assertOk();
         $this->assertArrayHasKey('data', $response->json());
@@ -173,7 +166,7 @@ class WithdrawTest extends TestCase
 
     public function test_agent_user_can_cancel_withdraw(): void
     {
-        $withdrawCreate = Withdraw::factory()->create();
+        $withdrawCreate = Withdraw::factory()->for(User::factory()->for(Agent::factory()->create())->create())->for(Wallet::factory()->create())->create();
 
         $this->assertEquals(
             WithdrawStatus::PENDING->value,
@@ -189,7 +182,7 @@ class WithdrawTest extends TestCase
 
     public function test_only_pending_withdraw_can_be_cancelled(): void
     {
-        $withdrawCreate = Withdraw::factory()->create();
+        $withdrawCreate = Withdraw::factory()->for(User::factory()->for(Agent::factory()->create())->create())->for(Wallet::factory()->create())->create();
         $cancelResponse = $this->postJson('api/withdraws/agent/' .  $withdrawCreate->id . '/cancel');
         $cancelResponse->assertOk();
 

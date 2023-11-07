@@ -6,7 +6,6 @@ use App\Enums\DepositStatus;
 use App\Jobs\ProcessConfirmedDeposit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use App\Models\Agent;
@@ -26,7 +25,6 @@ class DepositTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $this->seed();
         $this->agent = Agent::query()->first();
         $this->withHeaders([
@@ -38,12 +36,6 @@ class DepositTest extends TestCase
         Queue::fake();
     }
 
-    public function tearDown(): void
-    {
-        // Re-enable foreign key checks after the test
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        parent::tearDown();
-    }
     /**
      * Agent deposit
      */
@@ -235,8 +227,7 @@ class DepositTest extends TestCase
 
     public function test_agent_user_can_list_deposits(): void
     {
-        //todo:make sure the request contains data
-        Deposit::factory()->count(5)->create();
+        Deposit::factory()->count(5)->for(User::factory()->for(Agent::factory()->create())->create())->for(Wallet::factory()->create())->create();
         $response = $this->getJson('api/deposits/agent');
 
         $response->assertOk();

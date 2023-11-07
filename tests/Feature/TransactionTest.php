@@ -22,8 +22,10 @@ class TransactionTest extends TestCase
 
     public function test_admin_can_list_transactions(): void
     {
+        Transaction::factory()->count(5)->create();
         $response = $this->getJson('api/transactions');
         $response->assertOk();
         $this->assertArrayHasKey('data', $response->json());
+        $this->assertNotEmpty($response->json()['data']);
     }
 }

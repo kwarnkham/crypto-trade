@@ -24,7 +24,6 @@ class TransferTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $this->seed();
         $this->agent = Agent::first();
         $this->actingAs(Admin::first());
@@ -46,13 +45,6 @@ class TransferTest extends TestCase
             'balance' => 5,
             'agent_id' =>   $this->agent->id,
         ]);
-    }
-
-    public function tearDown(): void
-    {
-        // Re-enable foreign key checks after the test
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        parent::tearDown();
     }
 
     public function test_agent_user_can_transfer_USDT_to_each_other(): void
@@ -117,15 +109,17 @@ class TransferTest extends TestCase
 
     public function test_agent_user_can_list_transfers(): void
     {
-        Transfer::factory(['user_id' => $this->user->id])->count(5)->create();
+        Transfer::factory(['user_id' => $this->user->id])->count(5)->for(User::factory()->for(Agent::factory()->create())->create(), 'recipient')->create();
         $response = $this->getJson('api/transfers/agent')->assertOk();
         $this->assertArrayHasKey('data', $response->json());
+        $this->assertNotEmpty($response->json()['data']);
     }
 
     public function test_admin_can_list_transfers(): void
     {
-        Transfer::factory(['user_id' => $this->user->id])->count(5)->create();
+        Transfer::factory(['user_id' => $this->user->id])->count(5)->for(User::factory()->for(Agent::factory()->create())->create(), 'recipient')->create();
         $response = $this->getJson('api/transfers')->assertOk();
         $this->assertArrayHasKey('data', $response->json());
+        $this->assertNotEmpty($response->json()['data']);
     }
 }

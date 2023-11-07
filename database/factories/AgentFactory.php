@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Agent>
@@ -18,7 +19,8 @@ class AgentFactory extends Factory
     {
         return [
             'name' => fake()->unique()->lastName(),
-            'ip'    =>'*'
+            'ip'    => '*',
+            'key' => Str::random(64)
         ];
     }
 }

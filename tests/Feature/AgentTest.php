@@ -50,9 +50,11 @@ class AgentTest extends TestCase
 
     public function test_admin_can_list_agents(): void
     {
+        Agent::factory()->count(5)->create();
         $response = $this->getJson('api/agents');
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response->json());
+        $this->assertNotNull($response->json()['data']);
     }
 
     public function test_admin_can_toggle_agent_status(): void
