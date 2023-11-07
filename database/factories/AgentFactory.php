@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Agent>
  */
-class UserFactory extends Factory
+class AgentFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,8 +18,9 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'code' => fake()->unique()->word()
+            'name' => fake()->unique()->name(),
+            'key' => Str::random(64),
+            'ip' => fake()->ipv4()
         ];
     }
 }

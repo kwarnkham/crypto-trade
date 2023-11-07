@@ -6,12 +6,13 @@ use App\Enums\DepositStatus;
 use App\Services\Tron;
 use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Deposit extends Model
 {
-    use Filterable;
+    use Filterable, HasFactory;
 
     protected $guarded = ['id'];
 

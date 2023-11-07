@@ -7,6 +7,7 @@ use App\Enums\WithdrawStatus;
 use App\Events\WalletUpdated;
 use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Log;
 
 class Wallet extends Model
 {
+    use HasFactory;
+
     protected $guarded = ['id'];
 
     protected $appends = ['total_deposit', 'total_withdraw'];

@@ -10,12 +10,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class Agent extends Model
 {
-    use Filterable;
+    use Filterable, HasFactory;
 
     protected $guarded = ['id'];
     protected $hidden = ['key', 'aes_key'];

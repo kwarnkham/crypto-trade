@@ -3,12 +3,11 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Deposit>
  */
-class UserFactory extends Factory
+class DepositFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,8 +17,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'code' => fake()->unique()->word()
+            'amount' => fake()->numberBetween(1, 100),
         ];
     }
 }
