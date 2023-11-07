@@ -7,6 +7,7 @@ use App\Enums\ExtractType;
 use App\Enums\ResponseStatus;
 use App\Jobs\ProcessConfirmedExtract;
 use App\Models\Agent;
+use App\Models\Extract;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -74,5 +75,10 @@ class ExtractController extends Controller
         return response()->json([
             'extract' => $extract
         ]);
+    }
+
+    public function find(Request $request, Extract $extract)
+    {
+        return response()->json(['extract' => $extract]);
     }
 }
