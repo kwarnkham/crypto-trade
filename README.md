@@ -222,11 +222,12 @@ curl --location 'http://127.0.0.1:8000/api/deposits/agent/1' \
 -   **GET** (http://127.0.0.1:8000/api/deposits/agent)
 -   **Filter param**
     1. status, either one of these [1,2,3,4,5]
+    2. wallet_id
 
 ```
-curl --location 'http://127.0.0.1:8000/api/deposits/agent?status=1' \
+curl --location 'http://127.0.0.1:8000/api/deposits/agent?status=1%2C2%2C3%2C4%2C5&wallet_id=4' \
 --header 'x-agent: agent' \
---header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJmVHN2SXNNNDJKQjBJS2d4RTFyYUxoUmRxN3BYZFdJMHJVR1RzbEp3b0xOZTNpa3VjeXN2Q1h6Y2VLZHZ5SlJCIn0.bm75Ryp8LnqAa1ue_CHlhmOL-xCYnhuWgeAYv8xGMEs' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
 --header 'Accept: application/json'
 ```
 
