@@ -19,7 +19,7 @@ class ExtractController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'amount' => ['required', 'numeric', 'integer', 'gt:0'],
+            'amount' => ['required', 'numeric', 'gte:0.000001'],
             'type' => ['required', Rule::in(ExtractType::toArray())],
             'to' => ['required', 'string'],
             'wallet_id' => ['required', Rule::exists('wallets', 'id')]

@@ -20,7 +20,7 @@ class TransferController extends Controller
         $data = $request->validate([
             'from' => ['required', Rule::exists('users', 'code')->where('agent_id', $agent->id)],
             'to' => ['required', Rule::exists('users', 'code')->where('agent_id', $agent->id)],
-            'amount' => ['required', 'numeric', 'integer', 'gt:1'],
+            'amount' => ['required', 'numeric', 'gt:1'],
         ]);
 
         $from = User::where('code', $data['from'])->first();

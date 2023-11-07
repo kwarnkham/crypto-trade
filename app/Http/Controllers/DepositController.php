@@ -20,7 +20,7 @@ class DepositController extends Controller
         $data = $request->validate([
             'code' => ['required'],
             'name' => ['required'],
-            'amount' => ['required', 'numeric', 'integer', 'gt:0']
+            'amount' => ['required', 'numeric', 'gte:0.000001']
         ]);
 
         $user = $agent->users()->where('code', $data['code'])->first();
