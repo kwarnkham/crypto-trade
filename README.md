@@ -394,12 +394,13 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent/1' \
 -   **GET** (http://127.0.0.1:8000/api/withdraws/agent)
 -   **Filter param**
     1. status, either one of these [1,2,3,4]
+    2. wallet_id
 
 ```
-curl --location 'http://127.0.0.1:8000/api/withdraws/agent?status=1' \
---header 'Accept: application/json' \
+curl --location 'http://localhost:8000/api/withdraws/agent?status=1%2C2%2C3%2C4&wallet_id=1' \
 --header 'x-agent: agent' \
---header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJHRkJ4YjhzZnV3eXA3WlNZaTU1NVVHb0FSVVp6UkhuQnRXTm1FSkVGTGVXNUFvVWhWMzk0VTJqTld2S0t4b2xGIn0.R-fmd_RwWReRScoTUQcxfZUq6MF_-Daj4Pkg0hmtaWk'
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
 ```
 
 > Response

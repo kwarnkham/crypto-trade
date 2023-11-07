@@ -5,8 +5,6 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\Agent;
-use App\Models\Deposit;
-use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\App;
@@ -50,8 +48,5 @@ class DatabaseSeeder extends Seeder
             'name' => 'admin',
             'password' => bcrypt('123123')
         ]);
-
-        Deposit::factory()->count(5)->for(Wallet::factory())->for(User::factory()->for(Agent::factory()))->create();
-        Deposit::factory()->count(5)->for(Wallet::factory())->for(User::factory()->for(Agent::factory()))->create();
     }
 }

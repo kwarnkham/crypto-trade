@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class Withdraw extends Model
 {
-    use Filterable;
+    use Filterable, HasFactory;
 
     protected $guarded = [''];
 
@@ -45,8 +45,8 @@ class Withdraw extends Model
     protected function fee(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => ($value ?? 0) / Tron::DIGITS,
-            set: fn (string $value) => ($value ?? 0) * Tron::DIGITS,
+            get: fn ($value) => ($value ?? 0) / Tron::DIGITS,
+            set: fn ($value) => ($value ?? 0) * Tron::DIGITS,
         );
     }
 

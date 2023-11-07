@@ -53,7 +53,8 @@ class WithdrawController extends Controller
     public function index(Request $request)
     {
         $filters = $request->validate([
-            'status' => ['sometimes']
+            'status' => ['sometimes'],
+            'wallet_id' => ['sometimes'],
         ]);
         $query = Withdraw::query()->filter($filters)->with(['user.agent', 'wallet']);
         return response()->json($query->paginate($request->per_page ?? 10));
