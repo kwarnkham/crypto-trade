@@ -193,12 +193,12 @@ class Wallet extends Model
         });
     }
 
-    public function sendUSDT(string $to, int $amount)
+    public function sendUSDT(string $to, float $amount)
     {
         return Tron::sendUSDT($to, $amount, $this->private_key, $this->base58_check);
     }
 
-    public function sendTRX(string $to, int $amount)
+    public function sendTRX(string $to, float $amount)
     {
         return Tron::sendTRX($to, $amount, $this->private_key, $this->base58_check);
     }

@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
-use App\Models\Agent;
 use App\Models\Deposit;
-use App\Observers\AgentObserver;
+use App\Models\Extract;
+use App\Models\Withdraw;
 use App\Observers\DepositOberver;
+use App\Observers\ExtractObserver;
+use App\Observers\WithdrawObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -30,6 +32,8 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Deposit::observe(DepositOberver::class);
+        Withdraw::observe(WithdrawObserver::class);
+        Extract::observe(ExtractObserver::class);
     }
 
     /**

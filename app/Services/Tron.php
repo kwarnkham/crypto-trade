@@ -50,7 +50,7 @@ class Tron
             ->post("/wallet/broadcasttransaction")->object();
     }
 
-    public static function sendUSDT(string $to, int $amount, string $privateKey, string $from)
+    public static function sendUSDT(string $to, float $amount, string $privateKey, string $from)
     {
         $toFormat = Formatter::toAddressFormat(Conversion::base58check2HexString($to));
 
@@ -75,7 +75,7 @@ class Tron
         return static::broadcastTransaction($signed);
     }
 
-    public static function sendTRX(string $to, int $amount, string $privateKey, string $from)
+    public static function sendTRX(string $to, float $amount, string $privateKey, string $from)
     {
         $transaction = static::createTransaction($from, $to, $amount);
 
@@ -84,7 +84,7 @@ class Tron
         return static::broadcastTransaction($signed);
     }
 
-    public static function createTransaction(string $ownerAddress, string $toAddress, int $amount)
+    public static function createTransaction(string $ownerAddress, string $toAddress, float $amount)
     {
         return Http::tron()->post("/wallet/createtransaction", [
             'owner_address' => $ownerAddress,

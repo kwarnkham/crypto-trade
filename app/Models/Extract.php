@@ -25,6 +25,11 @@ class Extract extends Model
         return $this->belongsTo(Wallet::class);
     }
 
+    public function agent()
+    {
+        return $this->belongsTo(Agent::class);
+    }
+
     public function complete(array $tx)
     {
         DB::transaction(function () use ($tx) {
