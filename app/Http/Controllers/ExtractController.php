@@ -7,6 +7,7 @@ use App\Enums\ExtractType;
 use App\Enums\ResponseStatus;
 use App\Jobs\ProcessConfirmedExtract;
 use App\Models\Agent;
+use App\Models\Extract;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ class ExtractController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'amount' => ['required', 'numeric', 'integer', 'gt:0'],
+            'amount' => ['required', 'numeric', 'gte:0.000001'],
             'type' => ['required', Rule::in(ExtractType::toArray())],
             'to' => ['required', 'string'],
             'wallet_id' => ['required', Rule::exists('wallets', 'id')]
@@ -74,5 +75,10 @@ class ExtractController extends Controller
         return response()->json([
             'extract' => $extract
         ]);
+    }
+
+    public function find(Request $request, Extract $extract)
+    {
+        return response()->json(['extract' => $extract]);
     }
 }

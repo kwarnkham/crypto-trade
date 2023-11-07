@@ -50,6 +50,7 @@ class AgentController extends Controller
         $data = $request->validate([
             'deposit_callback' => ['sometimes', 'required', 'url'],
             'withdraw_callback' => ['sometimes', 'required', 'url'],
+            'extract_callback' => ['sometimes', 'required', 'url'],
         ]);
         $agent = Agent::current($request);
         $agent->update($data);

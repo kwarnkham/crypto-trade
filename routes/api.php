@@ -53,6 +53,7 @@ Route::controller(WithdrawController::class)->prefix('/withdraws')->group(functi
 Route::controller(ExtractController::class)->prefix('/extracts')->group(function () {
     Route::middleware(['agent'])->prefix('/agent')->group(function () {
         Route::post('', 'store');
+        Route::get('{extract}', 'find');
     });
 });
 
