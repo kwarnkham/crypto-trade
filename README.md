@@ -974,17 +974,19 @@ enum ExtractStatus: int
     2. amount [int]
     3. to ['Tron wallet address in base58_check']
     4. wallet_id [ID of the walelt to extract USDT/TRX from]
+    5. agent_extract_id [Unique ID from agent side]
 
 ```
-curl --location 'http://127.0.0.1:8000/api/extracts/agent' \
+curl --location 'http://localhost:8000/api/extracts/agent' \
 --header 'x-agent: agent' \
---header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJpd1NQbnl1Y2ZGclFNeVhUVGxzV2VnUlVGcHZiZm9QU2ladVZ5cWI4cWZUdkowbGhYc3R4OXc3R1dFSnJqbGdsIn0.vuSP1-qyJfNSeBir0hZ6ZMInnfyWyKpLSDOPT5qdb3M' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
 --header 'Accept: application/json' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'type=1' \
---data-urlencode 'amount=2' \
+--data-urlencode 'amount=1' \
 --data-urlencode 'to=TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ' \
---data-urlencode 'wallet_id=1'
+--data-urlencode 'wallet_id=1' \
+--data-urlencode 'agent_extract_id=2'
 ```
 
 > Response
@@ -992,16 +994,17 @@ curl --location 'http://127.0.0.1:8000/api/extracts/agent' \
 ```
 {
     "extract": {
-        "amount": 2,
+        "amount": 1,
         "type": "1",
         "to": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
         "wallet_id": 1,
+        "agent_extract_id": "2",
         "agent_id": 1,
-        "updated_at": "2023-11-02T03:58:09.000000Z",
-        "created_at": "2023-11-02T03:58:06.000000Z",
-        "id": 6,
+        "updated_at": "2023-11-08T10:55:29.000000Z",
+        "created_at": "2023-11-08T10:55:27.000000Z",
+        "id": 2,
         "status": 2,
-        "txid": "2ed11623dace4319d3f344ef83828bba026e0cf304032b3d6576a285eb82b52e"
+        "txid": "f221e7b13ea9e3717fc69788c5d2ec3891eba2f41d47c4a452f8656580988906"
     }
 }
 ```

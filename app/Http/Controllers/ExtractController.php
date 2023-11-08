@@ -22,7 +22,8 @@ class ExtractController extends Controller
             'amount' => ['required', 'numeric', 'gte:0.000001'],
             'type' => ['required', Rule::in(ExtractType::toArray())],
             'to' => ['required', 'string'],
-            'wallet_id' => ['required', Rule::exists('wallets', 'id')]
+            'wallet_id' => ['required', Rule::exists('wallets', 'id')],
+            'agent_extract_id' => ['required', 'unique:extracts,agent_extract_id']
         ]);
         $wallet = Wallet::find($data['wallet_id']);
         abort_unless(
