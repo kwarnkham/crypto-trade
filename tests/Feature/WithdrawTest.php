@@ -166,7 +166,7 @@ class WithdrawTest extends TestCase
 
     public function test_agent_user_can_cancel_withdraw(): void
     {
-        $withdrawCreate = Withdraw::factory()->for(User::factory()->for(Agent::factory()->create())->create())->for(Wallet::factory()->create())->create();
+        $withdrawCreate = Withdraw::factory()->for(User::factory()->for(Agent::factory()->create())->create())->for(Wallet::factory()->create())->create(['status' => WithdrawStatus::PENDING->value]);
 
         $this->assertEquals(
             WithdrawStatus::PENDING->value,
@@ -182,7 +182,7 @@ class WithdrawTest extends TestCase
 
     public function test_only_pending_withdraw_can_be_cancelled(): void
     {
-        $withdrawCreate = Withdraw::factory()->for(User::factory()->for(Agent::factory()->create())->create())->for(Wallet::factory()->create())->create();
+        $withdrawCreate = Withdraw::factory()->for(User::factory()->for(Agent::factory()->create())->create())->for(Wallet::factory()->create())->create(['status' => WithdrawStatus::PENDING->value]);
         $cancelResponse = $this->postJson('api/withdraws/agent/' .  $withdrawCreate->id . '/cancel');
         $cancelResponse->assertOk();
 

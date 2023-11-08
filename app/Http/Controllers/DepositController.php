@@ -47,7 +47,8 @@ class DepositController extends Controller
     public function index(Request $request)
     {
         $filters = $request->validate([
-            'status' => ['sometimes']
+            'status' => ['sometimes'],
+            'wallet_id' => ['sometimes'],
         ]);
         $agent = Agent::current($request);
 

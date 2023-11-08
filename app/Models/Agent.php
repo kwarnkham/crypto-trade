@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class Agent extends Model
 {
-    use HasFactory, Filterable;
+    use Filterable, HasFactory;
 
     protected $guarded = ['id'];
     protected $hidden = ['key', 'aes_key'];

@@ -9,6 +9,7 @@ use App\Models\Wallet;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use App\Services\Tron;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,7 +25,11 @@ class DatabaseSeeder extends Seeder
                 'hex_address' => '412a6b12b7c076e978f66bb97def94b7ca84a05432',
                 'base58_check' => 'TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y',
                 'base64' => 'QSprErfAdul49mu5fe+Ut8qEoFQy',
-                'activated_at' => now()
+                'activated_at' => now(),
+                'balance' => rand(2, 10) * Tron::DIGITS,
+                'trx'   => config('app')['min_trx_for_transaction'],
+                'energy'   => config('app')['min_energy_for_transaction'],
+                'bandwidth'   => 500,
             ]);
 
             Wallet::create([

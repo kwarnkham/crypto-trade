@@ -5,20 +5,21 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Withdraw>
+ */
 class WithdrawFactory extends Factory
 {
-
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [
-            'user_id' => 1,
-            'wallet_id' => 1,
-            'to' => 'TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y',
-            'amount' => rand(1, 5),
-            'fee' => 1,
-            'status' => 1,
-            'txid' => Str::random(16),
-            'attempts'    => 0,
+            'to' => Str::random('32'),
+            'amount' => fake()->numberBetween(1, 10)
         ];
     }
 }
