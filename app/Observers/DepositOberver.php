@@ -42,10 +42,15 @@ class DepositOberver
         }
 
         if ($deposit->status == DepositStatus::COMPLETED->value) {
+            $user = $deposit->user;
+            $user->update(['balance' => $user->balance + $deposit->amount]);
+
             $deposit->balanceLogs()->create([
                 'user_id' => $deposit->user_id,
                 'amount' => $deposit->amount
             ]);
+
+            $deposit->wallet->updateBalance();
         }
     }
 
