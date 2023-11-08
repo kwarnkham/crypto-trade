@@ -49,14 +49,14 @@ class WalletModelTest extends TestCase
     public function test_witdrawable_return_wallet_that_is_activated(): void
     {
 
-        $wallet = Wallet::factory()->create();
-        $wallet->update([
+        $wallet = Wallet::factory()->create([
+            'base58_check' => 'TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y',
             'balance' => 5000000,
             'activated_at' => now(),
             'trx' => (config('app')['min_trx_for_transaction']) * Tron::DIGITS,
             'energy' => config('app')['min_energy_for_transaction'],
             'bandwidth' => 5000
-        ]);
+    ]);
         $withdrawAmount = $wallet->getRawOriginal('balance');
         $this->assertNotNull(Wallet::withdrawable($withdrawAmount));
 
@@ -67,8 +67,8 @@ class WalletModelTest extends TestCase
 
     public function test_withdrawable_return_wallet_that_have_enough_balance(): void
     {
-        $wallet = Wallet::factory()->create();
-        $wallet->update([
+        $wallet = Wallet::factory()->create([
+            'base58_check' => 'TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y',
             'balance' => 5000000,
             'activated_at' => now(),
             'trx' => (config('app')['min_trx_for_transaction']) * Tron::DIGITS,
@@ -76,12 +76,11 @@ class WalletModelTest extends TestCase
             'bandwidth' => 5000
         ]);
 
-        $walletBalance = $wallet->balance;
         $withdrawAmount = $wallet->getRawOriginal('balance');
 
         $this->assertNotNull(Wallet::withdrawable($withdrawAmount));
 
-        Withdraw::factory()->for(User::factory()->for(Agent::factory()->create())->create())->create(['amount' => $walletBalance, 'status' => WithdrawStatus::PENDING->value, 'wallet_id' => $wallet->id]);
+        Withdraw::factory()->for(User::factory()->for(Agent::factory()->create())->create())->create(['amount' => $withdrawAmount, 'status' => WithdrawStatus::PENDING->value, 'wallet_id' => $wallet->id]);
         $this->assertDatabaseCount('withdraws', 1);
 
         $this->assertNull(Wallet::withdrawable(rand(1, 5) * Tron::DIGITS));

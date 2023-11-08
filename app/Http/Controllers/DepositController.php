@@ -4,15 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\DepositStatus;
 use App\Enums\ResponseStatus;
-use App\Jobs\ProcessConfirmedDeposit;
 use App\Models\Agent;
 use App\Models\Deposit;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Http\Resources\DepositResource;
-use App\Http\Resources\DepositCollection;
 
 class DepositController extends Controller
 {
@@ -45,7 +41,7 @@ class DepositController extends Controller
             'wallet_id' => $wallet->id,
             'amount' => $data['amount']
         ]);
-        return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => new DepositResource($deposit)]);
+        return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => $deposit]);
     }
 
     public function index(Request $request)
@@ -57,7 +53,7 @@ class DepositController extends Controller
 
         $query = Deposit::query()->filter($filters)->latest('id')->with(['wallet', 'user.agent']);
         if ($agent) $query->whereRelation('user', 'agent_id', '=', $agent->id);
-        return response()->json(new DepositCollection($query->paginate($request->per_page ?? 10)));
+        return response()->json($query->paginate($request->per_page ?? 10));
     }
 
     public function confirm(Deposit $deposit)
@@ -70,7 +66,7 @@ class DepositController extends Controller
 
         $deposit->update(['status' => DepositStatus::CONFIRMED->value]);
 
-        return response()->json(['deposit' => new DepositResource($deposit)]);
+        return response()->json(['deposit' => $deposit]);
     }
 
     public function cancel(Deposit $deposit)
@@ -79,7 +75,7 @@ class DepositController extends Controller
 
         $deposit->update(['status' => DepositStatus::CANCELED->value]);
 
-        return response()->json(['deposit' => new DepositResource($deposit->load(['user.agent', 'wallet']))]);
+        return response()->json(['deposit' => $deposit->load(['user.agent', 'wallet'])]);
     }
 
     public function find(Request $request, Deposit $deposit)
