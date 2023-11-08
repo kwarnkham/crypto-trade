@@ -35,6 +35,13 @@ class WithdrawObserver
                 ]);
             }
         }
+
+        if ($withdraw->status == WithdrawStatus::COMPLETED->value) {
+            $withdraw->balanceLogs()->create([
+                'user_id' => $withdraw->user_id,
+                'amount' => $withdraw->amount * -1
+            ]);
+        }
     }
 
     /**

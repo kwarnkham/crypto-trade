@@ -45,6 +45,16 @@ class TransferController extends Controller
 
             $transfer->charge()->create(['amount' => $fee]);
 
+            $transfer->balanceLogs()->create([
+                'user_id' => $transfer->user_id,
+                'amount' => $transfer->amount * -1
+            ]);
+
+            $transfer->balanceLogs()->create([
+                'user_id' => $transfer->recipient_id,
+                'amount' => $transfer->amount - $fee
+            ]);
+
             return $transfer;
         });
 
