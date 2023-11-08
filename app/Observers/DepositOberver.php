@@ -40,6 +40,13 @@ class DepositOberver
         if ($deposit->status == DepositStatus::CONFIRMED->value) {
             ProcessConfirmedDeposit::dispatch($deposit->id);
         }
+
+        if ($deposit->status == DepositStatus::COMPLETED->value) {
+            $deposit->balanceLogs()->create([
+                'user_id' => $deposit->user_id,
+                'amount' => $deposit->amount
+            ]);
+        }
     }
 
     /**

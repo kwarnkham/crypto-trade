@@ -6,6 +6,7 @@ use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Transfer extends Model
@@ -35,6 +36,11 @@ class Transfer extends Model
             get: fn (?string $value) => ($value ?? 0) / Tron::DIGITS,
             set: fn (?string $value) => ($value ?? 0) * Tron::DIGITS,
         );
+    }
+
+    public function balanceLogs(): MorphMany
+    {
+        return $this->morphMany(BalanceLog::class, 'loggable');
     }
 
     protected function fee(): Attribute
