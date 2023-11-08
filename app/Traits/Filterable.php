@@ -31,5 +31,13 @@ trait Filterable
                 $wallet_id
             )
         );
+
+        $query->when(
+            $filters['user_id'] ?? null,
+            fn (Builder $query, $user_id) => $query->where(
+                'user_id',
+                $user_id
+            )
+        );
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BalanceLogController;
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\ExtractController;
 use App\Http\Controllers\TransferController;
@@ -118,6 +119,12 @@ Route::controller(AgentController::class)
 Route::controller(UserController::class)->prefix('/users')->group(function () {
     Route::middleware(['agent'])->prefix('/agent')->group(function () {
         Route::get('{user}', 'find');
+        Route::get('', 'index');
+    });
+});
+
+Route::controller(BalanceLogController::class)->prefix('/balance-logs')->group(function () {
+    Route::middleware(['agent'])->prefix('/agent')->group(function () {
         Route::get('', 'index');
     });
 });
