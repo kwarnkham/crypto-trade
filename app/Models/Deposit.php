@@ -44,8 +44,6 @@ class Deposit extends Model
     public function complete(Transaction $transaction)
     {
         $this->update(['transaction_id' => $transaction->id, 'status' => DepositStatus::COMPLETED->value]);
-        $user = $this->user;
-        $user->update(['balance' => $user->balance + $this->amount]);
         $this->refresh();
     }
 
@@ -62,8 +60,8 @@ class Deposit extends Model
         ])->data);
 
         $transactions->each(function ($tx) {
-            DB::transaction(function () use ($tx) {
-                if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
+            if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
+                DB::transaction(function () use ($tx) {
                     if (($this->getRawOriginal('amount')) == $tx->value) {
                         $res = Tron::getSolidityTransactionInfoById($tx->transaction_id);
                         $transaction = Transaction::create([
@@ -78,10 +76,10 @@ class Deposit extends Model
                             'fee' => $res->fee ?? 0
                         ]);
                         $this->complete($transaction);
-                        $this->wallet->updateBalance();
                     }
-                }
-            });
+                });
+                return false;
+            }
         });
     }
 }
