@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ResponseStatus;
-use App\Enums\WithdrawStatus;
 use App\Models\Agent;
 use App\Models\Transfer;
 use App\Models\User;

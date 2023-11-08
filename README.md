@@ -1049,3 +1049,77 @@ curl --location --request GET 'http://127.0.0.1:8000/api/extracts/agent/1' \
     }
 }
 ```
+
+# Balance Log
+
+## List Balance Log
+
+> A request can be sent to list the balance logs
+
+-   **GET** (http://127.0.0.1:8000/api/balance-logs/agent)
+-   **Filter Param**
+    1. user_id
+
+```
+curl --location 'http://localhost:8000/api/balance-logs/agent?user_id=1' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "data": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 1,
+                "user_id": 1,
+                "amount": 5,
+                "loggable_id": 1,
+                "loggable_type": "App\\Models\\Deposit",
+                "created_at": "2023-11-08T12:06:27.000000Z",
+                "updated_at": "2023-11-08T12:06:27.000000Z"
+            },
+            {
+                "id": 2,
+                "user_id": 1,
+                "amount": -2,
+                "loggable_id": 1,
+                "loggable_type": "App\\Models\\Transfer",
+                "created_at": "2023-11-08T12:16:30.000000Z",
+                "updated_at": "2023-11-08T12:16:30.000000Z"
+            }
+        ],
+        "first_page_url": "http://localhost:8000/api/balance-logs/agent?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "http://localhost:8000/api/balance-logs/agent?page=1",
+        "links": [
+            {
+                "url": null,
+                "label": "&laquo; Previous",
+                "active": false
+            },
+            {
+                "url": "http://localhost:8000/api/balance-logs/agent?page=1",
+                "label": "1",
+                "active": true
+            },
+            {
+                "url": null,
+                "label": "Next &raquo;",
+                "active": false
+            }
+        ],
+        "next_page_url": null,
+        "path": "http://localhost:8000/api/balance-logs/agent",
+        "per_page": 10,
+        "prev_page_url": null,
+        "to": 2,
+        "total": 2
+    }
+}
+```
