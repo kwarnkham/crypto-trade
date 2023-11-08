@@ -1123,3 +1123,53 @@ curl --location 'http://localhost:8000/api/balance-logs/agent?user_id=1' \
     }
 }
 ```
+
+# Transactions
+
+## List Deposits and Withdraws
+
+> A request can be sent to list deposits and withdraws
+
+-   **GET** (http://127.0.0.1:8000/api/transactions/agent/user-transactions?from=2023-11-08&to=2023-11-30)
+-   **Filter Param**
+    1. from
+    2. to
+
+```
+curl --location 'http://localhost:8000/api/transactions/agent/user-transactions?from=2023-11-08&to=2023-11-30' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "withdraws": [],
+    "deposits": [
+        {
+            "id": 2,
+            "user_id": 2,
+            "wallet_id": 1,
+            "transaction_id": null,
+            "amount": 5,
+            "status": 1,
+            "attempts": 0,
+            "created_at": "2023-11-08T12:16:15.000000Z",
+            "updated_at": "2023-11-08T12:16:15.000000Z"
+        },
+        {
+            "id": 1,
+            "user_id": 1,
+            "wallet_id": 1,
+            "transaction_id": 1,
+            "amount": 5,
+            "status": 3,
+            "attempts": 1,
+            "created_at": "2023-11-08T12:06:20.000000Z",
+            "updated_at": "2023-11-08T12:06:27.000000Z"
+        }
+    ]
+}
+```

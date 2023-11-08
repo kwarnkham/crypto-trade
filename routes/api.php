@@ -62,6 +62,9 @@ Route::controller(TransactionController::class)->prefix('/transactions')->group(
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::get('', 'index');
     });
+    Route::middleware(['agent'])->prefix('/agent')->group(function () {
+        Route::get('user-transactions', 'userTransactions');
+    });
 });
 
 Route::controller(TransferController::class)->prefix('/transfers')->group(function () {
