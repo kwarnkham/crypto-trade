@@ -59,27 +59,49 @@ class Deposit extends Model
             'only_to' => true
         ])->data);
 
-        $transactions->each(function ($tx) {
-            if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
-                DB::transaction(function () use ($tx) {
-                    if (($this->getRawOriginal('amount')) == $tx->value) {
-                        $res = Tron::getSolidityTransactionInfoById($tx->transaction_id);
-                        $transaction = Transaction::create([
-                            'from' => $tx->from,
-                            'to' => $tx->to,
-                            'transaction_id' => $tx->transaction_id,
-                            'token_address' => $tx->token_info->address,
-                            'block_timestamp' => $tx->block_timestamp,
-                            'value' => $tx->value,
-                            'type' => $tx->type,
-                            'receipt' => $res->receipt ?? [],
-                            'fee' => $res->fee ?? 0
-                        ]);
-                        $this->complete($transaction);
-                    }
-                });
-                return false;
-            }
-        });
+        // $transactions->each(function ($tx) {
+        //     if (Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist()) {
+        //         DB::transaction(function () use ($tx) {
+        //             if (($this->getRawOriginal('amount')) == $tx->value) {
+        //                 $res = Tron::getSolidityTransactionInfoById($tx->transaction_id);
+        //                 $transaction = Transaction::create([
+        //                     'from' => $tx->from,
+        //                     'to' => $tx->to,
+        //                     'transaction_id' => $tx->transaction_id,
+        //                     'token_address' => $tx->token_info->address,
+        //                     'block_timestamp' => $tx->block_timestamp,
+        //                     'value' => $tx->value,
+        //                     'type' => $tx->type,
+        //                     'receipt' => $res->receipt ?? [],
+        //                     'fee' => $res->fee ?? 0
+        //                 ]);
+        //                 $this->complete($transaction);
+        //             }
+        //         });
+        //         return false;
+        //     }
+        // });
+
+        $matchedTx = $transactions->first(
+            fn ($tx) =>
+            Transaction::query()->where('transaction_id', $tx->transaction_id)->doesntExist() && (($this->getRawOriginal('amount')) == $tx->value)
+        );
+        if ($matchedTx != null) {
+            DB::transaction(function () use ($matchedTx) {
+                $res = Tron::getSolidityTransactionInfoById($matchedTx->transaction_id);
+                $transaction = Transaction::create([
+                    'from' => $matchedTx->from,
+                    'to' => $matchedTx->to,
+                    'transaction_id' => $matchedTx->transaction_id,
+                    'token_address' => $matchedTx->token_info->address,
+                    'block_timestamp' => $matchedTx->block_timestamp,
+                    'value' => $matchedTx->value,
+                    'type' => $matchedTx->type,
+                    'receipt' => $res->receipt ?? [],
+                    'fee' => $res->fee ?? 0
+                ]);
+                $this->complete($transaction);
+            });
+        }
     }
 }
