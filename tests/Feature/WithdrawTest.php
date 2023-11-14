@@ -21,6 +21,7 @@ class WithdrawTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
     private $wallet;
+    private $to_wallet;
     private $agent;
     private $user;
     private $admin;
@@ -33,6 +34,7 @@ class WithdrawTest extends TestCase
         $this->actingAs(Admin::first());
         $this->agent = Agent::first();
         $this->wallet = Wallet::first();
+        $this->to_wallet = 'TWxQ5m1TMLumFH7bMws4Q1qoP1FeYfkhKc';
         $this->user = User::create([
             'code' =>  Str::random('3'),
             'name' => $this->faker()->lastName(),
@@ -51,7 +53,7 @@ class WithdrawTest extends TestCase
     {
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
-            'to' => $this->wallet->base58_check,
+            'to' => $this->to_wallet,
             'amount' => rand(2, 5)
         ]);
 
@@ -71,11 +73,31 @@ class WithdrawTest extends TestCase
         $response->assertBadRequest();
     }
 
+    public function test_agent_user_can_withdraw_to_wallet_address_only_that_does_not_exist_in_our_wallet_list(): void
+    {
+        $response = $this->postJson('api/withdraws/agent', [
+            'code' => $this->user->code,
+            'to' => $this->wallet->base58_check,
+            'amount' => rand(2, 5)
+        ]);
+
+        $response->assertUnprocessable();
+
+        $new_wallet = $this->to_wallet;
+        $response = $this->postJson('api/withdraws/agent', [
+            'code' => $this->user->code,
+            'to' => $new_wallet,
+            'amount' => rand(2, 5)
+        ]);
+
+        $response->assertOk();
+    }
+
     public function test_agent_user_can_withdraw_only_if_balance_amount_is_greather_than_withdraw_amount(): void
     {
         $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
-            'to' => $this->wallet->base58_check,
+            'to' => $this->to_wallet,
             'amount' => rand(6, 10)
         ])->assertBadRequest();
         $this->assertDatabaseCount('withdraws', 0);
@@ -83,7 +105,7 @@ class WithdrawTest extends TestCase
 
         $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
-            'to' => $this->wallet->base58_check,
+            'to' => $this->to_wallet,
             'amount' => rand(2, 5)
         ])->assertOk();
         $this->assertDatabaseCount('withdraws', 1);
@@ -93,7 +115,7 @@ class WithdrawTest extends TestCase
     {
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
-            'to' => $this->wallet->base58_check,
+            'to' => $this->to_wallet,
             'amount' => rand(2, 5)
         ]);
 
@@ -105,10 +127,9 @@ class WithdrawTest extends TestCase
 
     public function test_agent_user_can_confirm_withdraw(): void
     {
-        $withdrawWallet = Wallet::latest('id')->first();
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
-            'to' => $withdrawWallet->base58_check,
+            'to' => $this->to_wallet,
             'amount' => rand(2, 5)
         ]);
 
@@ -122,10 +143,9 @@ class WithdrawTest extends TestCase
 
     public function test_withdraw_can_be_confirmed_only_if_withdraw_status_is_pending(): void
     {
-        $withdrawWallet = Wallet::latest('id')->first();
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
-            'to' => $withdrawWallet->base58_check,
+            'to' => $this->to_wallet,
             'amount' => rand(2, 5)
         ]);
 

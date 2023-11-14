@@ -122,11 +122,11 @@ class DepositTest extends TestCase
     public function test_agent_user_can_deposit_only_if_avaliable_wallet_exists(): void
     {
         //todo: make a unit test for Wallet::findAvailable()
-        while (Wallet::findAvailable(rand(1,5)) != null) {
+        while (Wallet::findAvailable(1) != null) {
             $response = $this->postJson('api/deposits/agent', [
                 'code' => $this->faker()->unique()->randomNumber(3),
                 'name' => $this->faker()->lastName(),
-                'amount' => rand(1, 5)
+                'amount' => 1
             ]);
             $response->assertOk();
         }
@@ -134,7 +134,7 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => $this->faker()->unique()->randomNumber(3),
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => 1
         ]);
         $response->assertBadRequest();
     }
