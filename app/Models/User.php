@@ -28,9 +28,9 @@ class User extends Model
         return $this->hasMany(Deposit::class);
     }
 
-    public function getActiveDeposit(): ?Deposit
+    public function getActiveDeposit(float $amount): ?Deposit
     {
-        return $this->deposits()->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])->first();
+        return $this->deposits()->where('amount', $amount * Tron::DIGITS)->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])->first();
     }
 
     public function withdraws()

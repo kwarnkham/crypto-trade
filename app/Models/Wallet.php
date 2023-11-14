@@ -105,12 +105,13 @@ class Wallet extends Model
         return $this->hasMany(Deposit::class);
     }
 
-    public static function findAvailable(): ?Wallet
+    public static function findAvailable(float $amount): ?Wallet
     {
         return Wallet::query()
             ->whereNotNull('activated_at')
-            ->whereDoesntHave('deposits', function ($query) {
-                $query->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value]);
+            ->whereDoesntHave('deposits', function ($query) use($amount) {
+                $query->where('amount', $amount * Tron::DIGITS)
+                ->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value]);
             })
             ->first();
     }

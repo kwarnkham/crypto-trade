@@ -22,11 +22,11 @@ class DepositController extends Controller
         ]);
 
         $user = $agent->users()->where('code', $data['code'])->first();
-        if ($user != null && $user->getActiveDeposit() != null) {
+        if ($user != null && $user->getActiveDeposit($data['amount']) != null) {
             abort(ResponseStatus::BAD_REQUEST->value, 'Please pay and wait for previous deposit to complete');
         }
 
-        $wallet = Wallet::findAvailable();
+        $wallet = Wallet::findAvailable($data['amount']);
 
         if ($wallet == null) abort(ResponseStatus::BAD_REQUEST->value, 'There is no avaliable wallet to handle deposit.');
 
