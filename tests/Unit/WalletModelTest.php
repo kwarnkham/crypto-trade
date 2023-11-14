@@ -30,19 +30,32 @@ class WalletModelTest extends TestCase
             ]);
 
         $this->assertNull(Wallet::findAvailable($amount));
-        $this->assertNotNull(Wallet::findAvailable($amount + 1));
+        $amount++;
+        $this->assertNotNull(Wallet::findAvailable($amount));
+
+        Deposit::factory()->for(
+            User::factory()->for(Agent::factory())
+        )
+            ->create([
+                'wallet_id' => $wallet->id,
+                'amount' => $amount,
+            ]);
+
+        $this->assertNull(Wallet::findAvailable($amount));
+        $amount++;
+        $this->assertNotNull(Wallet::findAvailable($amount));
     }
 
     public function test_find_available_return_wallet_that_is_activated(): void
     {
         Wallet::factory()->state(['activated_at' => null])->create();
         $this->assertDatabaseCount('wallets', 1);
-        $this->assertNull(Wallet::findAvailable(rand(1,5)));
+        $this->assertNull(Wallet::findAvailable(rand(1, 5)));
 
         Wallet::factory()->state(['activated_at' => now()])->create();
 
         $this->assertDatabaseCount('wallets', 2);
-        $this->assertNotNull(Wallet::findAvailable(rand(1,5)));
+        $this->assertNotNull(Wallet::findAvailable(rand(1, 5)));
     }
 
     public function test_find_available_return_wallet_that_does_not_have_pending_or_confirmed_deposit_associated(): void
