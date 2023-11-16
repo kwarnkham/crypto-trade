@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Enums\ExtractStatus;
 use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Extract extends Model
 {
+    use HasFactory;
     protected $guarded = ['id'];
 
     protected function amount(): Attribute
