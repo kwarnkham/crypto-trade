@@ -15,6 +15,8 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Withdraw;
+use App\Services\Tron;
+use Http;
 use Tests\TestCase;
 
 class WithdrawTest extends TestCase
@@ -46,6 +48,14 @@ class WithdrawTest extends TestCase
             'x-api-key' => $this->agent->jwtKey(),
             'Content-Type'  => 'application/x-www-form-urlencoded',
             'Accept' => 'application/json'
+        ]);
+
+        Http::preventStrayRequests();
+        Http::fake([
+            config('app')['tron_api_url'].'/wallet/validateaddress' => Http::response([
+                    "result"=> true,
+                    "message"=> "Base58check format"
+            ])
         ]);
     }
 
@@ -127,6 +137,40 @@ class WithdrawTest extends TestCase
 
     public function test_agent_user_can_confirm_withdraw(): void
     {
+        Http::fake([
+            config('app')['tron_api_url'].'/v1/accounts/*' => Http::response(['data' => [
+                [
+                    "balance" => rand(10, 20) * Tron::DIGITS,
+                    "address" => Str::random(42),
+                    "create_time" => now(),
+                    "trc20" =>[ [config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
+                    "frozenV2" => [["type" => "ENERGY"], ["type" => "UNKNOWN_ENUM_VALUE_ResourceCode_2"]],
+                ]
+            ]]),
+        ]);
+        Http::fake([
+            config('app')['tron_api_url'].'/wallet/getaccountresource' => Http::response([
+                "freeNetUsed" => rand(500, 600),
+                "freeNetLimit" => rand(600, 700),
+            ])
+        ]);
+
+        Http::fake([
+            config('app')['tron_api_url'].'/wallet/triggersmartcontract' => Http::response([
+                "transaction"=> [
+                    "visible"=> true,
+                    "txID"=> bin2hex(random_bytes(32))
+                  ]
+            ])
+        ]);
+
+        Http::fake([
+            config('app')['tron_api_url'].'/wallet/broadcasttransaction' => Http::response([
+                "result" => true,
+                "txid"=> Str::random(64)
+            ])
+        ]);
+
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->to_wallet,
@@ -143,6 +187,40 @@ class WithdrawTest extends TestCase
 
     public function test_withdraw_can_be_confirmed_only_if_withdraw_status_is_pending(): void
     {
+        Http::fake([
+            config('app')['tron_api_url'].'/v1/accounts/*' => Http::response(['data' => [
+                [
+                    "balance" => rand(10, 20) * Tron::DIGITS,
+                    "address" => Str::random(42),
+                    "create_time" => now(),
+                    "trc20" =>[ [config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
+                    "frozenV2" => [["type" => "ENERGY"], ["type" => "UNKNOWN_ENUM_VALUE_ResourceCode_2"]],
+                ]
+            ]]),
+        ]);
+        Http::fake([
+            config('app')['tron_api_url'].'/wallet/getaccountresource' => Http::response([
+                "freeNetUsed" => rand(500, 600),
+                "freeNetLimit" => rand(600, 700),
+            ])
+        ]);
+
+        Http::fake([
+            config('app')['tron_api_url'].'/wallet/triggersmartcontract' => Http::response([
+                "transaction"=> [
+                    "visible"=> true,
+                    "txID"=> bin2hex(random_bytes(32))
+                  ]
+            ])
+        ]);
+
+        Http::fake([
+            config('app')['tron_api_url'].'/wallet/broadcasttransaction' => Http::response([
+                "result" => true,
+                "txid"=> Str::random(64)
+            ])
+        ]);
+
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->to_wallet,
