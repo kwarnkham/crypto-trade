@@ -7,7 +7,6 @@ use App\Enums\ExtractType;
 use App\Jobs\ProcessConfirmedExtract;
 use App\Models\Agent;
 use App\Models\Extract;
-use App\Models\User;
 use App\Models\Wallet;
 use App\Services\Tron;
 use Http;
@@ -77,6 +76,31 @@ class ExtractTest extends TestCase
         $response->assertOk();
         $this->assertArrayHasKey('extract', $response->json());
         $this->assertNotEmpty($response->json()['extract']);
+    }
+
+    public function test_agent_can_extract_only_if_from_wallet_and_to_wallet_address_are_not_equal(): void
+    {
+        $from_wallet = $this->wallet;
+        $from_wallet->update(['trx'=>rand(5,10) * Tron::DIGITS]);
+        $this->postJson('api/extracts/agent', [
+            'amount' => rand(1, 5),
+            'to' => $from_wallet->base58_check,
+            'type' => ExtractType::TRX->value,
+            'wallet_id' => $from_wallet->id,
+            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+        ])->assertBadRequest();
+
+        $this->assertDatabaseCount('extracts', 0);
+
+        $this->postJson('api/extracts/agent', [
+            'amount' => rand(1,5),
+            'to' => $this->to_wallet,
+            'type' => ExtractType::TRX->value,
+            'wallet_id' => $from_wallet->id,
+            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+        ])->assertOk();
+
+        $this->assertDatabaseCount('extracts', 1);
     }
 
     public function test_agent_can_extract_TRX_only_if_trx_balance_amount_is_greather_than_extracted_trx_amount(): void

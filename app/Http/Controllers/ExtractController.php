@@ -26,6 +26,9 @@ class ExtractController extends Controller
             'agent_extract_id' => ['required', 'unique:extracts,agent_extract_id']
         ]);
         $wallet = Wallet::find($data['wallet_id']);
+
+        if ($data['to'] == $wallet->base58_check) abort(ResponseStatus::BAD_REQUEST->value, 'Please choose different wallet to extract.');
+
         abort_unless(
             Str::startsWith($data['to'], 'T') && Wallet::validate($data['to']),
             ResponseStatus::BAD_REQUEST->value,
