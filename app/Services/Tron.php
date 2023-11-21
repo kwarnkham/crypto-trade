@@ -171,7 +171,7 @@ class Tron
 
     public static function getAccountResource(string $address)
     {
-        return Http::tron2()->post('/wallet/getaccountresource', [
+        return Http::tron()->post('/wallet/getaccountresource', [
             'address' => $address,
             'visible' => true
         ])->json();
