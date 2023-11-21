@@ -18,7 +18,7 @@ class WalletUpdated implements ShouldBroadcast
      *
      * @var string
      */
-    // public $connection = 'redis';
+    public $connection = 'redis';
 
     /**
      * The name of the queue on which to place the broadcasting job.
