@@ -39,9 +39,9 @@ return [
     'tron_api_url' => env('APP_ENV', 'production') == 'production' ?
         'https://api.trongrid.io' : 'https://api.shasta.trongrid.io',
 
-    'tron_api_key' => env('TRON_API_KEY', 'cad0a351-7759-4133-90c5-9e733846c896'),
-    'tron_api_key2' => env('TRON_API_KEY2', '747f1d4f-de2d-4393-929a-bf99019dbaa4'),
-    'tron_api_key3' => env('TRON_API_KEY3', '659e3a1b-e4ae-4dd0-9219-b56215e919d0'),
+    'tron_api_key' => env('TRON_API_KEY', 'd9d5c5cb-f542-43e9-b301-3b02db73f69e'),
+    'tron_api_key2' => env('TRON_API_KEY2', '59c2dc2b-8de3-4156-bbec-88daca807f18'),
+    'tron_api_key3' => env('TRON_API_KEY3', 'f7e64665-1108-411d-b89b-e4c8911a9589'),
 
     'min_energy_for_transaction' => env('APP_ENV', 'production') == 'production' ?
         200000 : 15000,
