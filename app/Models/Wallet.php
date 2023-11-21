@@ -109,9 +109,9 @@ class Wallet extends Model
     {
         return Wallet::query()
             ->whereNotNull('activated_at')
-            ->whereDoesntHave('deposits', function ($query) use($amount) {
+            ->whereDoesntHave('deposits', function ($query) use ($amount) {
                 $query->where('amount', $amount * Tron::DIGITS)
-                ->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value]);
+                    ->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value]);
             })
             ->first();
     }
@@ -161,12 +161,21 @@ class Wallet extends Model
         return DB::transaction(function () {
             $resource = Tron::getAccountResource($this->base58_check);
             $trc20_address = config('app')['trc20_address'];
-            $response =  Tron::getAccountInfoByAddress($this->base58_check)->data[0];
-            $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20_address));
-            $frozenV2 = collect($response->frozenV2);
-            $unfrozenV2 = collect($response->unfrozenV2 ?? []);
-            $energy = ($resource['EnergyLimit'] ?? 0) - ($resource['EnergyUsed'] ?? 0);
-            $bandwidth = ($resource['freeNetLimit'] ?? 0) - ($resource['freeNetUsed'] ?? 0) - ($resource['NetUsed'] ?? 0) + ($resource['NetLimit'] ?? 0);
+            $response =  Tron::getAccountInfoByAddress($this->base58_check)->data[0] ?? null;
+            if ($resource != null) {
+                $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20_address));
+                $frozenV2 = collect($response->frozenV2);
+                $unfrozenV2 = collect($response->unfrozenV2 ?? []);
+                $energy = ($resource['EnergyLimit'] ?? 0) - ($resource['EnergyUsed'] ?? 0);
+                $bandwidth = ($resource['freeNetLimit'] ?? 0) - ($resource['freeNetUsed'] ?? 0) - ($resource['NetUsed'] ?? 0) + ($resource['NetLimit'] ?? 0);
+            } else {
+                $usdt = 0;
+                $frozenV2 = collect([]);
+                $unfrozenV2 = collect([]);
+                $energy = 0;
+                $bandwidth = 0;
+            }
+
             $this->update([
                 'balance' => $usdt->$trc20_address ?? 0,
                 'trx' => $response->balance ?? 0,
