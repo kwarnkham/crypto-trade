@@ -974,7 +974,7 @@ enum ExtractStatus: int
     2. amount [int]
     3. to ['Tron wallet address in base58_check']
     4. wallet_id [ID of the walelt to extract USDT/TRX from]
-    5. agent_extract_id [Unique ID from agent side]
+    5. agent_transaction_id [Unique ID from agent side]
 
 ```
 curl --location 'http://localhost:8000/api/extracts/agent' \
@@ -986,7 +986,7 @@ curl --location 'http://localhost:8000/api/extracts/agent' \
 --data-urlencode 'amount=1' \
 --data-urlencode 'to=TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ' \
 --data-urlencode 'wallet_id=1' \
---data-urlencode 'agent_extract_id=2'
+--data-urlencode 'agent_transaction_id=2'
 ```
 
 > Response
@@ -998,7 +998,7 @@ curl --location 'http://localhost:8000/api/extracts/agent' \
         "type": "1",
         "to": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
         "wallet_id": 1,
-        "agent_extract_id": "2",
+        "agent_transaction_id": "2",
         "agent_id": 1,
         "updated_at": "2023-11-08T10:55:29.000000Z",
         "created_at": "2023-11-08T10:55:27.000000Z",

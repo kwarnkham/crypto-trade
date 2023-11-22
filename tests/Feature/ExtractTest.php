@@ -40,30 +40,30 @@ class ExtractTest extends TestCase
 
         Http::preventStrayRequests();
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/validateaddress' => Http::response([
-                    "result"=> true,
-                    "message"=> "Base58check format"
+            config('app')['tron_api_url'] . '/wallet/validateaddress' => Http::response([
+                "result" => true,
+                "message" => "Base58check format"
             ])
         ]);
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/createtransaction' => Http::response([
-                    "visible"=> true,
-                    "txID"=> bin2hex(random_bytes(32))
+            config('app')['tron_api_url'] . '/wallet/createtransaction' => Http::response([
+                "visible" => true,
+                "txID" => bin2hex(random_bytes(32))
             ])
         ]);
 
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/broadcasttransaction' => Http::response([
+            config('app')['tron_api_url'] . '/wallet/broadcasttransaction' => Http::response([
                 "result" => true,
-                "txid"=> Str::random(64)
+                "txid" => Str::random(64)
             ])
         ]);
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/triggersmartcontract' => Http::response([
-                "transaction"=> [
-                    "visible"=> true,
-                    "txID"=> bin2hex(random_bytes(32))
-                  ]
+            config('app')['tron_api_url'] . '/wallet/triggersmartcontract' => Http::response([
+                "transaction" => [
+                    "visible" => true,
+                    "txID" => bin2hex(random_bytes(32))
+                ]
             ])
         ]);
     }
@@ -81,23 +81,23 @@ class ExtractTest extends TestCase
     public function test_agent_can_extract_only_if_from_wallet_and_to_wallet_address_are_not_equal(): void
     {
         $from_wallet = $this->wallet;
-        $from_wallet->update(['trx'=>rand(5,10) * Tron::DIGITS]);
+        $from_wallet->update(['trx' => rand(5, 10) * Tron::DIGITS]);
         $this->postJson('api/extracts/agent', [
             'amount' => rand(1, 5),
             'to' => $from_wallet->base58_check,
             'type' => ExtractType::TRX->value,
             'wallet_id' => $from_wallet->id,
-            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+            'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
         ])->assertBadRequest();
 
         $this->assertDatabaseCount('extracts', 0);
 
         $this->postJson('api/extracts/agent', [
-            'amount' => rand(1,5),
+            'amount' => rand(1, 5),
             'to' => $this->to_wallet,
             'type' => ExtractType::TRX->value,
             'wallet_id' => $from_wallet->id,
-            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+            'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
         ])->assertOk();
 
         $this->assertDatabaseCount('extracts', 1);
@@ -106,13 +106,13 @@ class ExtractTest extends TestCase
     public function test_agent_can_extract_TRX_only_if_trx_balance_amount_is_greather_than_extracted_trx_amount(): void
     {
         $wallet = $this->wallet;
-        $wallet->update(['trx'=>rand(5,10) * Tron::DIGITS]);
+        $wallet->update(['trx' => rand(5, 10) * Tron::DIGITS]);
         $this->postJson('api/extracts/agent', [
             'amount' => rand(20, 30),
             'to' => $this->to_wallet,
             'type' => ExtractType::TRX->value,
             'wallet_id' => $wallet->id,
-            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+            'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
         ])->assertBadRequest();
 
         $this->assertDatabaseCount('extracts', 0);
@@ -122,7 +122,7 @@ class ExtractTest extends TestCase
             'to' => $this->to_wallet,
             'type' => ExtractType::TRX->value,
             'wallet_id' => $wallet->id,
-            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+            'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
         ])->assertOk();
 
         $this->assertDatabaseCount('extracts', 1);
@@ -131,13 +131,13 @@ class ExtractTest extends TestCase
     public function test_agent_can_extract_usdt_only_if_usdt_balance_amount_is_greather_than_extracted_usdt_amount(): void
     {
         $wallet = $this->wallet;
-        $wallet->update(['balance'=>rand(5,10) * Tron::DIGITS]);
+        $wallet->update(['balance' => rand(5, 10) * Tron::DIGITS]);
         $this->postJson('api/extracts/agent', [
             'amount' => rand(20, 30),
             'to' => $this->to_wallet,
             'type' => ExtractType::USDT->value,
             'wallet_id' => $wallet->id,
-            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+            'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
         ])->assertBadRequest();
 
         $this->assertDatabaseCount('extracts', 0);
@@ -147,7 +147,7 @@ class ExtractTest extends TestCase
             'to' => $this->to_wallet,
             'type' => ExtractType::USDT->value,
             'wallet_id' => $wallet->id,
-            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+            'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
         ])->assertOk();
 
         $this->assertDatabaseCount('extracts', 1);
@@ -156,13 +156,13 @@ class ExtractTest extends TestCase
     public function test_agent_can_confirm_extract_if_extracting_usdt_or_trx_is_success(): void
     {
         $wallet = $this->wallet;
-        $wallet->update(['balance'=>rand(5,10) * Tron::DIGITS, 'trx'=>rand(5,10) * Tron::DIGITS]);
+        $wallet->update(['balance' => rand(5, 10) * Tron::DIGITS, 'trx' => rand(5, 10) * Tron::DIGITS]);
         $this->postJson('api/extracts/agent', [
             'amount' => rand(20, 30),
             'to' => $this->to_wallet,
-            'type' => rand(1,2),
+            'type' => rand(1, 2),
             'wallet_id' => $wallet->id,
-            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+            'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
         ])->assertBadRequest();
 
         $this->assertDatabaseCount('extracts', 0);
@@ -172,7 +172,7 @@ class ExtractTest extends TestCase
             'to' => $this->to_wallet,
             'type' =>  rand(ExtractType::USDT->value, ExtractType::TRX->value),
             'wallet_id' => $wallet->id,
-            'agent_extract_id' => fake()->unique()->numberBetween(1, 10)
+            'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
         ]);
 
         $response->assertOk();
@@ -184,5 +184,4 @@ class ExtractTest extends TestCase
             return $job->extractId === $extractId;
         });
     }
-
 }

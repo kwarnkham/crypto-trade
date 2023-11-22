@@ -12,8 +12,8 @@ class ExtractFactory extends Factory
         return [
             'to' => Str::random('32'),
             'amount' => fake()->numberBetween(1, 10),
-            'type' => rand(1,2),
-            'agent_extract_id' => fake()->unique()->numberBetween(1, 100)
+            'type' => rand(1, 2),
+            'agent_transaction_id' => fake()->unique()->numberBetween(1, 100)
         ];
     }
 }
