@@ -9,6 +9,7 @@ use App\Services\Tron;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -129,10 +130,10 @@ class Wallet extends Model
             ->where(
                 'balance',
                 '>=',
-                Withdraw::query()
+                fn (Builder $query) => $query->select(DB::raw("COALESCE(SUM(amount), 0)"))
+                    ->from('withdraws')
                     ->whereColumn('wallet_id', 'wallets.id')
                     ->whereIn('status', [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value])
-                    ->sum('amount')
             )
             // ->whereRaw(
             //     'balance >= IFNULL((
@@ -153,7 +154,7 @@ class Wallet extends Model
             ->whereNotNull('activated_at')
             ->first();
 
-        if ($wallet == null) return $wallet;
+        if ($wallet == null) return null;
 
         $oldBalance = $wallet->balance;
 
