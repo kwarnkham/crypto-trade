@@ -22,9 +22,18 @@ class DepositController extends Controller
         ]);
 
         $user = $agent->users()->where('code', $data['code'])->first();
+
+        //let this only check the same amount deposit
         if ($user != null && $user->getActiveDeposit($data['amount']) != null) {
             abort(ResponseStatus::BAD_REQUEST->value, 'Please pay and wait for previous deposit to complete');
         }
+
+        //here we check if user alreay have 3 unfinished deposits
+        abort_if(
+            $user->deposits()->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])->count() >= 3,
+            ResponseStatus::BAD_REQUEST->value,
+            'User already have 3 unfinished deposits'
+        );
 
         //todo: test again unit test
         $wallet = Wallet::findAvailable($data['amount']);

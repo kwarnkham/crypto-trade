@@ -135,6 +135,7 @@ class Wallet extends Model
                 [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
             )
             ->where(function ($q) {
+                //here we control if the wallet enough resource for the transaction
                 return $q->where('trx', '>=', (config('app')['min_trx_for_transaction']) * Tron::DIGITS)->orWhere(function ($query) {
                     $query->where('energy', '>=', config('app')['min_energy_for_transaction'])
                         ->where('bandwidth', '>=', 500);
