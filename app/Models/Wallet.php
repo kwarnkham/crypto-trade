@@ -126,14 +126,22 @@ class Wallet extends Model
     {
         if ($amount < Tron::DIGITS) return null;
         $wallet = Wallet::query()
-            ->whereRaw(
-                'balance >= IFNULL((
-            SELECT SUM(amount)
-            FROM withdraws
-            WHERE withdraws.wallet_id = wallets.id
-            AND status IN (?, ?)), 0) + ?',
-                [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
+            ->where(
+                'balance',
+                '>=',
+                Withdraw::query()
+                    ->whereColumn('wallet_id', 'wallets.id')
+                    ->whereIn('status', [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value])
+                    ->sum('amount')
             )
+            // ->whereRaw(
+            //     'balance >= IFNULL((
+            // SELECT SUM(amount)
+            // FROM withdraws
+            // WHERE withdraws.wallet_id = wallets.id
+            // AND status IN (?, ?)), 0) + ?',
+            //     [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
+            // )
             ->where(function ($q) {
                 //here we control if the wallet enough resource for the transaction
                 return $q->where('trx', '>=', (config('app')['min_trx_for_transaction']) * Tron::DIGITS)->orWhere(function ($query) {
