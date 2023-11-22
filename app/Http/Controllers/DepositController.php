@@ -23,8 +23,9 @@ class DepositController extends Controller
 
         $user = $agent->users()->where('code', $data['code'])->first();
 
-        //let this only check the same amount deposit
+
         if ($user != null) {
+            //let this only check the same amount deposit
             abort_if(
                 $user->getActiveDeposit($data['amount']) != null,
                 ResponseStatus::BAD_REQUEST->value,

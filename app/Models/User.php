@@ -31,7 +31,7 @@ class User extends Model
     public function getActiveDeposit(float $amount): ?Deposit
     {
         return $this->deposits()
-            ->where('amount', $amount)
+            ->where('amount', $amount * Tron::DIGITS)
             ->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])
             ->first();
     }
