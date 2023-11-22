@@ -11,3 +11,8 @@ nginx -s reload
 php artisan up
 
 docker run --rm -p 6001:6001 quay.io/soketi/soketi:1.0-16-debian
+
+in production
+
+1. review the api key
+2. slack channel

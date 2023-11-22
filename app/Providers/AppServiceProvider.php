@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
             return Http::withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
-                // 'TRON-PRO-API-KEY' => config('app.env') == 'production' ? config('app')['tron_api_key'] : ''
+                'TRON-PRO-API-KEY' => config('app.env') == 'production' ? config('app')['tron_api_key'] : ''
             ])->baseUrl(config('app')['tron_api_url']);
         });
 
@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
             return Http::withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
-                // 'TRON-PRO-API-KEY' =>  config('app.env') == 'production' ? config('app')['tron_api_key2'] : ''
+                'TRON-PRO-API-KEY' =>  config('app.env') == 'production' ? config('app')['tron_api_key2'] : ''
             ])->baseUrl(config('app')['tron_api_url']);
         });
 
@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
             return Http::withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
-                // 'TRON-PRO-API-KEY' =>  config('app.env') == 'production' ? config('app')['tron_api_key3'] : ''
+                'TRON-PRO-API-KEY' =>  config('app.env') == 'production' ? config('app')['tron_api_key3'] : ''
             ])->baseUrl(config('app')['tron_api_url']);
         });
     }

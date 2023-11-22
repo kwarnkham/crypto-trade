@@ -41,7 +41,7 @@ return [
                 'port' => env('PUSHER_PORT', 6001),
                 'scheme' => env('PUSHER_SCHEME', 'http'),
                 'encrypted' => true,
-                'useTLS' => env('APP_ENV') == 'production',
+                'useTLS' => env('APP_ENV') != 'local',
             ],
         ],
 
