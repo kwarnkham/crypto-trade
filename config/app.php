@@ -36,8 +36,8 @@ return [
     'trc20_address' => env('APP_ENV', 'production') == 'production' ?
         'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t' : 'TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs',
 
-    'tron_api_url' => env('APP_ENV', 'production') == 'production' ?
-        'https://api.trongrid.io' : 'https://api.shasta.trongrid.io',
+    'tron_api_url' => env('TRON_API_URL', env('APP_ENV', 'production') == 'production' ?
+        'https://api.trongrid.io' : 'https://api.shasta.trongrid.io'),
 
     'tron_api_key' => env('TRON_API_KEY', 'd9d5c5cb-f542-43e9-b301-3b02db73f69e'),
     'tron_api_key2' => env('TRON_API_KEY2', '59c2dc2b-8de3-4156-bbec-88daca807f18'),
