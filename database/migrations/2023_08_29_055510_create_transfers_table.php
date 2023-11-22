@@ -19,6 +19,7 @@ return new class extends Migration
             $table->double('fee');
             $table->timestamps();
             $table->foreign('recipient_id')->references('id')->on('users');
+            $table->string('agent_transaction_id')->unique();
         });
     }
 

@@ -22,6 +22,7 @@ class WithdrawController extends Controller
                 'code' => ['required', Rule::exists('users', 'code')->where('agent_id', $agent->id)],
                 'amount' => ['required', 'numeric', 'gt:' . $fee],
                 'to' => ['required', 'string', 'unique:wallets,base58_check'],
+                'agent_transaction_id' => ['required', 'unique:extracts,agent_transaction_id']
             ],
             [
                 'to.unique' => 'The wallet is invalid. Please check again.'
