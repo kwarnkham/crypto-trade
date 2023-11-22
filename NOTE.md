@@ -16,3 +16,4 @@ in production
 
 1. review the api key
 2. slack channel
+3. need to restart supervisorctl if env changed
