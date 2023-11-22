@@ -28,9 +28,13 @@ class User extends Model
         return $this->hasMany(Deposit::class);
     }
 
-    public function getActiveDeposit(): ?Deposit
+    public function getActiveDeposit(float $amount): ?Deposit
     {
-        return $this->deposits()->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])->first();
+        return $this->deposits()
+        ->where(function ($query) use($amount) {
+            $query->whereRaw('SELECT COUNT(*) as deposit_count FROM deposits where deposits.user_id = ?  AND amount != ? AND status IN (?, ?) having deposit_count >= 3',  [$this->id ,$amount, WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value]);
+        })
+        ->orWhere('amount', $amount * Tron::DIGITS)->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])->first();
     }
 
     public function withdraws()
