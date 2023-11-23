@@ -44,7 +44,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => Str::random('3'),
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $response->assertOk();
@@ -58,7 +59,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => Str::random('3'),
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $this->assertEquals(
@@ -75,7 +77,8 @@ class DepositTest extends TestCase
         $responseData = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
+            'agent_transaction_id' => Str::random(64),
         ])->json();
 
         $this->assertDatabaseCount('users', 1);
@@ -90,7 +93,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $this->assertDatabaseCount('users', 1);
@@ -103,7 +107,8 @@ class DepositTest extends TestCase
             $response = $this->postJson('api/deposits/agent', [
                 'code' => $this->faker()->unique()->randomNumber(3),
                 'name' => $this->faker()->lastName(),
-                'amount' => 1
+                'amount' => 1,
+                'agent_transaction_id' => Str::random(64),
             ]);
             $response->assertOk();
         }
@@ -111,7 +116,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => $this->faker()->unique()->randomNumber(3),
             'name' => $this->faker()->lastName(),
-            'amount' => 1
+            'amount' => 1,
+            'agent_transaction_id' => Str::random(64),
         ]);
         $response->assertBadRequest();
     }
@@ -124,7 +130,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => $amount
+            'amount' => $amount,
+            'agent_transaction_id' => Str::random(64),
         ])->assertOk();
 
         $depositId = $response->json()['deposit']['id'];
@@ -132,7 +139,8 @@ class DepositTest extends TestCase
         $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => $amount
+            'amount' => $amount,
+            'agent_transaction_id' => Str::random(64),
         ])->assertBadRequest();
 
         $this->postJson('api/deposits/agent/' . $depositId . '/confirm')->assertOk();
@@ -146,13 +154,15 @@ class DepositTest extends TestCase
         $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => $amount
+            'amount' => $amount,
+            'agent_transaction_id' => Str::random(64),
         ])->assertOk();
 
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(6, 10)
+            'amount' => rand(6, 10),
+            'agent_transaction_id' => Str::random(64),
         ])->assertOk();
     }
 
@@ -164,7 +174,8 @@ class DepositTest extends TestCase
         $firstDeposit = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => $amount
+            'amount' => $amount,
+            'agent_transaction_id' => Str::random(64),
         ])->assertOk();
 
         $firstDepositId = $firstDeposit->json()['deposit']['id'];
@@ -172,20 +183,23 @@ class DepositTest extends TestCase
         $secondDeposit = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(6, 10)
+            'amount' => rand(6, 10),
+            'agent_transaction_id' => Str::random(64),
         ])->assertOk();
         $secondDepositId = $secondDeposit->json()['deposit']['id'];
 
         $thirdDeposit = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(11, 15)
+            'amount' => rand(11, 15),
+            'agent_transaction_id' => Str::random(64),
         ])->assertOk();
 
         $fourthDeposit = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(12, 20)
+            'amount' => rand(12, 20),
+            'agent_transaction_id' => Str::random(64),
         ])->assertBadRequest();
 
         $this->postJson('api/deposits/agent/' . $firstDepositId . '/cancel')->assertOk();
@@ -193,7 +207,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => $amount
+            'amount' => $amount,
+            'agent_transaction_id' => Str::random(64),
         ])->assertOk();
 
         $this->postJson('api/deposits/agent/' . $secondDepositId . '/cancel')->assertOk();
@@ -201,7 +216,8 @@ class DepositTest extends TestCase
         $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => $amount
+            'amount' => $amount,
+            'agent_transaction_id' => Str::random(64),
         ])->assertBadRequest();
     }
 
@@ -210,7 +226,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => Str::random('3'),
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
         $this->assertEquals(
             DepositStatus::PENDING->value,
@@ -231,7 +248,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => Str::random('3'),
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $confirmResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/confirm');
@@ -263,7 +281,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => Str::random('3'),
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $this->assertEquals(
@@ -286,7 +305,8 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent', [
             'code' => Str::random('3'),
             'name' => $this->faker()->lastName(),
-            'amount' => rand(1, 5)
+            'amount' => rand(1, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $cancelResponse = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/cancel');

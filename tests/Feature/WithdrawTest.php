@@ -52,9 +52,9 @@ class WithdrawTest extends TestCase
 
         Http::preventStrayRequests();
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/validateaddress' => Http::response([
-                    "result"=> true,
-                    "message"=> "Base58check format"
+            config('app')['tron_api_url'] . '/wallet/validateaddress' => Http::response([
+                "result" => true,
+                "message" => "Base58check format"
             ])
         ]);
     }
@@ -64,7 +64,8 @@ class WithdrawTest extends TestCase
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->to_wallet,
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $response->assertOk();
@@ -77,7 +78,8 @@ class WithdrawTest extends TestCase
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => Str::random(10),
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $response->assertBadRequest();
@@ -88,7 +90,8 @@ class WithdrawTest extends TestCase
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->wallet->base58_check,
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $response->assertUnprocessable();
@@ -97,7 +100,8 @@ class WithdrawTest extends TestCase
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $new_wallet,
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $response->assertOk();
@@ -108,7 +112,8 @@ class WithdrawTest extends TestCase
         $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->to_wallet,
-            'amount' => rand(6, 10)
+            'amount' => rand(6, 10),
+            'agent_transaction_id' => Str::random(64),
         ])->assertBadRequest();
         $this->assertDatabaseCount('withdraws', 0);
 
@@ -116,7 +121,8 @@ class WithdrawTest extends TestCase
         $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->to_wallet,
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ])->assertOk();
         $this->assertDatabaseCount('withdraws', 1);
     }
@@ -126,7 +132,8 @@ class WithdrawTest extends TestCase
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->to_wallet,
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $this->assertEquals(
@@ -138,43 +145,44 @@ class WithdrawTest extends TestCase
     public function test_agent_user_can_confirm_withdraw(): void
     {
         Http::fake([
-            config('app')['tron_api_url'].'/v1/accounts/*' => Http::response(['data' => [
+            config('app')['tron_api_url'] . '/v1/accounts/*' => Http::response(['data' => [
                 [
                     "balance" => rand(10, 20) * Tron::DIGITS,
                     "address" => Str::random(42),
                     "create_time" => now(),
-                    "trc20" =>[ [config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
+                    "trc20" => [[config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
                     "frozenV2" => [["type" => "ENERGY"], ["type" => "UNKNOWN_ENUM_VALUE_ResourceCode_2"]],
                 ]
             ]]),
         ]);
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/getaccountresource' => Http::response([
+            config('app')['tron_api_url'] . '/wallet/getaccountresource' => Http::response([
                 "freeNetUsed" => rand(500, 600),
                 "freeNetLimit" => rand(600, 700),
             ])
         ]);
 
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/triggersmartcontract' => Http::response([
-                "transaction"=> [
-                    "visible"=> true,
-                    "txID"=> bin2hex(random_bytes(32))
-                  ]
+            config('app')['tron_api_url'] . '/wallet/triggersmartcontract' => Http::response([
+                "transaction" => [
+                    "visible" => true,
+                    "txID" => bin2hex(random_bytes(32))
+                ]
             ])
         ]);
 
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/broadcasttransaction' => Http::response([
+            config('app')['tron_api_url'] . '/wallet/broadcasttransaction' => Http::response([
                 "result" => true,
-                "txid"=> Str::random(64)
+                "txid" => Str::random(64)
             ])
         ]);
 
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->to_wallet,
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $withdrawId = $response->json()['withdraw']['id'];
@@ -188,43 +196,44 @@ class WithdrawTest extends TestCase
     public function test_withdraw_can_be_confirmed_only_if_withdraw_status_is_pending(): void
     {
         Http::fake([
-            config('app')['tron_api_url'].'/v1/accounts/*' => Http::response(['data' => [
+            config('app')['tron_api_url'] . '/v1/accounts/*' => Http::response(['data' => [
                 [
                     "balance" => rand(10, 20) * Tron::DIGITS,
                     "address" => Str::random(42),
                     "create_time" => now(),
-                    "trc20" =>[ [config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
+                    "trc20" => [[config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
                     "frozenV2" => [["type" => "ENERGY"], ["type" => "UNKNOWN_ENUM_VALUE_ResourceCode_2"]],
                 ]
             ]]),
         ]);
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/getaccountresource' => Http::response([
+            config('app')['tron_api_url'] . '/wallet/getaccountresource' => Http::response([
                 "freeNetUsed" => rand(500, 600),
                 "freeNetLimit" => rand(600, 700),
             ])
         ]);
 
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/triggersmartcontract' => Http::response([
-                "transaction"=> [
-                    "visible"=> true,
-                    "txID"=> bin2hex(random_bytes(32))
-                  ]
+            config('app')['tron_api_url'] . '/wallet/triggersmartcontract' => Http::response([
+                "transaction" => [
+                    "visible" => true,
+                    "txID" => bin2hex(random_bytes(32))
+                ]
             ])
         ]);
 
         Http::fake([
-            config('app')['tron_api_url'].'/wallet/broadcasttransaction' => Http::response([
+            config('app')['tron_api_url'] . '/wallet/broadcasttransaction' => Http::response([
                 "result" => true,
-                "txid"=> Str::random(64)
+                "txid" => Str::random(64)
             ])
         ]);
 
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->to_wallet,
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
 
         $withdrawId = $response->json()['withdraw']['id'];
