@@ -52,7 +52,8 @@ class TransferTest extends TestCase
         $response = $this->postJson('api/transfers/agent', [
             'from' => $this->user->code,
             'to' => $this->recipientUser->code,
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
         $response->assertOK();
         $this->assertArrayHasKey('transfer', $response->json());
@@ -64,7 +65,8 @@ class TransferTest extends TestCase
         $response = $this->postJson('api/transfers/agent', [
             'from' => $this->user->code,
             'to' => $this->recipientUser->code,
-            'amount' => rand(6, 10)
+            'amount' => rand(6, 10),
+            'agent_transaction_id' => Str::random(64),
         ]);
         $response->assertBadRequest();
         $this->assertNull(Transfer::first());
@@ -75,7 +77,8 @@ class TransferTest extends TestCase
         $response = $this->postJson('api/transfers/agent', [
             'from' => $this->user->code,
             'to' => $this->recipientUser->code,
-            'amount' => rand(2, 5)
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => Str::random(64),
         ]);
         $response->assertOk();
 
@@ -88,7 +91,8 @@ class TransferTest extends TestCase
         $response = $this->postJson('api/transfers/agent', [
             'from' => $this->user->code,
             'to' => $this->recipientUser->code,
-            'amount' => $transferAmount
+            'amount' => $transferAmount,
+            'agent_transaction_id' => Str::random(64),
         ]);
         $response->assertOk();
         $this->assertEquals(($this->user->balance - $transferAmount), $this->user->fresh()->balance);
@@ -100,7 +104,8 @@ class TransferTest extends TestCase
         $response = $this->postJson('api/transfers/agent', [
             'from' => $this->user->code,
             'to' => $this->recipientUser->code,
-            'amount' => $transferAmount
+            'amount' => $transferAmount,
+            'agent_transaction_id' => Str::random(64),
         ]);
         $response->assertStatus(200);
         $transferFee = $response->json()['transfer']['fee'];
