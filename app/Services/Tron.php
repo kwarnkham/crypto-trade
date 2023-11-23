@@ -44,7 +44,7 @@ class Tron
 
     public static function broadcastTransaction(array $signedTransaction)
     {
-        static::cacheStore('broadcastTransaction');
+        static::cache('broadcastTransaction');
 
         if (!array_key_exists('signature', $signedTransaction) || !is_array($signedTransaction['signature'])) {
             abort(ResponseStatus::BAD_REQUEST->value, 'Transaction is not signed');
@@ -55,7 +55,7 @@ class Tron
 
     public static function sendUSDT(string $to, float $amount, string $privateKey, string $from)
     {
-        static::cacheStore('sendUSDT');
+        static::cache('sendUSDT');
 
         $toFormat = Formatter::toAddressFormat(Conversion::base58check2HexString($to));
 
@@ -91,7 +91,7 @@ class Tron
 
     public static function createTransaction(string $ownerAddress, string $toAddress, float $amount)
     {
-        static::cacheStore('createTransaction');
+        static::cache('createTransaction');
 
         return Http::tron()->post("/wallet/createtransaction", [
             'owner_address' => $ownerAddress,
@@ -112,7 +112,7 @@ class Tron
 
     public static function getTransactionInfoById(string $txID)
     {
-        static::cacheStore('getTransactionInfoById');
+        static::cache('getTransactionInfoById');
 
         return Http::tron()->post("/wallet/gettransactioninfobyid", [
             "value" => $txID,
@@ -121,7 +121,7 @@ class Tron
 
     public static function getSolidityTransactionInfoById(string $txID)
     {
-        static::cacheStore('getSolidityTransactionInfoById');
+        static::cache('getSolidityTransactionInfoById');
 
         return Http::tron()->post("/walletsolidity/gettransactioninfobyid", [
             "value" => $txID,
@@ -130,7 +130,7 @@ class Tron
 
     public static function getSolidityTransactionById(string $txID)
     {
-        static::cacheStore('getSolidityTransactionById');
+        static::cache('getSolidityTransactionById');
 
         return Http::tron()->post("/walletsolidity/gettransactionbyid", [
             "value" => $txID,
@@ -157,7 +157,7 @@ class Tron
 
     public static function freezeBalance(string $ownerAddress, string $resource, int $frozenBalance): array
     {
-        static::cacheStore('freezeBalance');
+        static::cache('freezeBalance');
 
         return Http::tron()->post("/wallet/freezebalancev2", [
             'owner_address' => $ownerAddress,
@@ -170,7 +170,7 @@ class Tron
 
     public static function withdrawExpireUnfreeze(string $ownerAddress): array
     {
-        static::cacheStore('withdrawExpireUnfreeze');
+        static::cache('withdrawExpireUnfreeze');
 
         return Http::tron()->post("/wallet/withdrawexpireunfreeze", [
             'owner_address' => $ownerAddress,
@@ -180,7 +180,7 @@ class Tron
 
     public static function cancelAllUnfreezeV2(string $ownerAddress): array
     {
-        static::cacheStore('cancelAllUnfreezeV2');
+        static::cache('cancelAllUnfreezeV2');
 
         return Http::tron()->post("/wallet/cancelallunfreezev2", [
             'owner_address' => $ownerAddress,
@@ -191,7 +191,7 @@ class Tron
     public static function getAccountResource(string $address)
     {
 
-        static::cacheStore('getAccountResource');
+        static::cache('getAccountResource');
 
         return Http::tron2()->post('/wallet/getaccountresource', [
             'address' => $address,
@@ -201,7 +201,7 @@ class Tron
 
     public static function getAccountInfoByAddress(string $address)
     {
-        static::cacheStore("getAccountInfoByAddress");
+        static::cache("getAccountInfoByAddress");
 
         return Http::tron2()->get("/v1/accounts/$address")->object();
     }
@@ -213,13 +213,13 @@ class Tron
 
     public static function validateAddress(string $address)
     {
-        static::cacheStore('validateAddress');
+        static::cache('validateAddress');
         return Http::tron()->post("/wallet/validateaddress", ["address" => $address])->object();
     }
 
     public static function unfreezeBalance(string $ownerAddress, string $resource, int $unfreezeBalance)
     {
-        static::cacheStore('unfreezeBalance');
+        static::cache('unfreezeBalance');
         return Http::tron()->post("/wallet/unfreezebalancev2", [
             'owner_address' => $ownerAddress,
             'unfreeze_balance' => $unfreezeBalance,
@@ -231,31 +231,33 @@ class Tron
 
     public static function getTRC20TransactionInfoByAccountAddress(string $address, $options = null)
     {
-        static::cacheStore('getTRC20TransactionInfoByAccountAddress');
+        static::cache('getTRC20TransactionInfoByAccountAddress');
         return Http::tron2()->get("/v1/accounts/$address/transactions/trc20", $options)->object();
     }
 
     public static function getTransactionInfoByAccountAddress(string $address, $options = null)
     {
-        static::cacheStore('getTransactionInfoByAccountAddress');
+        static::cache('getTransactionInfoByAccountAddress');
         return Http::tron2()->get("/v1/accounts/$address/transactions", $options)->object();
     }
 
     public static function getTransactionInfoByContractAddress(string $contractAddress)
     {
-        static::cacheStore('getTransactionInfoByContractAddress');
+        static::cache('getTransactionInfoByContractAddress');
         return Http::tron2()->get("/v1/contracts/$contractAddress/transactions")->object();
     }
 
-    public static function cacheStore(string $api_function) {
-        $records =  (array)json_decode((string) Cache::get('api-records'));
+    public static function cache(string $apiFunctionName)
+    {
+        /** @var array $records */
+        $records = Cache::get('api_records', []);
 
-        if (array_key_exists($api_function, $records)) {
-            $records[$api_function]++;
-        }else{
-            $records[$api_function] = 1;
+        if (array_key_exists($apiFunctionName, $records)) {
+            $records[$apiFunctionName]++;
+        } else {
+            $records[$apiFunctionName] = 1;
         }
 
-        Cache::forever('api-records', json_encode( $records));
+        Cache::forever('api_records', $records);
     }
 }
