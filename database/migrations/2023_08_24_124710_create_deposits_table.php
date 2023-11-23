@@ -21,6 +21,7 @@ return new class extends Migration
             $table->tinyInteger('status')->default(DepositStatus::PENDING->value);
             $table->tinyInteger('attempts')->default(0);
             $table->timestamps();
+            $table->string('agent_transaction_id')->unique()->nullable();
         });
     }
 

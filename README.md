@@ -31,6 +31,7 @@ JWT::encode(['key' => $this->key], $this->key, 'HS256', null, ['alg' => 'HS256',
     1. code (Unique user's id from agent platform) [String || Integer]
     2. name (User's name) [String || Integer]
     3. amount (Deposit amount) [integer]
+    4. agent_transaction_id [Unique ID from agent side]
 
 ```
 curl --location 'http://127.0.0.1:8000/api/deposits/agent' \
@@ -41,6 +42,7 @@ curl --location 'http://127.0.0.1:8000/api/deposits/agent' \
 --data-urlencode 'code=1' \
 --data-urlencode 'name=Moon' \
 --data-urlencode 'amount=1'
+--data-urlencode 'agent_transaction_id=123'
 ```
 
 > Response
@@ -57,7 +59,8 @@ curl --location 'http://127.0.0.1:8000/api/deposits/agent' \
        "user_id": 1,
        "updated_at": "2023-10-13T08:58:19.000000Z",
        "created_at": "2023-10-13T08:58:19.000000Z",
-       "id": 3
+       "id": 3,
+       "agent_transaction_id": 123,
    }
 }
 ```
@@ -296,6 +299,7 @@ curl --location 'http://127.0.0.1:8000/api/deposits/agent?status=1%2C2%2C3%2C4%2
     1. code (Unique user's id from agent platform) [String || Integer]
     2. to (Wallet's address) [String]
     3. amount (Withdraw amount) [integer]
+    4. agent_transaction_id [Unique ID from agent side]
 
 ```
 curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
@@ -306,6 +310,7 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
 --form 'code="1"' \
 --form 'to="TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y"' \
 --form 'amount="2"'
+--form 'agent_transaction_id="123"'
 ```
 
 > Response
@@ -321,7 +326,8 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
         "fee": 1,
         "updated_at": "2023-10-19T07:04:19.000000Z",
         "created_at": "2023-10-19T07:04:19.000000Z",
-        "id": 2
+        "id": 2,
+        "agent_transaction_id": 123,
     }
 }
 ```
@@ -582,6 +588,7 @@ curl --location --request POST 'http://127.0.0.1:8000/api/withdraws/agent/1/canc
     1. from (Unique user's id from agent platform) [String || Integer]
     2. to (Unique user's id to agent platform) [String || Integer]
     3. amount (Transfer amount) [integer]
+    4. agent_transaction_id [Unique ID from agent side]
 
 ```
 curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
@@ -592,6 +599,7 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
 --form 'from="1"' \
 --form 'to="2"' \
 --form 'amount="2"'
+--form 'agent_transaction_id="123"'
 ```
 
 > Response
@@ -607,7 +615,8 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
         "fee": 1,
         "updated_at": "2023-10-24T04:20:28.000000Z",
         "created_at": "2023-10-24T04:20:28.000000Z",
-        "id": 1
+        "id": 1,
+        "agent_transaction_id": 123,
     }
 }
 ```
@@ -974,7 +983,7 @@ enum ExtractStatus: int
     2. amount [int]
     3. to ['Tron wallet address in base58_check']
     4. wallet_id [ID of the walelt to extract USDT/TRX from]
-    5. agent_extract_id [Unique ID from agent side]
+    5. agent_transaction_id [Unique ID from agent side]
 
 ```
 curl --location 'http://localhost:8000/api/extracts/agent' \
@@ -986,7 +995,7 @@ curl --location 'http://localhost:8000/api/extracts/agent' \
 --data-urlencode 'amount=1' \
 --data-urlencode 'to=TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ' \
 --data-urlencode 'wallet_id=1' \
---data-urlencode 'agent_extract_id=2'
+--data-urlencode 'agent_transaction_id=2'
 ```
 
 > Response
@@ -998,7 +1007,7 @@ curl --location 'http://localhost:8000/api/extracts/agent' \
         "type": "1",
         "to": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
         "wallet_id": 1,
-        "agent_extract_id": "2",
+        "agent_transaction_id": "2",
         "agent_id": 1,
         "updated_at": "2023-11-08T10:55:29.000000Z",
         "created_at": "2023-11-08T10:55:27.000000Z",
