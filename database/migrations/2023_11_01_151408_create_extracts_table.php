@@ -24,7 +24,7 @@ return new class extends Migration
             $table->foreignId('transaction_id')->nullable()->constrained();
             $table->tinyInteger('attempts')->default(0);
             $table->timestamps();
-            $table->string('agent_transaction_id')->unique();
+            $table->string('agent_transaction_id')->unique()->nullable();
         });
     }
 
