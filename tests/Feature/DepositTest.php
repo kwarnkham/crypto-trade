@@ -201,7 +201,7 @@ class DepositTest extends TestCase
             'name' => $name,
             'amount' => rand(12, 20),
             'agent_transaction_id' => Str::random(64),
-        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
+        ])->assertUnprocessable();
 
         $this->postJson('api/deposits/agent/' . $firstDepositId . '/cancel')->assertOk();
 
@@ -219,7 +219,7 @@ class DepositTest extends TestCase
             'name' => $name,
             'amount' => $amount,
             'agent_transaction_id' => Str::random(64),
-        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
+        ])->assertUnprocessable();
     }
 
     public function test_agent_user_confirm_deposit(): void

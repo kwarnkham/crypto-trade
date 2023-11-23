@@ -115,7 +115,7 @@ class WithdrawTest extends TestCase
             'to' => $this->to_wallet,
             'amount' => rand(6, 10),
             'agent_transaction_id' => Str::random(64),
-        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
+        ])->assertUnprocessable();
         $this->assertDatabaseCount('withdraws', 0);
 
 
