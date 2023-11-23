@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return ['Laravel' => app()->version(), 'App' => config('app.name')];
+    $records = (array)json_decode((string)Cache::get('api-records'));
+    arsort($records);
+    return ['Laravel' => app()->version(), 'App' => config('app.name'), 'Api Records' => $records];
 });
 
 require __DIR__ . '/auth.php';

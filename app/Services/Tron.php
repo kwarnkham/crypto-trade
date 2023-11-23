@@ -12,6 +12,7 @@ use Elliptic\EC;
 use InvalidArgumentException;
 use kornrunner\Secp256k1;
 use kornrunner\Signature\Signature;
+use Cache;
 
 class Tron
 {
@@ -43,6 +44,8 @@ class Tron
 
     public static function broadcastTransaction(array $signedTransaction)
     {
+        static::cacheStore('broadcastTransaction');
+
         if (!array_key_exists('signature', $signedTransaction) || !is_array($signedTransaction['signature'])) {
             abort(ResponseStatus::BAD_REQUEST->value, 'Transaction is not signed');
         }
@@ -52,6 +55,8 @@ class Tron
 
     public static function sendUSDT(string $to, float $amount, string $privateKey, string $from)
     {
+        static::cacheStore('sendUSDT');
+
         $toFormat = Formatter::toAddressFormat(Conversion::base58check2HexString($to));
 
         try {
@@ -86,6 +91,8 @@ class Tron
 
     public static function createTransaction(string $ownerAddress, string $toAddress, float $amount)
     {
+        static::cacheStore('createTransaction');
+
         return Http::tron()->post("/wallet/createtransaction", [
             'owner_address' => $ownerAddress,
             'to_address' => $toAddress,
@@ -105,6 +112,8 @@ class Tron
 
     public static function getTransactionInfoById(string $txID)
     {
+        static::cacheStore('getTransactionInfoById');
+
         return Http::tron()->post("/wallet/gettransactioninfobyid", [
             "value" => $txID,
         ])->object();
@@ -112,6 +121,8 @@ class Tron
 
     public static function getSolidityTransactionInfoById(string $txID)
     {
+        static::cacheStore('getSolidityTransactionInfoById');
+
         return Http::tron()->post("/walletsolidity/gettransactioninfobyid", [
             "value" => $txID,
         ])->object();
@@ -119,6 +130,8 @@ class Tron
 
     public static function getSolidityTransactionById(string $txID)
     {
+        static::cacheStore('getSolidityTransactionById');
+
         return Http::tron()->post("/walletsolidity/gettransactionbyid", [
             "value" => $txID,
         ])->object();
@@ -144,6 +157,8 @@ class Tron
 
     public static function freezeBalance(string $ownerAddress, string $resource, int $frozenBalance): array
     {
+        static::cacheStore('freezeBalance');
+
         return Http::tron()->post("/wallet/freezebalancev2", [
             'owner_address' => $ownerAddress,
             'resource' => $resource,
@@ -155,6 +170,8 @@ class Tron
 
     public static function withdrawExpireUnfreeze(string $ownerAddress): array
     {
+        static::cacheStore('withdrawExpireUnfreeze');
+
         return Http::tron()->post("/wallet/withdrawexpireunfreeze", [
             'owner_address' => $ownerAddress,
             'visible' => true
@@ -163,6 +180,8 @@ class Tron
 
     public static function cancelAllUnfreezeV2(string $ownerAddress): array
     {
+        static::cacheStore('cancelAllUnfreezeV2');
+
         return Http::tron()->post("/wallet/cancelallunfreezev2", [
             'owner_address' => $ownerAddress,
             'visible' => true
@@ -171,6 +190,9 @@ class Tron
 
     public static function getAccountResource(string $address)
     {
+
+        static::cacheStore('getAccountResource');
+
         return Http::tron2()->post('/wallet/getaccountresource', [
             'address' => $address,
             'visible' => true
@@ -179,6 +201,8 @@ class Tron
 
     public static function getAccountInfoByAddress(string $address)
     {
+        static::cacheStore("getAccountInfoByAddress");
+
         return Http::tron2()->get("/v1/accounts/$address")->object();
     }
 
@@ -189,11 +213,13 @@ class Tron
 
     public static function validateAddress(string $address)
     {
+        static::cacheStore('validateAddress');
         return Http::tron()->post("/wallet/validateaddress", ["address" => $address])->object();
     }
 
     public static function unfreezeBalance(string $ownerAddress, string $resource, int $unfreezeBalance)
     {
+        static::cacheStore('unfreezeBalance');
         return Http::tron()->post("/wallet/unfreezebalancev2", [
             'owner_address' => $ownerAddress,
             'unfreeze_balance' => $unfreezeBalance,
@@ -205,16 +231,31 @@ class Tron
 
     public static function getTRC20TransactionInfoByAccountAddress(string $address, $options = null)
     {
+        static::cacheStore('getTRC20TransactionInfoByAccountAddress');
         return Http::tron2()->get("/v1/accounts/$address/transactions/trc20", $options)->object();
     }
 
     public static function getTransactionInfoByAccountAddress(string $address, $options = null)
     {
+        static::cacheStore('getTransactionInfoByAccountAddress');
         return Http::tron2()->get("/v1/accounts/$address/transactions", $options)->object();
     }
 
     public static function getTransactionInfoByContractAddress(string $contractAddress)
     {
+        static::cacheStore('getTransactionInfoByContractAddress');
         return Http::tron2()->get("/v1/contracts/$contractAddress/transactions")->object();
+    }
+
+    public static function cacheStore(string $api_function) {
+        $records =  (array)json_decode((string) Cache::get('api-records'));
+
+        if (array_key_exists($api_function, $records)) {
+            $records[$api_function]++;
+        }else{
+            $records[$api_function] = 1;
+        }
+
+        Cache::forever('api-records', json_encode( $records));
     }
 }

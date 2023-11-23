@@ -96,29 +96,6 @@ class DepositTest extends TestCase
         $this->assertDatabaseCount('users', 1);
     }
 
-    public function test_agent_cannot_create_another_depoist_if_a_pending_deposit_exist(): void
-    {
-        $code = Str::random('3');
-        $name =  $this->faker()->lastName();
-        $response = $this->postJson('api/deposits/agent', [
-            'code' => $code,
-            'name' => $name,
-            'amount' => rand(1, 5)
-        ]);
-
-        $this->assertEquals(
-            DepositStatus::PENDING->value,
-            Deposit::find($response->json()['deposit']['id'])->status
-        );
-
-        $response = $this->postJson('api/deposits/agent', [
-            'code' => $code,
-            'name' => $name,
-            'amount' => rand(1, 5)
-        ]);
-        $response->assertBadRequest();
-    }
-
     public function test_agent_user_can_deposit_only_if_avaliable_wallet_exists(): void
     {
         //todo: make a unit test for Wallet::findAvailable()
@@ -139,15 +116,15 @@ class DepositTest extends TestCase
         $response->assertBadRequest();
     }
 
-    public function test_agent_user_cannot_depoist_again_if_existing_deposit_is_pending_or_confirmed(): void
+    public function test_agent_user_cannot_depoist_again_if_existing_deposit_is_pending_or_confirmed_with_the_same_deposit_amount(): void
     {
         $code = Str::random('3');
         $name =  $this->faker()->lastName();
-
+        $amount = rand(1, 5);
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(1, 5)
+            'amount' => $amount
         ])->assertOk();
 
         $depositId = $response->json()['deposit']['id'];
@@ -155,7 +132,7 @@ class DepositTest extends TestCase
         $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(1, 5)
+            'amount' => $amount
         ])->assertBadRequest();
 
         $this->postJson('api/deposits/agent/' . $depositId . '/confirm')->assertOk();
@@ -164,22 +141,68 @@ class DepositTest extends TestCase
             return $job->depositId === $depositId;
         });
 
+        Deposit::where('id', $depositId)->update(['status' => DepositStatus::COMPLETED->value]);
+
         $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(1, 5)
-        ])->assertBadRequest();
-
-        //can only cancel a pending deposit
-        $this->postJson('api/deposits/agent/' . $depositId . '/cancel')->assertBadRequest();
-
-        Deposit::find($depositId)->update(['status' => DepositStatus::CANCELED->value]);
+            'amount' => $amount
+        ])->assertOk();
 
         $response = $this->postJson('api/deposits/agent', [
             'code' => $code,
             'name' => $name,
-            'amount' => rand(1, 5)
+            'amount' => rand(6, 10)
         ])->assertOk();
+    }
+
+    public function test_agent_user_cannot_deposit_over_three_times_if_existing_deposit_is_pending_or_confirmed_and_deposit_amounts_are_different(): void
+    {
+        $code = Str::random('3');
+        $name =  $this->faker()->lastName();
+        $amount = rand(1, 5);
+        $firstDeposit = $this->postJson('api/deposits/agent', [
+            'code' => $code,
+            'name' => $name,
+            'amount' => $amount
+        ])->assertOk();
+
+        $firstDepositId = $firstDeposit->json()['deposit']['id'];
+
+        $secondDeposit = $this->postJson('api/deposits/agent', [
+            'code' => $code,
+            'name' => $name,
+            'amount' => rand(6, 10)
+        ])->assertOk();
+        $secondDepositId = $secondDeposit->json()['deposit']['id'];
+
+        $thirdDeposit = $this->postJson('api/deposits/agent', [
+            'code' => $code,
+            'name' => $name,
+            'amount' => rand(11, 15)
+        ])->assertOk();
+
+        $fourthDeposit = $this->postJson('api/deposits/agent', [
+            'code' => $code,
+            'name' => $name,
+            'amount' => rand(12, 20)
+        ])->assertBadRequest();
+
+        $this->postJson('api/deposits/agent/' . $firstDepositId . '/cancel')->assertOk();
+
+        $response = $this->postJson('api/deposits/agent', [
+            'code' => $code,
+            'name' => $name,
+            'amount' => $amount
+        ])->assertOk();
+
+        $this->postJson('api/deposits/agent/' . $secondDepositId . '/cancel')->assertOk();
+
+        $this->postJson('api/deposits/agent', [
+            'code' => $code,
+            'name' => $name,
+            'amount' => $amount
+        ])->assertBadRequest();
     }
 
     public function test_agent_user_confirm_deposit(): void
