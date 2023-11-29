@@ -65,6 +65,13 @@ curl --location 'http://127.0.0.1:8000/api/deposits/agent' \
 }
 ```
 
+> Error Responses
+
+### 422
+
+1. When user have an unfinished deposit and try to depoist the same amount
+2. When user have 3 unfinished deposits and try to deposit more
+
 ## Confirm the created deposit
 
 > After sending USDT to the wallet responded from **Create a new depoist** api, you must request this api to confirm the deposit
