@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ResponseStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Queue;
@@ -82,7 +83,7 @@ class WithdrawTest extends TestCase
             'agent_transaction_id' => Str::random(64),
         ]);
 
-        $response->assertBadRequest();
+        $response->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
     }
 
     public function test_agent_user_can_withdraw_to_wallet_address_only_that_does_not_exist_in_our_wallet_list(): void
@@ -114,7 +115,7 @@ class WithdrawTest extends TestCase
             'to' => $this->to_wallet,
             'amount' => rand(6, 10),
             'agent_transaction_id' => Str::random(64),
-        ])->assertBadRequest();
+        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
         $this->assertDatabaseCount('withdraws', 0);
 
 

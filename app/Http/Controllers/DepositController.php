@@ -4,68 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Enums\DepositStatus;
 use App\Enums\ResponseStatus;
+use App\Http\Requests\FilterDepositRequest;
+use App\Http\Requests\StoreDepositRequest;
 use App\Models\Agent;
 use App\Models\Deposit;
-use App\Models\User;
-use App\Models\Wallet;
 use Illuminate\Http\Request;
 
 class DepositController extends Controller
 {
-    public function store(Request $request)
+    public function store(StoreDepositRequest $request)
     {
-        $agent = Agent::current($request);
-        $data = $request->validate([
-            'code' => ['required'],
-            'name' => ['required'],
-            'amount' => ['required', 'numeric', 'gte:0.000001'],
-            'agent_transaction_id' => ['required', 'unique:extracts,agent_transaction_id']
-        ]);
-
-        $user = $agent->users()->where('code', $data['code'])->first();
-
-
-        if ($user != null) {
-            //let this only check the same amount deposit
-            abort_if(
-                $user->getActiveDeposit($data['amount']) != null,
-                ResponseStatus::BAD_REQUEST->value,
-                'Please pay and wait for previous deposit to complete'
-            );
-
-            //here we check if user alreay have 3 unfinished deposits
-            abort_if(
-                $user->deposits()->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])->count() >= 3,
-                ResponseStatus::BAD_REQUEST->value,
-                'User already have 3 unfinished deposits'
-            );
-        }
-
-        //todo: test again unit test
-        $wallet = Wallet::findAvailable($data['amount']);
-
-        if ($wallet == null) abort(ResponseStatus::BAD_REQUEST->value, 'There is no avaliable wallet to handle deposit.');
-
-        if ($user == null)
-            $user = User::create([
-                'code' => $data['code'],
-                'name' => $data['name'],
-                'agent_id' => $agent->id
-            ]);
-
-        $deposit = $user->deposits()->create([
-            'wallet_id' => $wallet->id,
-            'amount' => $data['amount']
-        ]);
+        [$wallet, $deposit] = Deposit::generate($request->all());
         return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => $deposit]);
     }
 
-    public function index(Request $request)
+    public function index(FilterDepositRequest $request)
     {
-        $filters = $request->validate([
-            'status' => ['sometimes'],
-            'wallet_id' => ['sometimes'],
-        ]);
+        $filters = $request->all();
         $agent = Agent::current($request);
 
         $query = Deposit::query()->filter($filters)->latest('id')->with(['wallet', 'user.agent']);

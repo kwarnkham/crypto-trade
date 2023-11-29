@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ResponseStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\DB;
@@ -68,7 +69,7 @@ class TransferTest extends TestCase
             'amount' => rand(6, 10),
             'agent_transaction_id' => Str::random(64),
         ]);
-        $response->assertBadRequest();
+        $response->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
         $this->assertNull(Transfer::first());
     }
 

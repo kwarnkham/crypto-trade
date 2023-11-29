@@ -2,33 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ResponseStatus;
-use App\Models\Agent;
+use App\Http\Requests\StoreTransferRequest;
 use App\Models\Transfer;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class TransferController extends Controller
 {
-    public function store(Request $request)
+    public function store(StoreTransferRequest $request)
     {
-        $agent = Agent::current($request);
-
-        $data = $request->validate([
-            'from' => ['required', Rule::exists('users', 'code')->where('agent_id', $agent->id)],
-            'to' => ['required', Rule::exists('users', 'code')->where('agent_id', $agent->id)],
-            'amount' => ['required', 'numeric', 'gt:1'],
-            'agent_transaction_id' => ['required', 'unique:extracts,agent_transaction_id']
-        ]);
+        $data = $request->all();
 
         $from = User::where('code', $data['from'])->first();
-        if (
-            $data['amount'] >
-            $from->balance - $from->withdrawingAmount()
-        )
-            abort(ResponseStatus::BAD_REQUEST->value, 'User does not have enough balance');
         $transfer = DB::transaction(function () use ($data, $from) {
             $to = User::where('code', $data['to'])->first();
             $fee = 1;

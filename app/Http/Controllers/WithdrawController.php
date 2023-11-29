@@ -4,43 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Enums\ResponseStatus;
 use App\Enums\WithdrawStatus;
+use App\Http\Requests\FilterWithdrawRequest;
+use App\Http\Requests\StoreWithdrawRequest;
 use App\Models\Agent;
-use App\Models\Wallet;
 use App\Models\Withdraw;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class WithdrawController extends Controller
 {
-    public function store(Request $request)
+    public function store(StoreWithdrawRequest $request)
     {
         $agent = Agent::current($request);
         $fee = 1;
-        $data = $request->validate(
-            [
-                'code' => ['required', Rule::exists('users', 'code')->where('agent_id', $agent->id)],
-                'amount' => ['required', 'numeric', 'gt:' . $fee],
-                'to' => ['required', 'string', 'unique:wallets,base58_check'],
-                'agent_transaction_id' => ['required', 'unique:extracts,agent_transaction_id']
-            ],
-            [
-                'to.unique' => 'The wallet is invalid. Please check again.'
-            ]
-        );
-        abort_unless(Str::startsWith($data['to'], 'T') && Wallet::validate($data['to']), ResponseStatus::BAD_REQUEST->value, 'Wallet is invalid');
+        $data = $request->all();
         $user = $agent->users()->where('code', $data['code'])->first();
-
-        $fee = 1;
-        $amount = $data['amount'];
-        $deductibleAmount  = $amount + $user->withdrawingAmount();
-
-        if ($user->balance < $deductibleAmount) abort(ResponseStatus::BAD_REQUEST->value, 'User has not enough balance');
 
         $withdraw = Withdraw::create([
             'user_id' => $user->id,
             'to' => $data['to'],
-            'amount' => $amount,
+            'amount' => $data['amount'],
             'fee' => $fee
         ]);
 
@@ -57,12 +39,9 @@ class WithdrawController extends Controller
         ]);
     }
 
-    public function index(Request $request)
+    public function index(FilterWithdrawRequest $request)
     {
-        $filters = $request->validate([
-            'status' => ['sometimes'],
-            'wallet_id' => ['sometimes'],
-        ]);
+        $filters = $request->all();
         $query = Withdraw::query()->filter($filters)->with(['user.agent', 'wallet']);
         return response()->json($query->paginate($request->per_page ?? 10));
     }

@@ -7,4 +7,5 @@ enum ResponseStatus: int
     case BAD_REQUEST = 400;
     case UNAUTHENTICATED = 401;
     case NOT_FOUND = 404;
+    case UNPROCESSABLE_ENTITY = 422;
 }
