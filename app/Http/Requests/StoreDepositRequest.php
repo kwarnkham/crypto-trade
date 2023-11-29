@@ -6,11 +6,13 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 use App\Enums\DepositStatus;
 use App\Enums\AgentStatus;
+use App\Enums\ResponseStatus;
 use App\Models\Wallet;
 use App\Models\Agent;
 
 class StoreDepositRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
     public function authorize(): bool
     {
         return $this->agent != null && $this->agent->status != AgentStatus::RESTRICTED;
@@ -33,28 +35,25 @@ class StoreDepositRequest extends FormRequest
                     //let this only check the same amount deposit
                     if ($user->getActiveDeposit($this->amount) != null) {
                         $validator->errors()->add(
-                            'pending_deposit',
+                            'deposit',
                             'User already has a deposit with same amount'
                         );
+                        return;
                     }
 
                     //here we check if user alreay have 3 unfinished deposits
                     if ($user->deposits()->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])->count() >= 3) {
                         $validator->errors()->add(
-                            'deposit_count',
+                            'deposit',
                             'User already has 3 unfinished deposits'
                         );
+                        return;
                     }
                 }
 
                 // Check avaliable wallet exists
                 $wallet = Wallet::findAvailable($this->amount);
-                if ($wallet == null) {
-                    $validator->errors()->add(
-                        'wallet',
-                        'There is no avaliable wallet to handle deposit.'
-                    );
-                }
+                if ($wallet == null) abort(ResponseStatus::BAD_REQUEST->value, 'There is no avaliable wallet to handle deposit.');
                 $this->merge(['wallet' => $wallet]);
             }
         ];

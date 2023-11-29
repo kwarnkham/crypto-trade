@@ -11,6 +11,8 @@ use Illuminate\Validation\Validator;
 
 class StoreTransferRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
+
     public function authorize(): bool
     {
         return $this->agent != null && $this->agent->status != AgentStatus::RESTRICTED;
@@ -34,7 +36,7 @@ class StoreTransferRequest extends FormRequest
                     $from->balance - $from->withdrawingAmount()
                 )
                     $validator->errors()->add(
-                        'balance',
+                        'transfer',
                         'User does not have enough balance'
                     );
             }

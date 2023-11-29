@@ -72,6 +72,10 @@ curl --location 'http://127.0.0.1:8000/api/deposits/agent' \
 1. When user have an unfinished deposit and try to depoist the same amount
 2. When user have 3 unfinished deposits and try to deposit more
 
+### 400
+
+1. When avaliable wallet doesn't exist
+
 ## Confirm the created deposit
 
 > After sending USDT to the wallet responded from **Create a new depoist** api, you must request this api to confirm the deposit
@@ -338,6 +342,12 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
     }
 }
 ```
+> Error Responses
+
+### 422
+
+1. When wallet address is invalid
+2. When user balance amount is not enough to handle withdrawal amount
 
 > Note
 
@@ -627,6 +637,11 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
     }
 }
 ```
+> Error Responses
+
+### 422
+
+1. When user balance is not enough to handle transfered amount
 
 > Note
 
@@ -1024,6 +1039,15 @@ curl --location 'http://localhost:8000/api/extracts/agent' \
     }
 }
 ```
+
+> Error Responses
+
+### 422
+
+1. When wallets are same
+2. When receivable wallet address is invalid
+3. When user send USDT and balance usdt amount is not enough to extract usdt
+4. When user send TRX and balance trx amount is not enough to extract trx
 
 ## Find an extract
 
