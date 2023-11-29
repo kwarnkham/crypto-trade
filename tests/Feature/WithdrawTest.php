@@ -301,4 +301,18 @@ class WithdrawTest extends TestCase
         $response = $this->postJson('api/withdraws/agent/' .   $withdrawCreate->id . '/cancel');
         $response->assertBadRequest();
     }
+
+    public function test_agent_transaction_id_is_saved_to_database_altogether_with_withdraw_creation(): void
+    {
+        $agent_transaction_id = Str::random(64);
+        $this->postJson('api/withdraws/agent', [
+            'code' => $this->user->code,
+            'to' => $this->to_wallet,
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => $agent_transaction_id,
+        ]);
+
+        $withdraw = Withdraw::where('agent_transaction_id', $agent_transaction_id)->first();
+        $this->assertNotNull($withdraw);
+    }
 }

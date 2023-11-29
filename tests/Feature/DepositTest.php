@@ -120,7 +120,7 @@ class DepositTest extends TestCase
             'amount' => 1,
             'agent_transaction_id' => Str::random(64),
         ]);
-        $response->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
+        $response->assertBadRequest();
     }
 
     public function test_agent_user_cannot_depoist_again_if_existing_deposit_is_pending_or_confirmed_with_the_same_deposit_amount(): void
@@ -322,5 +322,19 @@ class DepositTest extends TestCase
         $response = $this->postJson('api/deposits/agent/' . $response->json()['deposit']['id'] . '/cancel');
 
         $response->assertBadRequest();
+    }
+
+    public function test_agent_transaction_id_is_saved_to_database_altogether_with_deposit_creation(): void
+    {
+        $agent_transaction_id = Str::random(64);
+        $this->postJson('api/deposits/agent', [
+            'code' => Str::random('3'),
+            'name' => $this->faker()->lastName(),
+            'amount' => rand(1, 5),
+            'agent_transaction_id' => $agent_transaction_id,
+        ]);
+
+        $deposit = Deposit::where('agent_transaction_id', $agent_transaction_id)->first();
+        $this->assertNotNull($deposit);
     }
 }

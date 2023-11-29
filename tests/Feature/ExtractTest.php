@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\ExtractStatus;
 use App\Enums\ExtractType;
+use App\Enums\ResponseStatus;
 use App\Jobs\ProcessConfirmedExtract;
 use App\Models\Agent;
 use App\Models\Extract;
@@ -88,7 +89,7 @@ class ExtractTest extends TestCase
             'type' => ExtractType::TRX->value,
             'wallet_id' => $from_wallet->id,
             'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
-        ])->assertBadRequest();
+        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
 
         $this->assertDatabaseCount('extracts', 0);
 
@@ -113,7 +114,7 @@ class ExtractTest extends TestCase
             'type' => ExtractType::TRX->value,
             'wallet_id' => $wallet->id,
             'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
-        ])->assertBadRequest();
+        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
 
         $this->assertDatabaseCount('extracts', 0);
 
@@ -138,7 +139,7 @@ class ExtractTest extends TestCase
             'type' => ExtractType::USDT->value,
             'wallet_id' => $wallet->id,
             'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
-        ])->assertBadRequest();
+        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
 
         $this->assertDatabaseCount('extracts', 0);
 
@@ -163,7 +164,7 @@ class ExtractTest extends TestCase
             'type' => rand(1, 2),
             'wallet_id' => $wallet->id,
             'agent_transaction_id' => fake()->unique()->numberBetween(1, 10)
-        ])->assertBadRequest();
+        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
 
         $this->assertDatabaseCount('extracts', 0);
 
@@ -183,5 +184,22 @@ class ExtractTest extends TestCase
         Queue::assertPushed(function (ProcessConfirmedExtract $job) use ($extractId) {
             return $job->extractId === $extractId;
         });
+    }
+
+    public function test_agent_transaction_id_is_saved_to_database_altogether_with_extract_creation(): void
+    {
+        $agent_transaction_id = Str::random(64);
+        $from_wallet = $this->wallet;
+        $from_wallet->update(['trx' => rand(5, 10) * Tron::DIGITS]);
+        $this->postJson('api/extracts/agent', [
+            'amount' => rand(1, 5),
+            'to' => $this->to_wallet,
+            'type' => ExtractType::TRX->value,
+            'wallet_id' => $from_wallet->id,
+            'agent_transaction_id' => $agent_transaction_id
+        ])->assertOk();
+
+        $extract = Extract::where('agent_transaction_id', $agent_transaction_id)->first();
+        $this->assertNotNull($extract);
     }
 }
