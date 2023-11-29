@@ -41,7 +41,8 @@ class WithdrawController extends Controller
             'user_id' => $user->id,
             'to' => $data['to'],
             'amount' => $amount,
-            'fee' => $fee
+            'fee' => $fee,
+            'agent_transaction_id' => $data['agent_transaction_id']
         ]);
 
         return response()->json(['withdraw' => $withdraw]);

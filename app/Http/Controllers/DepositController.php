@@ -55,7 +55,8 @@ class DepositController extends Controller
 
         $deposit = $user->deposits()->create([
             'wallet_id' => $wallet->id,
-            'amount' => $data['amount']
+            'amount' => $data['amount'],
+            'agent_transaction_id' => $data['agent_transaction_id']
         ]);
         return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => $deposit]);
     }

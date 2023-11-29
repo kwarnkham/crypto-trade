@@ -36,7 +36,8 @@ class TransferController extends Controller
                 'user_id' => $from->id,
                 'recipient_id' => $to->id,
                 'amount' => $data['amount'],
-                'fee' => $fee
+                'fee' => $fee,
+                'agent_transaction_id' => $data['agent_transaction_id']
             ]);
 
             $from->update(['balance' => $from->balance - $data['amount']]);
