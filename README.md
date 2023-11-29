@@ -342,6 +342,7 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
     }
 }
 ```
+
 > Error Responses
 
 ### 422
@@ -637,6 +638,7 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
     }
 }
 ```
+
 > Error Responses
 
 ### 422
