@@ -82,7 +82,7 @@ class Deposit extends Model
         }
     }
 
-    public static function generate(array $data): array
+    public static function produce(array $data): array
     {
         $agent = $data['agent'];
         $wallet = $data['wallet'];

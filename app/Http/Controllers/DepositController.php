@@ -14,7 +14,7 @@ class DepositController extends Controller
 {
     public function store(StoreDepositRequest $request)
     {
-        [$wallet, $deposit] = Deposit::generate($request->all());
+        [$wallet, $deposit] = Deposit::produce($request->all());
         return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => $deposit]);
     }
 
