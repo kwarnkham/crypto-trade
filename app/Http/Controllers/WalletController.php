@@ -13,9 +13,7 @@ class WalletController extends Controller
 {
     public function store(Request $request)
     {
-        $wallet = Wallet::generate();
-
-        return response()->json(['wallet' => $wallet->fresh()]);
+        return response()->json(['wallet' => Wallet::generate()]);
     }
 
     public function index(Request $request)
