@@ -46,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
 
         Http::macro('tron4', function () {
             return Http::withHeaders([
+                'Origin' => '110.238.104.250',
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 'TRON-PRO-API-KEY' =>  '1f0dee72-7f0d-49b4-9a8a-9cb897b46307'
