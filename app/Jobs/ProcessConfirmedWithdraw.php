@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ProcessConfirmedWithdraw implements ShouldQueue
 {
@@ -33,6 +34,7 @@ class ProcessConfirmedWithdraw implements ShouldQueue
         $maxAttempts = 5;
         $withdraw = Withdraw::find($this->withdrawId);
         $withdraw->increment('attempts');
+        Log::info("Attempt to complete a confirmed withdraw (id => $withdraw->id / agent_transaction_id=> $withdraw->agent_transaction_id)");
         if ($withdraw->status != WithdrawStatus::CONFIRMED->value) return;
 
         $response = Tron::getSolidityTransactionInfoById($this->txid);

@@ -42,10 +42,8 @@ return [
     'tron_api_key2' => env('TRON_API_KEY2', '59c2dc2b-8de3-4156-bbec-88daca807f18'),
     'tron_api_key3' => env('TRON_API_KEY3', 'f7e64665-1108-411d-b89b-e4c8911a9589'),
 
-    'min_energy_for_transaction' => env('APP_ENV', 'production') == 'production' ?
-        200000 : 15000,
-    'min_trx_for_transaction' => env('APP_ENV', 'production') == 'production' ?
-        100 : 15,
+    'min_energy_for_transaction' => env('TRON_MIN_ENERGY_TRANSACTION', 100000),
+    'min_trx_for_transaction' => env('TRON_MIN_TRX_TRANSACTION', 200),
 
 
     /*

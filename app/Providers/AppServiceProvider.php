@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Http::macro('tron', function () {
             return Http::withHeaders([
+                'Origin' => config('app.url'),
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 'TRON-PRO-API-KEY' => config('app.env') == 'production' ? config('app')['tron_api_key'] : ''
@@ -30,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
 
         Http::macro('tron2', function () {
             return Http::withHeaders([
+                'Origin' => config('app.url'),
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 'TRON-PRO-API-KEY' =>  config('app.env') == 'production' ? config('app')['tron_api_key2'] : ''
@@ -38,10 +40,20 @@ class AppServiceProvider extends ServiceProvider
 
         Http::macro('tron3', function () {
             return Http::withHeaders([
+                'Origin' => config('app.url'),
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 'TRON-PRO-API-KEY' =>  config('app.env') == 'production' ? config('app')['tron_api_key3'] : ''
             ])->baseUrl(config('app')['tron_api_url']);
+        });
+
+        Http::macro('tron4', function () {
+            return Http::withHeaders([
+                'Origin' => config('app.url'),
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'TRON-PRO-API-KEY' =>  '1f0dee72-7f0d-49b4-9a8a-9cb897b46307'
+            ])->baseUrl('https://api.trongrid.io');
         });
     }
 }
