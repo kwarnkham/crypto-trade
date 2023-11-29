@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Deposit extends Model
 {
@@ -51,6 +52,8 @@ class Deposit extends Model
     {
         if ($this->status != DepositStatus::CONFIRMED->value) return;
         $this->increment('attempts');
+
+        Log::info("Attempt to complete a confirmed deposit (id => $this->id / agent_transaction_id=> $this->agent_transaction_id)");
 
         $transactions = collect(Tron::getTRC20TransactionInfoByAccountAddress($this->wallet->base58_check, [
             'only_confirmed' => true,

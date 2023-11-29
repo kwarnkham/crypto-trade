@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ProcessConfirmedExtract implements ShouldQueue
 {
@@ -33,6 +34,7 @@ class ProcessConfirmedExtract implements ShouldQueue
         $maxAttempts = 5;
         $extract = Extract::find($this->extractId);
         $extract->increment('attempts');
+        Log::info("Attempt to complete a confirmed extract (id => $extract->id / agent_transaction_id=> $extract->agent_transaction_id)");
         if ($extract->status != ExtractStatus::CONFIRMED->value) return;
 
         $response = Tron::getSolidityTransactionInfoById($this->txid);
