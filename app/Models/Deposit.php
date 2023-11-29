@@ -84,4 +84,25 @@ class Deposit extends Model
             });
         }
     }
+
+    public static function produce(array $data): array
+    {
+        $agent = $data['agent'];
+        $wallet = $data['wallet'];
+        $user = $agent->users()->where('code', $data['code'])->first();
+
+        if ($user == null)
+            $user = User::create([
+                'code' => $data['code'],
+                'name' => $data['name'],
+                'agent_id' => $agent->id
+            ]);
+
+        $deposit = $user->deposits()->create([
+            'wallet_id' => $wallet->id,
+            'amount' => $data['amount']
+        ]);
+
+        return [$wallet, $deposit];
+    }
 }

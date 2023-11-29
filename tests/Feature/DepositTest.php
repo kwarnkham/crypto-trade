@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\DepositStatus;
+use App\Enums\ResponseStatus;
 use App\Jobs\ProcessConfirmedDeposit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -119,7 +120,7 @@ class DepositTest extends TestCase
             'amount' => 1,
             'agent_transaction_id' => Str::random(64),
         ]);
-        $response->assertBadRequest();
+        $response->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
     }
 
     public function test_agent_user_cannot_depoist_again_if_existing_deposit_is_pending_or_confirmed_with_the_same_deposit_amount(): void
@@ -141,7 +142,7 @@ class DepositTest extends TestCase
             'name' => $name,
             'amount' => $amount,
             'agent_transaction_id' => Str::random(64),
-        ])->assertBadRequest();
+        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
 
         $this->postJson('api/deposits/agent/' . $depositId . '/confirm')->assertOk();
 
@@ -200,7 +201,7 @@ class DepositTest extends TestCase
             'name' => $name,
             'amount' => rand(12, 20),
             'agent_transaction_id' => Str::random(64),
-        ])->assertBadRequest();
+        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
 
         $this->postJson('api/deposits/agent/' . $firstDepositId . '/cancel')->assertOk();
 
@@ -218,7 +219,7 @@ class DepositTest extends TestCase
             'name' => $name,
             'amount' => $amount,
             'agent_transaction_id' => Str::random(64),
-        ])->assertBadRequest();
+        ])->assertStatus(ResponseStatus::UNPROCESSABLE_ENTITY->value);
     }
 
     public function test_agent_user_confirm_deposit(): void
