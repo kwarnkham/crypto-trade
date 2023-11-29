@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 'TRON-PRO-API-KEY' =>  '1f0dee72-7f0d-49b4-9a8a-9cb897b46307'
-            ])->baseUrl(config('app')['tron_api_url']);
+            ])->baseUrl('https://api.trongrid.io');
         });
     }
 }
