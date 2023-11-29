@@ -3,29 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AgentStatus;
+use App\Http\Requests\FilterAgentRequest;
+use App\Http\Requests\SetCallbackAgentRequest;
+use App\Http\Requests\StoreAgentRequest;
+use App\Http\Requests\UpdateAgentRequest;
 use App\Models\Agent;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class AgentController extends Controller
 {
-    public function store(Request $request)
+    public function store(StoreAgentRequest $request)
     {
-        $request->validate([
-            'name' => ['required', 'unique:agents,name']
-        ]);
-
         [$agent, $key] = Agent::make($request->name);
 
         return response()->json(['agent' => $agent, 'key' => $key]);
     }
 
-    public function index(Request $request)
+    public function index(FilterAgentRequest $request)
     {
-        $filters = $request->validate([
-            'status' => ['sometimes', 'required'],
-            'name' => ['sometimes', 'required']
-        ]);
+        $filters = $request->all();
         $query = Agent::query()->filter($filters);
         return response()->json($query->paginate($request->per_page ?? 10));
     }
@@ -45,13 +40,9 @@ class AgentController extends Controller
         ]);
     }
 
-    public function setCallback(Request $request)
+    public function setCallback(SetCallbackAgentRequest $request)
     {
-        $data = $request->validate([
-            'deposit_callback' => ['sometimes', 'required', 'url'],
-            'withdraw_callback' => ['sometimes', 'required', 'url'],
-            'extract_callback' => ['sometimes', 'required', 'url'],
-        ]);
+        $data = $request->all();
         $agent = Agent::current($request);
         $agent->update($data);
 
@@ -60,16 +51,9 @@ class AgentController extends Controller
         ]);
     }
 
-    public function update(Request $request, Agent $agent)
+    public function update(UpdateAgentRequest $request, Agent $agent)
     {
-        $data = $request->validate([
-            'ip' => ['ip', 'required'],
-            'name' => ['required', Rule::unique('agents', 'name')->ignoreModel($agent)],
-            'remark' => [''],
-            'aes_key' => ['sometimes', 'required']
-        ]);
-
-        $data['ip'] = $request->ip;
+        $data = $request->all();
 
         $agent->update($data);
 

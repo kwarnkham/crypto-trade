@@ -12,7 +12,7 @@ use App\Models\Wallet;
 
 class StoreWithdrawRequest extends FormRequest
 {
-
+    protected $stopOnFirstFailure = true;
     public function authorize(): bool
     {
         return $this->agent != null && $this->agent->status != AgentStatus::RESTRICTED;
@@ -35,9 +35,10 @@ class StoreWithdrawRequest extends FormRequest
                     // Check wallet address is valid
                     if (!(Str::startsWith($this->to, 'T') && Wallet::validate($this->to))) {
                         $validator->errors()->add(
-                            'wallet',
+                            'withdraw',
                             'Wallet is invalid'
                         );
+                        return;
                     }
 
                     // Check user balance is enough
@@ -46,9 +47,10 @@ class StoreWithdrawRequest extends FormRequest
 
                     if ($user->balance < $deductibleAmount) {
                         $validator->errors()->add(
-                            'balance',
+                            'withdraw',
                             'User has not enough balance'
                         );
+                        return;
                     };
                 }
             }

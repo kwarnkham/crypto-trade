@@ -5,49 +5,20 @@ namespace App\Http\Controllers;
 use App\Enums\ExtractStatus;
 use App\Enums\ExtractType;
 use App\Enums\ResponseStatus;
+use App\Http\Requests\StoreExtractRequest;
 use App\Jobs\ProcessConfirmedExtract;
 use App\Models\Agent;
 use App\Models\Extract;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class ExtractController extends Controller
 {
-    public function store(Request $request)
+    public function store(StoreExtractRequest $request)
     {
-        $data = $request->validate([
-            'amount' => ['required', 'numeric', 'gte:0.000001'],
-            'type' => ['required', Rule::in(ExtractType::toArray())],
-            'to' => ['required', 'string'],
-            'wallet_id' => ['required', Rule::exists('wallets', 'id')],
-            'agent_transaction_id' => ['required', 'unique:extracts,agent_transaction_id']
-        ]);
+        $data = $request->all();
         $wallet = Wallet::find($data['wallet_id']);
-
-        if ($data['to'] == $wallet->base58_check) abort(ResponseStatus::BAD_REQUEST->value, 'Please choose different wallet to extract.');
-
-        abort_unless(
-            Str::startsWith($data['to'], 'T') && Wallet::validate($data['to']),
-            ResponseStatus::BAD_REQUEST->value,
-            'Wallet is invalid'
-        );
-
-        if ($data['type'] == ExtractType::USDT->value)
-            abort_if(
-                $data['amount'] > $wallet->balance,
-                ResponseStatus::BAD_REQUEST->value,
-                'Not enough USDT'
-            );
-        else if ($data['type'] == ExtractType::TRX->value)
-            abort_if(
-                $data['amount'] > $wallet->trx,
-                ResponseStatus::BAD_REQUEST->value,
-                'Not enough TRX'
-            );
-
 
         $extract = DB::transaction(function () use ($wallet, $request, $data) {
             $agent = Agent::current($request);
