@@ -128,4 +128,18 @@ class TransferTest extends TestCase
         $this->assertArrayHasKey('data', $response->json());
         $this->assertNotEmpty($response->json()['data']);
     }
+
+    public function test_agent_transaction_id_is_saved_to_database_altogether_with_transfer_creation(): void
+    {
+        $agent_transaction_id = Str::random(64);
+        $this->postJson('api/transfers/agent', [
+            'from' => $this->user->code,
+            'to' => $this->recipientUser->code,
+            'amount' => rand(2, 5),
+            'agent_transaction_id' => $agent_transaction_id,
+        ]);
+
+        $transfer = Transfer::where('agent_transaction_id', $agent_transaction_id)->first();
+        $this->assertNotNull($transfer);
+    }
 }
