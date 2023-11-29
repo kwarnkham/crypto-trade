@@ -34,7 +34,7 @@ class StoreDepositRequest extends FormRequest
                     if ($user->getActiveDeposit($this->amount) != null) {
                         $validator->errors()->add(
                             'pending_deposit',
-                            'Please pay and wait for previous deposit to complete'
+                            'User already has a deposit with same amount'
                         );
                     }
 
@@ -42,7 +42,7 @@ class StoreDepositRequest extends FormRequest
                     if ($user->deposits()->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value])->count() >= 3) {
                         $validator->errors()->add(
                             'deposit_count',
-                            'User already have 3 unfinished deposits'
+                            'User already has 3 unfinished deposits'
                         );
                     }
                 }
