@@ -347,6 +347,7 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
     }
 }
 ```
+
 > Error Responses
 
 ### 422
@@ -641,6 +642,7 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
     }
 }
 ```
+
 > Error Responses
 
 ### 422
@@ -878,6 +880,32 @@ curl --location 'http://127.0.0.1:8000/api/agents/callback' \
 ```
 
 # Wallet
+
+## Validate Wallet Address
+
+> A request can be sent to validate the wallet address
+
+-   **POST** (http://127.0.0.1:8000/api/wallets/agent/validate-address)
+-   **Data**
+    1. wallet_address
+
+```
+curl --location 'http://127.0.0.1:8000/api/wallets/agent/validate-address' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'wallet_address=TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y'
+```
+
+> Response
+
+```
+{
+    "result": true,
+    "message": "Base58check format"
+}
+```
 
 ## List wallets
 

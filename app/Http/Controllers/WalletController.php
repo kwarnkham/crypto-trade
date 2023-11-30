@@ -16,6 +16,15 @@ class WalletController extends Controller
         return response()->json(['wallet' => Wallet::generate()]);
     }
 
+    public function validateAddress(Request $request)
+    {
+        $request->validate([
+            'wallet_address' => ['required']
+        ]);
+
+        return response()->json(Tron::validateAddress($request->wallet_address));
+    }
+
     public function index(Request $request)
     {
         $query = Wallet::query()->with(['unstakes']);

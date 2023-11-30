@@ -89,6 +89,7 @@ Route::controller(AuthController::class)->prefix('/admin')->group(function () {
 Route::controller(WalletController::class)->prefix('/wallets')->group(function () {
     Route::middleware(['agent'])->prefix('agent')->group(function () {
         Route::get('', 'index');
+        Route::post('validate-address', 'validateAddress');
     });
 
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
