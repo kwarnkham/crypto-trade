@@ -8266,6 +8266,16 @@
         {
                         return \Illuminate\Http\Client\Factory::tron3();
         }
+                    /**
+         * 
+         *
+         * @see \App\Providers\AppServiceProvider::boot()
+         * @static 
+         */ 
+        public static function tron4()
+        {
+                        return \Illuminate\Http\Client\Factory::tron4();
+        }
          
     }
             /**
@@ -19133,6 +19143,16 @@
         public static function tron3()
         {
                         return \Illuminate\Http\Client\Factory::tron3();
+        }
+                    /**
+         * 
+         *
+         * @see \App\Providers\AppServiceProvider::boot()
+         * @static 
+         */ 
+        public static function tron4()
+        {
+                        return \Illuminate\Http\Client\Factory::tron4();
         }
          
     }

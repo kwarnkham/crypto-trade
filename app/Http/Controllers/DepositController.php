@@ -14,13 +14,13 @@ class DepositController extends Controller
 {
     public function store(StoreDepositRequest $request)
     {
-        [$wallet, $deposit] = Deposit::produce($request->all());
+        [$wallet, $deposit] = Deposit::produce([...$request->validated(), ...['agent' => $request->agent, 'wallet' => $request->wallet]]);
         return response()->json(['wallet' =>  $wallet->base58_check, 'deposit' => $deposit]);
     }
 
     public function index(FilterDepositRequest $request)
     {
-        $filters = $request->all();
+        $filters = $request->validated();
         $agent = Agent::current($request);
 
         $query = Deposit::query()->filter($filters)->latest('id')->with(['wallet', 'user.agent']);

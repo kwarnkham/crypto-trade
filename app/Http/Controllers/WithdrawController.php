@@ -14,13 +14,10 @@ class WithdrawController extends Controller
 {
     public function store(StoreWithdrawRequest $request)
     {
-        $agent = Agent::current($request);
         $fee = 1;
-        $data = $request->all();
-        $user = $agent->users()->where('code', $data['code'])->first();
-
+        $data = $request->validated();
         $withdraw = Withdraw::create([
-            'user_id' => $user->id,
+            'user_id' => $request->agent->users()->where('code', $data['code'])->first()->id,
             'to' => $data['to'],
             'amount' => $data['amount'],
             'fee' => $fee,
@@ -42,7 +39,7 @@ class WithdrawController extends Controller
 
     public function index(FilterWithdrawRequest $request)
     {
-        $filters = $request->all();
+        $filters = $request->validated();
         $query = Withdraw::query()->filter($filters)->with(['user.agent', 'wallet']);
         return response()->json($query->paginate($request->per_page ?? 10));
     }

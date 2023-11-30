@@ -14,7 +14,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return ['Laravel' => app()->version(), 'App' => config('app.name'), 'Api Records' => Cache::get('api_records', [])];
+    return [
+        'Environment' => config('app.env'),
+        'Api Records' => Cache::get('api_records', [])
+    ];
 });
 
 require __DIR__ . '/auth.php';

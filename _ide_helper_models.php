@@ -52,6 +52,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read int|null $users_count
+ * @method static \Database\Factories\AgentFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Agent filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Agent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Agent newQuery()
@@ -70,6 +71,34 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Agent whereWithdrawCallback($value)
  */
 	class Agent extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\BalanceLog
+ *
+ * @property int $id
+ * @property int $user_id
+ * @property float $amount
+ * @property int $loggable_id
+ * @property string $loggable_type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $loggable
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog filter($filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog whereLoggableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog whereLoggableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BalanceLog whereUserId($value)
+ */
+	class BalanceLog extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -109,12 +138,17 @@ namespace App\Models{
  * @property int $attempts
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $agent_transaction_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BalanceLog> $balanceLogs
+ * @property-read int|null $balance_logs_count
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Wallet $wallet
+ * @method static \Database\Factories\DepositFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereAgentTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereAttempts($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Deposit whereCreatedAt($value)
@@ -144,12 +178,15 @@ namespace App\Models{
  * @property int $attempts
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $agent_transaction_id
  * @property-read \App\Models\Agent $agent
  * @property-read \App\Models\Wallet $wallet
+ * @method static \Database\Factories\ExtractFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Extract newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Extract newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Extract query()
  * @method static \Illuminate\Database\Eloquent\Builder|Extract whereAgentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Extract whereAgentTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Extract whereAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Extract whereAttempts($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Extract whereCreatedAt($value)
@@ -181,6 +218,7 @@ namespace App\Models{
  * @property mixed|null $receipt
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Database\Factories\TransactionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction query()
@@ -211,12 +249,17 @@ namespace App\Models{
  * @property float $fee
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $agent_transaction_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BalanceLog> $balanceLogs
+ * @property-read int|null $balance_logs_count
  * @property-read \App\Models\Charge|null $charge
  * @property-read \App\Models\User $recipient
  * @property-read \App\Models\User $user
+ * @method static \Database\Factories\TransferFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Transfer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Transfer newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Transfer query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereAgentTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transfer whereFee($value)
@@ -313,6 +356,7 @@ namespace App\Models{
  * @property-read int|null $unstakes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Withdraw> $withdraws
  * @property-read int|null $withdraws_count
+ * @method static \Database\Factories\WalletFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Wallet query()
@@ -352,13 +396,18 @@ namespace App\Models{
  * @property int $attempts
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $agent_transaction_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BalanceLog> $balanceLogs
+ * @property-read int|null $balance_logs_count
  * @property-read \App\Models\Charge|null $charge
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Wallet|null $wallet
+ * @method static \Database\Factories\WithdrawFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereAgentTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereAttempts($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Withdraw whereCreatedAt($value)
