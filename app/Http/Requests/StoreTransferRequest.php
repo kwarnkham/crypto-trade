@@ -50,7 +50,7 @@ class StoreTransferRequest extends FormRequest
             'from' => ['required', Rule::exists('users', 'code')->where('agent_id', $agent->id)],
             'to' => ['required', Rule::exists('users', 'code')->where('agent_id', $agent->id)],
             'amount' => ['required', 'numeric', 'gt:1'],
-            'agent_transaction_id' => ['required', 'unique:extracts,agent_transaction_id']
+            'agent_transaction_id' => ['required', 'unique:transfers,agent_transaction_id']
         ];
     }
 }

@@ -65,7 +65,7 @@ class StoreDepositRequest extends FormRequest
             'code' => ['required'],
             'name' => ['required'],
             'amount' => ['required', 'numeric', 'gte:0.000001'],
-            'agent_transaction_id' => ['required', 'unique:extracts,agent_transaction_id'],
+            'agent_transaction_id' => ['required', 'unique:deposits,agent_transaction_id'],
         ];
     }
 }

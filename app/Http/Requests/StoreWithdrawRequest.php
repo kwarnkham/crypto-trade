@@ -64,7 +64,7 @@ class StoreWithdrawRequest extends FormRequest
             'code' => ['required', Rule::exists('users', 'code')->where('agent_id', $this->agent->id)],
             'amount' => ['required', 'numeric', 'gt:' . $fee],
             'to' => ['required', 'string', 'unique:wallets,base58_check'],
-            'agent_transaction_id' => ['required', 'unique:extracts,agent_transaction_id']
+            'agent_transaction_id' => ['required', 'unique:withdraws,agent_transaction_id']
         ];
     }
 
