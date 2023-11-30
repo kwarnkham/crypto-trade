@@ -24,7 +24,7 @@ class WithdrawController extends Controller
             'agent_transaction_id' => $data['agent_transaction_id']
         ]);
 
-        return response()->json(['withdraw' => $withdraw->refresh()]);
+        return response()->json(['withdraw' => $withdraw->fresh()]);
     }
 
     public function confirm(Withdraw $withdraw)

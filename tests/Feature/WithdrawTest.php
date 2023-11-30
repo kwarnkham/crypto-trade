@@ -108,15 +108,15 @@ class WithdrawTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_agent_user_can_withdraw_only_if_balance_amount_is_greather_than_withdraw_amount(): void
+    public function test_agent_user_can_withdraw_even_if_balance_amount_is_greather_than_withdraw_amount(): void
     {
         $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
             'to' => $this->to_wallet,
             'amount' => rand(6, 10),
             'agent_transaction_id' => Str::random(64),
-        ])->assertUnprocessable();
-        $this->assertDatabaseCount('withdraws', 0);
+        ])->assertOk();
+        $this->assertDatabaseCount('withdraws', 1);
 
 
         $this->postJson('api/withdraws/agent', [
@@ -125,7 +125,7 @@ class WithdrawTest extends TestCase
             'amount' => rand(2, 5),
             'agent_transaction_id' => Str::random(64),
         ])->assertOk();
-        $this->assertDatabaseCount('withdraws', 1);
+        $this->assertDatabaseCount('withdraws', 2);
     }
 
     public function test_newly_created_withdraw_status_is_default_to_pending(): void
