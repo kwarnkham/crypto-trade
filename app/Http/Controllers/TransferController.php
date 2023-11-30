@@ -12,7 +12,7 @@ class TransferController extends Controller
 {
     public function store(StoreTransferRequest $request)
     {
-        $data = $request->all();
+        $data = $request->validated();
 
         $from = User::where('code', $data['from'])->first();
         $transfer = DB::transaction(function () use ($data, $from) {
