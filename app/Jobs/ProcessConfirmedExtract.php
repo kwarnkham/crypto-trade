@@ -8,13 +8,14 @@ use App\Models\Extract;
 use App\Services\Tron;
 use App\Utility\Conversion;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class ProcessConfirmedExtract implements ShouldQueue
+class ProcessConfirmedExtract implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -24,6 +25,11 @@ class ProcessConfirmedExtract implements ShouldQueue
     public function __construct(public string $txid, public int $extractId)
     {
         //
+    }
+
+    public function uniqueId(): string
+    {
+        return $this->extractId;
     }
 
     /**

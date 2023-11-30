@@ -12,7 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 
-class ProcessConfirmedDeposit implements ShouldQueue
+class ProcessConfirmedDeposit implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -45,5 +45,10 @@ class ProcessConfirmedDeposit implements ShouldQueue
         return [
             (new WithoutOverlapping("deposit:{$this->depositId}"))->shared(),
         ];
+    }
+
+    public function uniqueId(): string
+    {
+        return $this->depositId;
     }
 }

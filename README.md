@@ -339,6 +339,11 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
         "created_at": "2023-10-19T07:04:19.000000Z",
         "id": 2,
         "agent_transaction_id": 123,
+        "txid": null,
+        "attempts": 0,
+        "transaction_id": null,
+        "status": 1,
+        "wallet_id": null,
     }
 }
 ```
@@ -347,14 +352,6 @@ curl --location 'http://127.0.0.1:8000/api/withdraws/agent' \
 ### 422
 
 1. When wallet address is invalid
-2. When user balance amount is not enough to handle withdrawal amount
-
-> Error Responses
-
-### 422
-
-1. When wallet address is invalid
-2. When user balance amount is not enough to handle withdrawal amount
 
 > Note
 
@@ -644,12 +641,6 @@ curl --location 'http://127.0.0.1:8000/api/transfers/agent' \
     }
 }
 ```
-> Error Responses
-
-### 422
-
-1. When user balance is not enough to handle transfered amount
-
 > Error Responses
 
 ### 422

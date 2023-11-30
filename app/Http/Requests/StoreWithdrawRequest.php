@@ -41,17 +41,6 @@ class StoreWithdrawRequest extends FormRequest
                         return;
                     }
 
-                    // Check user balance is enough
-                    $amount = $this->amount;
-                    $deductibleAmount = $amount + $user->withdrawingAmount();
-
-                    if ($user->balance < $deductibleAmount) {
-                        $validator->errors()->add(
-                            'withdraw',
-                            'User has not enough balance'
-                        );
-                        return;
-                    };
                 }
             }
         ];

@@ -14,7 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class ProcessConfirmedWithdraw implements ShouldQueue
+class ProcessConfirmedWithdraw implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -24,6 +24,11 @@ class ProcessConfirmedWithdraw implements ShouldQueue
     public function __construct(public string $txid, public int $withdrawId)
     {
         //
+    }
+
+    public function uniqueId(): string
+    {
+        return $this->withdrawId;
     }
 
     /**
