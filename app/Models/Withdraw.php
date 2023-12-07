@@ -20,7 +20,7 @@ class Withdraw extends Model
 
     protected $guarded = [''];
 
-    protected $wtih = ['user'];
+    protected $with = ['user'];
 
     public function charge(): MorphOne
     {
