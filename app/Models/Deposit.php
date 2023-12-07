@@ -16,6 +16,8 @@ class Deposit extends Model
 {
     use Filterable, HasFactory;
 
+    protected $with = ['user'];
+
     protected $guarded = ['id'];
 
     public function user()
