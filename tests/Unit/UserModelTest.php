@@ -46,9 +46,10 @@ class UserModelTest extends TestCase
     public function test_find_active_user_deposit_that_user_has_pending_or_confirmed_deposit(): void
     {
         $amount = 1;
+        $agent = Agent::factory()->create();
         $deposit = Deposit::factory()->for(
-            User::factory()->for(Agent::factory())
-        )->for(Wallet::factory())
+            User::factory()->for($agent)
+        )->for(Wallet::factory()->for($agent))
             ->create([
                 'amount' => $amount
             ]);

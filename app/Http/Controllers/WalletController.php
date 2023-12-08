@@ -13,7 +13,10 @@ class WalletController extends Controller
 {
     public function store(Request $request)
     {
-        return response()->json(['wallet' => Wallet::generate()]);
+        $data = $request->validate([
+            'agent_id' => ['required', 'exists:agents,id']
+        ]);
+        return response()->json(['wallet' => Wallet::generate($data['agent_id'])]);
     }
 
     public function validateAddress(Request $request)

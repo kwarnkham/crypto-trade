@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('agent_id')->constrained();
             $table->unsignedBigInteger('balance')->default(0);
             $table->unsignedBigInteger('trx')->default(0);
             $table->unsignedBigInteger('staked_for_energy')->default(0);

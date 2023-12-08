@@ -49,6 +49,10 @@ class Extract extends Model
             $this->update(['status' => ExtractStatus::COMPLETED->value, 'transaction_id' => $transaction->id]);
 
             $this->wallet->updateBalance();
+            $toWallet = Wallet::where('base58_check', $this->to)->first();
+            if ($toWallet) {
+                $toWallet->updateBalance();
+            }
         });
     }
 }

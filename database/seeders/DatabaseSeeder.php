@@ -18,6 +18,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $agent = Agent::create([
+            'name' => 'agent',
+            'key' => 'aGqFAEV84uk1V4SvSP8IHcPxkOA5FMNv19XGl8cYztoG2I7ngGNErJhsaxNh74k9',
+            'ip' => '*',
+            'aes_key' => 'oPi4eLhhJ9lBV5oo'
+        ]);
+
         if (!App::isProduction()) {
             Wallet::create([
                 'private_key' => '40f1a63332a869f3c1ab4c07c1dba94d0fbc019dc88ef796bb1b147c0e15795e',
@@ -30,6 +37,7 @@ class DatabaseSeeder extends Seeder
                 'trx'   => config('app')['min_trx_for_transaction'],
                 'energy'   => config('app')['min_energy_for_transaction'],
                 'bandwidth'   => 500,
+                'agent_id'  => $agent->id
             ]);
 
             Wallet::create([
@@ -38,16 +46,10 @@ class DatabaseSeeder extends Seeder
                 'hex_address' => '41a37f366b83d13dc2cd8233485b31bd03526c0f71',
                 'base58_check' => 'TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ',
                 'base64' => 'QaN/NmuD0T3CzYIzSFsxvQNSbA9x',
-                'activated_at' => now()
+                'activated_at' => now(),
+                'agent_id'  => $agent->id
             ]);
         }
-
-        Agent::create([
-            'name' => 'agent',
-            'key' => 'aGqFAEV84uk1V4SvSP8IHcPxkOA5FMNv19XGl8cYztoG2I7ngGNErJhsaxNh74k9',
-            'ip' => '*',
-            'aes_key' => 'oPi4eLhhJ9lBV5oo'
-        ]);
 
         DB::table('admins')->insert([
             'name' => 'admin',

@@ -84,6 +84,11 @@ class Agent extends Model
         return $this->hasMany(User::class);
     }
 
+    public function wallets(): HasMany
+    {
+        return $this->hasMany(Wallet::class);
+    }
+
     public static function current(Request $request)
     {
         $agentName = $request->header('x-agent');

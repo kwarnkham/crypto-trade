@@ -18,7 +18,7 @@ class StoreExtractRequest extends FormRequest
     public function authorize(): bool
     {
         $agent = Agent::current($this);
-        return$agent != null && $agent->status != AgentStatus::RESTRICTED;
+        return $agent != null && $agent->status != AgentStatus::RESTRICTED;
     }
 
     public function after(): array
@@ -68,11 +68,12 @@ class StoreExtractRequest extends FormRequest
 
     public function rules(): array
     {
+        $agent = Agent::current($this);
         return [
             'amount' => ['required', 'numeric', 'gte:0.000001'],
             'type' => ['required', Rule::in(ExtractType::toArray())],
             'to' => ['required', 'string'],
-            'wallet_id' => ['required', Rule::exists('wallets', 'id')],
+            'wallet_id' => ['required', Rule::exists('wallets', 'id')->where('agent_id', $agent->id)],
             'agent_transaction_id' => ['required', 'unique:extracts,agent_transaction_id']
         ];
     }

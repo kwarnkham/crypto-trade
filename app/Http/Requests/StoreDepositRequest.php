@@ -52,7 +52,7 @@ class StoreDepositRequest extends FormRequest
                 }
 
                 // Check avaliable wallet exists
-                $wallet = Wallet::findAvailable($this->amount);
+                $wallet = Wallet::findAvailable($this->agent->id ,$this->amount);
                 abort_if($wallet == null, ResponseStatus::BAD_REQUEST->value, 'There is no avaliable wallet to handle deposit.');
                 $this->merge(['wallet' => $wallet]);
             }

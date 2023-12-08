@@ -22,7 +22,7 @@ class Wallet extends Model
 
     protected $appends = ['total_deposit', 'total_withdraw'];
     protected $hidden = [
-        'private_key', 'public_key', 'base64', 'hex_address', 'created_at', 'updated_at'
+        'private_key', 'public_key', 'base64', 'hex_address', 'created_at', 'updated_at', 'agent_id'
     ];
 
     protected $casts = [
@@ -86,9 +86,10 @@ class Wallet extends Model
         return $this->hasMany(Unstake::class);
     }
 
-    public static function generate()
+    public static function generate(int $agent_id)
     {
-        return Wallet::create(Tron::generateAddressLocally());
+        $agent = Agent::find($agent_id);
+        return $agent->wallets()->create(Tron::generateAddressLocally());
     }
 
     public function withdraws()
@@ -106,7 +107,12 @@ class Wallet extends Model
         return $this->hasMany(Deposit::class);
     }
 
-    public static function findAvailable(float $amount): ?Wallet
+    public function agent()
+    {
+        return $this->belongsTo(Agent::class);
+    }
+
+    public static function findAvailable(int $agent_id, float $amount): ?Wallet
     {
         return Wallet::query()
             ->whereNotNull('activated_at')
@@ -114,6 +120,7 @@ class Wallet extends Model
                 $query->where('amount', $amount * Tron::DIGITS)
                     ->whereIn('status', [DepositStatus::PENDING->value, DepositStatus::CONFIRMED->value]);
             })
+            ->where('agent_id', $agent_id)
             ->first();
     }
 
@@ -123,7 +130,7 @@ class Wallet extends Model
         return $response->result;
     }
 
-    public static function withdrawable(int $amount, array $excluded = []): ?Wallet
+    public static function withdrawable($agent_id, int $amount, array $excluded = []): ?Wallet
     {
         if ($amount < Tron::DIGITS) return null;
         $wallet = Wallet::query()
@@ -135,14 +142,6 @@ class Wallet extends Model
                     ->whereColumn('wallet_id', 'wallets.id')
                     ->whereIn('status', [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value])
             )
-            // ->whereRaw(
-            //     'balance >= IFNULL((
-            // SELECT SUM(amount)
-            // FROM withdraws
-            // WHERE withdraws.wallet_id = wallets.id
-            // AND status IN (?, ?)), 0) + ?',
-            //     [WithdrawStatus::PENDING->value, WithdrawStatus::CONFIRMED->value, $amount]
-            // )
             ->where(function ($q) {
                 //here we control if the wallet enough resource for the transaction
                 return $q->where('trx', '>=', (config('app')['min_trx_for_transaction']) * Tron::DIGITS)->orWhere(function ($query) {
@@ -152,6 +151,7 @@ class Wallet extends Model
             })
             ->when(count($excluded) > 0, fn ($q) => $q->whereNotIn('id', $excluded))
             ->whereNotNull('activated_at')
+            ->where('agent_id', $agent_id)
             ->first();
 
         if ($wallet == null) return null;
@@ -161,7 +161,7 @@ class Wallet extends Model
         $wallet->updateBalance();
 
         if ($wallet->balance < $oldBalance) {
-            return Wallet::withdrawable($amount, [$wallet->id, ...$excluded]);
+            return Wallet::withdrawable($agent_id ,$amount, [$wallet->id, ...$excluded]);
         }
         return $wallet;
     }
@@ -170,10 +170,10 @@ class Wallet extends Model
     {
         return DB::transaction(function () {
             $resource = Tron::getAccountResource($this->base58_check);
-            $trc20_address = config('app')['trc20_address'];
+            $trc20Address = config('app')['trc20_address'];
             $response =  Tron::getAccountInfoByAddress($this->base58_check)->data[0] ?? null;
             if ($resource != null) {
-                $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20_address));
+                $usdt = collect($response->trc20)->first(fn ($v) => property_exists($v, $trc20Address));
                 $frozenV2 = collect($response->frozenV2);
                 $unfrozenV2 = collect($response->unfrozenV2 ?? []);
                 $energy = ($resource['EnergyLimit'] ?? 0) - ($resource['EnergyUsed'] ?? 0);
@@ -187,7 +187,7 @@ class Wallet extends Model
             }
 
             $this->update([
-                'balance' => $usdt->$trc20_address ?? 0,
+                'balance' => $usdt->$trc20Address ?? 0,
                 'trx' => $response->balance ?? 0,
                 'resource' => $resource,
                 'energy' => $energy,
