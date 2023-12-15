@@ -146,9 +146,9 @@ class DepositTest extends TestCase
 
         $this->postJson('api/deposits/agent/' . $depositId . '/confirm')->assertOk();
 
-        // Queue::assertPushed(function (ProcessConfirmedDeposit $job) use ($depositId) {
-        //     return $job->depositId === $depositId;
-        // });
+        Queue::assertPushed(function (ProcessConfirmedDeposit $job) use ($depositId) {
+            return $job->depositId === $depositId;
+        });
 
         Deposit::where('id', $depositId)->update(['status' => DepositStatus::COMPLETED->value]);
 

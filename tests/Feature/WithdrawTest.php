@@ -169,9 +169,9 @@ class WithdrawTest extends TestCase
         $withdrawId = $response->json()['withdraw']['id'];
 
         $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm')->assertOk();
-        // Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
-        //     return $job->withdrawId === $withdrawId;
-        // });
+        Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
+            return $job->withdrawId === $withdrawId;
+        });
     }
 
     public function test_withdraw_can_be_confirmed_only_if_withdraw_status_is_pending(): void
@@ -221,9 +221,9 @@ class WithdrawTest extends TestCase
 
         $confirmWithdraw = $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm');
         $confirmWithdraw->assertOk();
-        // Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
-        //     return $job->withdrawId === $withdrawId;
-        // });
+        Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
+            return $job->withdrawId === $withdrawId;
+        });
 
         $this->assertNotEquals(
             WithdrawStatus::PENDING->value,

@@ -39,5 +39,13 @@ trait Filterable
                 $user_id
             )
         );
+
+        $query->when(
+            $filters['agent_id'] ?? null,
+            fn (Builder $query, $agent_id) => $query->where(
+                'agent_id',
+                $agent_id
+            )
+        );
     }
 }

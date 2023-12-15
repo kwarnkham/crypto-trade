@@ -181,9 +181,9 @@ class ExtractTest extends TestCase
 
         $extractId = $response->json()['extract']['id'];
 
-        // Queue::assertPushed(function (ProcessConfirmedExtract $job) use ($extractId) {
-        //     return $job->extractId === $extractId;
-        // });
+        Queue::assertPushed(function (ProcessConfirmedExtract $job) use ($extractId) {
+            return $job->extractId === $extractId;
+        });
     }
 
     public function test_agent_transaction_id_is_saved_to_database_altogether_with_extract_creation(): void

@@ -30,7 +30,11 @@ class WalletController extends Controller
 
     public function index(Request $request)
     {
-        $query = Wallet::query()->with(['unstakes']);
+        $validated = $request->validate([
+            'agent_id' => ['sometimes']
+        ]);
+
+        $query = Wallet::query()->filter($validated)->with(['unstakes']);
 
         return response()->json($query->paginate($request->per_page ?? 20));
     }
