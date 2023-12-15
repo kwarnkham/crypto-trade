@@ -20,6 +20,8 @@ class Withdraw extends Model
 
     protected $guarded = [''];
 
+    protected $with = ['user'];
+
     public function charge(): MorphOne
     {
         return $this->morphOne(Charge::class, 'chargeable');
@@ -28,6 +30,11 @@ class Withdraw extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
     }
 
     public function wallet()

@@ -15,6 +15,8 @@ class Transfer extends Model
 
     protected $guarded = ['id'];
 
+    protected $with = ['user', 'recipient'];
+
     public function user()
     {
         return $this->belongsTo(User::class);

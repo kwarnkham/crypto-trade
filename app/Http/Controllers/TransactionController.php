@@ -22,12 +22,12 @@ class TransactionController extends Controller
             'to' => ['required', 'date']
         ]);
 
-        $deposits = Deposit::query()->where([
+        $deposits = Deposit::query()->with(['transaction'])->where([
             ['updated_at', '>=', $filters['from']],
             ['updated_at', '<=', $filters['to']],
         ])->latest('updated_at')->get();
 
-        $withdraws = Withdraw::query()->where([
+        $withdraws = Withdraw::query()->with(['transaction'])->where([
             ['updated_at', '>=', $filters['from']],
             ['updated_at', '<=', $filters['to']],
         ])->latest('updated_at')->get();

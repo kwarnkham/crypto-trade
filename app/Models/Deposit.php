@@ -16,6 +16,8 @@ class Deposit extends Model
 {
     use Filterable, HasFactory;
 
+    protected $with = ['user'];
+
     protected $guarded = ['id'];
 
     public function user()
@@ -26,6 +28,11 @@ class Deposit extends Model
     public function balanceLogs(): MorphMany
     {
         return $this->morphMany(BalanceLog::class, 'loggable');
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
     }
 
     public function wallet()

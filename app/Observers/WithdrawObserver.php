@@ -14,7 +14,7 @@ class WithdrawObserver
      */
     public function created(Withdraw $withdraw): void
     {
-        //
+        $withdraw->confirm();
     }
 
     /**
