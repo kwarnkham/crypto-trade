@@ -170,6 +170,7 @@ class WalletModelTest extends TestCase
 
         $this->assertNotNull(Wallet::withdrawable($agent->id, $withdrawAmount));
 
+        Withdraw::unsetEventDispatcher();
         Withdraw::factory()->for(User::factory()->for($agent)->create())->create(['amount' => $withdrawAmount, 'status' => WithdrawStatus::PENDING->value, 'wallet_id' => $wallet->id]);
         $this->assertDatabaseCount('withdraws', 1);
 

@@ -58,6 +58,40 @@ class WithdrawTest extends TestCase
                 "message" => "Base58check format"
             ])
         ]);
+
+        Http::fake([
+            config('app')['tron_api_url'] . '/v1/accounts/*' => Http::response(['data' => [
+                [
+                    "balance" => rand(10, 20) * Tron::DIGITS,
+                    "address" => Str::random(42),
+                    "create_time" => now(),
+                    "trc20" => [[config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
+                    "frozenV2" => [["type" => "ENERGY"], ["type" => "UNKNOWN_ENUM_VALUE_ResourceCode_2"]],
+                ]
+            ]]),
+        ]);
+        Http::fake([
+            config('app')['tron_api_url'] . '/wallet/getaccountresource' => Http::response([
+                "freeNetUsed" => rand(500, 600),
+                "freeNetLimit" => rand(600, 700),
+            ])
+        ]);
+
+        Http::fake([
+            config('app')['tron_api_url'] . '/wallet/triggersmartcontract' => Http::response([
+                "transaction" => [
+                    "visible" => true,
+                    "txID" => bin2hex(random_bytes(32))
+                ]
+            ])
+        ]);
+
+        Http::fake([
+            config('app')['tron_api_url'] . '/wallet/broadcasttransaction' => Http::response([
+                "result" => true,
+                "txid" => Str::random(64)
+            ])
+        ]);
     }
 
     public function test_agent_can_create_withdraw(): void
@@ -108,7 +142,7 @@ class WithdrawTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_newly_created_withdraw_status_is_default_to_pending(): void
+    public function test_newly_created_withdraw_status_is_default_to_confirm(): void
     {
         $response = $this->postJson('api/withdraws/agent', [
             'code' => $this->user->code,
@@ -118,124 +152,125 @@ class WithdrawTest extends TestCase
         ]);
 
         $this->assertEquals(
-            WithdrawStatus::PENDING->value,
+            WithdrawStatus::CONFIRMED->value,
             Withdraw::find($response->json()['withdraw']['id'])->status
         );
     }
 
-    public function test_agent_user_can_confirm_withdraw(): void
-    {
-        Http::fake([
-            config('app')['tron_api_url'] . '/v1/accounts/*' => Http::response(['data' => [
-                [
-                    "balance" => rand(10, 20) * Tron::DIGITS,
-                    "address" => Str::random(42),
-                    "create_time" => now(),
-                    "trc20" => [[config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
-                    "frozenV2" => [["type" => "ENERGY"], ["type" => "UNKNOWN_ENUM_VALUE_ResourceCode_2"]],
-                ]
-            ]]),
-        ]);
-        Http::fake([
-            config('app')['tron_api_url'] . '/wallet/getaccountresource' => Http::response([
-                "freeNetUsed" => rand(500, 600),
-                "freeNetLimit" => rand(600, 700),
-            ])
-        ]);
+    // public function test_agent_user_can_confirm_withdraw(): void
+    // {
+    //     Http::fake([
+    //         config('app')['tron_api_url'] . '/v1/accounts/*' => Http::response(['data' => [
+    //             [
+    //                 "balance" => rand(10, 20) * Tron::DIGITS,
+    //                 "address" => Str::random(42),
+    //                 "create_time" => now(),
+    //                 "trc20" => [[config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
+    //                 "frozenV2" => [["type" => "ENERGY"], ["type" => "UNKNOWN_ENUM_VALUE_ResourceCode_2"]],
+    //             ]
+    //         ]]),
+    //     ]);
+    //     Http::fake([
+    //         config('app')['tron_api_url'] . '/wallet/getaccountresource' => Http::response([
+    //             "freeNetUsed" => rand(500, 600),
+    //             "freeNetLimit" => rand(600, 700),
+    //         ])
+    //     ]);
 
-        Http::fake([
-            config('app')['tron_api_url'] . '/wallet/triggersmartcontract' => Http::response([
-                "transaction" => [
-                    "visible" => true,
-                    "txID" => bin2hex(random_bytes(32))
-                ]
-            ])
-        ]);
+    //     Http::fake([
+    //         config('app')['tron_api_url'] . '/wallet/triggersmartcontract' => Http::response([
+    //             "transaction" => [
+    //                 "visible" => true,
+    //                 "txID" => bin2hex(random_bytes(32))
+    //             ]
+    //         ])
+    //     ]);
 
-        Http::fake([
-            config('app')['tron_api_url'] . '/wallet/broadcasttransaction' => Http::response([
-                "result" => true,
-                "txid" => Str::random(64)
-            ])
-        ]);
+    //     Http::fake([
+    //         config('app')['tron_api_url'] . '/wallet/broadcasttransaction' => Http::response([
+    //             "result" => true,
+    //             "txid" => Str::random(64)
+    //         ])
+    //     ]);
 
-        $response = $this->postJson('api/withdraws/agent', [
-            'code' => $this->user->code,
-            'to' => $this->to_wallet,
-            'amount' => rand(2, 5),
-            'agent_transaction_id' => Str::random(64),
-        ]);
+    //     $response = $this->postJson('api/withdraws/agent', [
+    //         'code' => $this->user->code,
+    //         'to' => $this->to_wallet,
+    //         'amount' => rand(2, 5),
+    //         'agent_transaction_id' => Str::random(64),
+    //     ]);
 
-        $withdrawId = $response->json()['withdraw']['id'];
+    //     $withdrawId = $response->json()['withdraw']['id'];
 
-        $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm')->assertOk();
-        Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
-            return $job->withdrawId === $withdrawId;
-        });
-    }
+    //     $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm')->assertOk();
+    //     Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
+    //         return $job->withdrawId === $withdrawId;
+    //     });
+    // }
 
-    public function test_withdraw_can_be_confirmed_only_if_withdraw_status_is_pending(): void
-    {
-        Http::fake([
-            config('app')['tron_api_url'] . '/v1/accounts/*' => Http::response(['data' => [
-                [
-                    "balance" => rand(10, 20) * Tron::DIGITS,
-                    "address" => Str::random(42),
-                    "create_time" => now(),
-                    "trc20" => [[config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
-                    "frozenV2" => [["type" => "ENERGY"], ["type" => "UNKNOWN_ENUM_VALUE_ResourceCode_2"]],
-                ]
-            ]]),
-        ]);
-        Http::fake([
-            config('app')['tron_api_url'] . '/wallet/getaccountresource' => Http::response([
-                "freeNetUsed" => rand(500, 600),
-                "freeNetLimit" => rand(600, 700),
-            ])
-        ]);
+    // public function test_withdraw_can_be_confirmed_only_if_withdraw_status_is_pending(): void
+    // {
+    //     Http::fake([
+    //         config('app')['tron_api_url'] . '/v1/accounts/*' => Http::response(['data' => [
+    //             [
+    //                 "balance" => rand(10, 20) * Tron::DIGITS,
+    //                 "address" => Str::random(42),
+    //                 "create_time" => now(),
+    //                 "trc20" => [[config('app')['trc20_address'] => rand(10, 20) * Tron::DIGITS]],
+    //                 "frozenV2" => [["type" => "ENERGY"], ["type" => "UNKNOWN_ENUM_VALUE_ResourceCode_2"]],
+    //             ]
+    //         ]]),
+    //     ]);
+    //     Http::fake([
+    //         config('app')['tron_api_url'] . '/wallet/getaccountresource' => Http::response([
+    //             "freeNetUsed" => rand(500, 600),
+    //             "freeNetLimit" => rand(600, 700),
+    //         ])
+    //     ]);
 
-        Http::fake([
-            config('app')['tron_api_url'] . '/wallet/triggersmartcontract' => Http::response([
-                "transaction" => [
-                    "visible" => true,
-                    "txID" => bin2hex(random_bytes(32))
-                ]
-            ])
-        ]);
+    //     Http::fake([
+    //         config('app')['tron_api_url'] . '/wallet/triggersmartcontract' => Http::response([
+    //             "transaction" => [
+    //                 "visible" => true,
+    //                 "txID" => bin2hex(random_bytes(32))
+    //             ]
+    //         ])
+    //     ]);
 
-        Http::fake([
-            config('app')['tron_api_url'] . '/wallet/broadcasttransaction' => Http::response([
-                "result" => true,
-                "txid" => Str::random(64)
-            ])
-        ]);
+    //     Http::fake([
+    //         config('app')['tron_api_url'] . '/wallet/broadcasttransaction' => Http::response([
+    //             "result" => true,
+    //             "txid" => Str::random(64)
+    //         ])
+    //     ]);
 
-        $response = $this->postJson('api/withdraws/agent', [
-            'code' => $this->user->code,
-            'to' => $this->to_wallet,
-            'amount' => rand(2, 5),
-            'agent_transaction_id' => Str::random(64),
-        ]);
+    //     $response = $this->postJson('api/withdraws/agent', [
+    //         'code' => $this->user->code,
+    //         'to' => $this->to_wallet,
+    //         'amount' => rand(2, 5),
+    //         'agent_transaction_id' => Str::random(64),
+    //     ]);
 
-        $withdrawId = $response->json()['withdraw']['id'];
+    //     $withdrawId = $response->json()['withdraw']['id'];
 
-        $confirmWithdraw = $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm');
-        $confirmWithdraw->assertOk();
-        Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
-            return $job->withdrawId === $withdrawId;
-        });
+    //     $confirmWithdraw = $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm');
+    //     $confirmWithdraw->assertOk();
+    //     Queue::assertPushed(function (ProcessConfirmedWithdraw $job) use ($withdrawId) {
+    //         return $job->withdrawId === $withdrawId;
+    //     });
 
-        $this->assertNotEquals(
-            WithdrawStatus::PENDING->value,
-            $confirmWithdraw->json()['withdraw']['status']
-        );
+    //     $this->assertNotEquals(
+    //         WithdrawStatus::PENDING->value,
+    //         $confirmWithdraw->json()['withdraw']['status']
+    //     );
 
-        $response = $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm');
-        $response->assertBadRequest();
-    }
+    //     $response = $this->postJson('api/withdraws/agent/' . $withdrawId . '/confirm');
+    //     $response->assertBadRequest();
+    // }
 
     public function test_agent_user_can_list_withdraws(): void
     {
+        Withdraw::unsetEventDispatcher();
         Withdraw::factory()->count(5)->for(User::factory()->for($this->agent)->create())->for(Wallet::factory()->for($this->agent)->create())->create();
 
         $response = $this->getJson('api/withdraws/agent');
@@ -246,6 +281,7 @@ class WithdrawTest extends TestCase
 
     public function test_admin_can_list_withdraws(): void
     {
+        Withdraw::unsetEventDispatcher();
         Withdraw::factory()->count(5)->for(User::factory()->for($this->agent)->create())->for(Wallet::factory()->for($this->agent)->create())->create();
         $response = $this->getJson('api/withdraws');
         $response->assertOk();
@@ -253,35 +289,35 @@ class WithdrawTest extends TestCase
         $this->assertNotEmpty($response->json()['data']);
     }
 
-    public function test_agent_user_can_cancel_withdraw(): void
-    {
-        $withdrawCreate = Withdraw::factory()->for(User::factory()->for($this->agent)->create())->for(Wallet::factory()->for($this->agent)->create())->create(['status' => WithdrawStatus::PENDING->value]);
+    // public function test_agent_user_can_cancel_withdraw(): void
+    // {
+    //     $withdrawCreate = Withdraw::factory()->for(User::factory()->for($this->agent)->create())->for(Wallet::factory()->for($this->agent)->create())->create(['status' => WithdrawStatus::PENDING->value]);
 
-        $this->assertEquals(
-            WithdrawStatus::PENDING->value,
-            $withdrawCreate->status
-        );
+    //     $this->assertEquals(
+    //         WithdrawStatus::PENDING->value,
+    //         $withdrawCreate->status
+    //     );
 
-        $this->postJson('api/withdraws/agent/' . $withdrawCreate->id . '/cancel')->assertOk();
-        $this->assertEquals(
-            WithdrawStatus::CANCELED->value,
-            $withdrawCreate->refresh()->status
-        );
-    }
+    //     $this->postJson('api/withdraws/agent/' . $withdrawCreate->id . '/cancel')->assertOk();
+    //     $this->assertEquals(
+    //         WithdrawStatus::CANCELED->value,
+    //         $withdrawCreate->refresh()->status
+    //     );
+    // }
 
-    public function test_only_pending_withdraw_can_be_cancelled(): void
-    {
-        $withdrawCreate = Withdraw::factory()->for(User::factory()->for($this->agent)->create())->for(Wallet::factory()->for($this->agent)->create())->create(['status' => WithdrawStatus::PENDING->value]);
-        $cancelResponse = $this->postJson('api/withdraws/agent/' .  $withdrawCreate->id . '/cancel');
-        $cancelResponse->assertOk();
+    // public function test_only_pending_withdraw_can_be_cancelled(): void
+    // {
+    //     $withdrawCreate = Withdraw::factory()->for(User::factory()->for($this->agent)->create())->for(Wallet::factory()->for($this->agent)->create())->create(['status' => WithdrawStatus::PENDING->value]);
+    //     $cancelResponse = $this->postJson('api/withdraws/agent/' .  $withdrawCreate->id . '/cancel');
+    //     $cancelResponse->assertOk();
 
-        $this->assertNotEquals(
-            withdrawstatus::PENDING->value,
-            $withdrawCreate->refresh()->status
-        );
-        $response = $this->postJson('api/withdraws/agent/' .   $withdrawCreate->id . '/cancel');
-        $response->assertBadRequest();
-    }
+    //     $this->assertNotEquals(
+    //         withdrawstatus::PENDING->value,
+    //         $withdrawCreate->refresh()->status
+    //     );
+    //     $response = $this->postJson('api/withdraws/agent/' .   $withdrawCreate->id . '/cancel');
+    //     $response->assertBadRequest();
+    // }
 
     public function test_agent_transaction_id_is_saved_to_database_altogether_with_withdraw_creation(): void
     {

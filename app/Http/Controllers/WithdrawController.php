@@ -27,15 +27,15 @@ class WithdrawController extends Controller
         return response()->json(['withdraw' => $withdraw->fresh()]);
     }
 
-    public function confirm(Withdraw $withdraw)
-    {
-        if ($withdraw->status != WithdrawStatus::PENDING->value) abort(ResponseStatus::BAD_REQUEST->value, 'Can only confirm a pending withdraw');
-        $result = $withdraw->confirm();
-        if ($result == null) abort(ResponseStatus::BAD_REQUEST->value, 'Send usdt failed');
-        return response()->json([
-            'withdraw' => $withdraw
-        ]);
-    }
+    // public function confirm(Withdraw $withdraw)
+    // {
+    //     if ($withdraw->status != WithdrawStatus::PENDING->value) abort(ResponseStatus::BAD_REQUEST->value, 'Can only confirm a pending withdraw');
+    //     $result = $withdraw->confirm();
+    //     if ($result == null) abort(ResponseStatus::BAD_REQUEST->value, 'Send usdt failed');
+    //     return response()->json([
+    //         'withdraw' => $withdraw
+    //     ]);
+    // }
 
     public function index(FilterWithdrawRequest $request)
     {
@@ -47,14 +47,14 @@ class WithdrawController extends Controller
         return response()->json($query->paginate($request->per_page ?? 10));
     }
 
-    public function cancel(Withdraw $withdraw)
-    {
-        abort_if($withdraw->status != WithdrawStatus::PENDING->value, ResponseStatus::BAD_REQUEST->value, 'Can only cancel a pending withdraw');
-        $withdraw->update([
-            'status' => WithdrawStatus::CANCELED->value
-        ]);
-        return response()->json(['withdraw' => $withdraw]);
-    }
+    // public function cancel(Withdraw $withdraw)
+    // {
+    //     abort_if($withdraw->status != WithdrawStatus::PENDING->value, ResponseStatus::BAD_REQUEST->value, 'Can only cancel a pending withdraw');
+    //     $withdraw->update([
+    //         'status' => WithdrawStatus::CANCELED->value
+    //     ]);
+    //     return response()->json(['withdraw' => $withdraw]);
+    // }
 
     public function find(Request $request, Withdraw $withdraw)
     {
