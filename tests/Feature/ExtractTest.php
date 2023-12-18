@@ -10,11 +10,11 @@ use App\Models\Agent;
 use App\Models\Extract;
 use App\Models\Wallet;
 use App\Services\Tron;
-use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Queue;
-use Str;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ExtractTest extends TestCase

@@ -24,7 +24,6 @@ class DepositOberver
      */
     public function updated(Deposit $deposit): void
     {
-        Log::info($deposit);
         if (in_array($deposit->status, [
             DepositStatus::COMPLETED->value,
             DepositStatus::EXPIRED->value

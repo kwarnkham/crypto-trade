@@ -35,6 +35,8 @@ class ProcessConfirmedExtract implements ShouldQueue
         if ($extract->status != ExtractStatus::CONFIRMED->value) return;
 
         $response = Tron::getSolidityTransactionInfoById($this->txid);
+        Log::info(json_encode($this->txid));
+        Log::info(json_encode($response));
         $receipt = $response->receipt ?? null;
         if ($extract->type == ExtractType::TRX->value)
             $receipt->result = $response->result ?? "SUCCESS";
