@@ -58,7 +58,7 @@ class Deposit extends Model
     public function attemptToComplete()
     {
         if ($this->status != DepositStatus::CONFIRMED->value) return;
-        $this->increment('attempts');
+        $this->withoutEvents(fn () => $this->increment('attempts'));
 
         Log::info("Attempt to complete a confirmed deposit (id => $this->id / agent_transaction_id=> $this->agent_transaction_id)");
 

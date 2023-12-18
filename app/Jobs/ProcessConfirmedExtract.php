@@ -19,36 +19,18 @@ class ProcessConfirmedExtract implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * Create a new job instance.
-     */
+
     public function __construct(public string $txid, public int $extractId)
     {
         //
     }
 
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries = 10;
 
-    /**
-     * The maximum number of unhandled exceptions to allow before failing.
-     *
-     * @var int
-     */
-    public $maxExceptions = 10;
-
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         $maxAttempts = 5;
         $extract = Extract::find($this->extractId);
-        $extract->increment('attempts');
+        $extract->withoutEvents(fn () => $extract->increment('attempts'));
         Log::info("Attempt to complete a confirmed extract (id => $extract->id / agent_transaction_id=> $extract->agent_transaction_id)");
         if ($extract->status != ExtractStatus::CONFIRMED->value) return;
 

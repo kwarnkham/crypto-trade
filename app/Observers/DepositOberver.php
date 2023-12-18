@@ -7,6 +7,7 @@ use App\Jobs\ProcessConfirmedDeposit;
 use App\Models\Deposit;
 use App\Utility\Encryption;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class DepositOberver
 {
@@ -23,6 +24,7 @@ class DepositOberver
      */
     public function updated(Deposit $deposit): void
     {
+        Log::info($deposit);
         if (in_array($deposit->status, [
             DepositStatus::COMPLETED->value,
             DepositStatus::EXPIRED->value
@@ -35,13 +37,9 @@ class DepositOberver
                     ]), $deposit->user->agent->aes_key)
                 ]);
             }
-        }
-
-        if ($deposit->status == DepositStatus::CONFIRMED->value) {
+        } else if ($deposit->status == DepositStatus::CONFIRMED->value) {
             ProcessConfirmedDeposit::dispatch($deposit->id);
-        }
-
-        if ($deposit->status == DepositStatus::COMPLETED->value) {
+        } else if ($deposit->status == DepositStatus::COMPLETED->value) {
             $user = $deposit->user;
             $user->update(['balance' => $user->balance + $deposit->amount]);
 
