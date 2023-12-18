@@ -55,5 +55,13 @@ trait Filterable
                 $token_address
             )
         );
+
+        $query->when(
+            $filters['transactionable_type'] ?? null,
+            fn (Builder $query, $transactionable_type) => $query->whereIn(
+                'transactionable_type',
+                explode(',', $transactionable_type)
+            )
+        );
     }
 }

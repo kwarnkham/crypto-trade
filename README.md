@@ -1202,12 +1202,13 @@ curl --location 'http://localhost:8000/api/balance-logs/agent?user_id=1' \
 
 > A request can be sent to list tron network transactions
 
--   **GET** (http://127.0.0.1:8000/api/transactions/agent?token_address=TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs)
+-   **GET** (http://127.0.0.1:8000/api/transactions/agent)
 -   **Filter Param**
     1. token_address
+    2. transactionable_type
 
 ```
-curl --location 'http://127.0.0.1:8000/api/transactions/agent?token_address=TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs' \
+curl --location 'http://127.0.0.1:8000/api/transactions/agent?token_address=TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs&transactionable_type=App%5CModels%5CDeposit%2CApp%5CModels%5CWithdraw' \
 --header 'x-agent: agent' \
 --header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
 --header 'Accept: application/json'
