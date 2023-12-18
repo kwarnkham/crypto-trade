@@ -1205,7 +1205,7 @@ curl --location 'http://localhost:8000/api/balance-logs/agent?user_id=1' \
 -   **GET** (http://127.0.0.1:8000/api/transactions/agent)
 -   **Filter Param**
     1. token_address
-    2. transactionable_type
+    2. transactionable_type (App\Models\Deposit,App\Models\Withdraw) [comma separated types]
 
 ```
 curl --location 'http://127.0.0.1:8000/api/transactions/agent?token_address=TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs&transactionable_type=App%5CModels%5CDeposit%2CApp%5CModels%5CWithdraw' \
