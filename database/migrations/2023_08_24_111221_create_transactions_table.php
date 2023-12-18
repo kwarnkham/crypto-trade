@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->integer('transactionable_id');
+            $table->string('transactionable_type');
             $table->string('from');
             $table->string('to')->index();
             $table->string('transaction_id')->unique();

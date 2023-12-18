@@ -64,6 +64,7 @@ Route::controller(TransactionController::class)->prefix('/transactions')->group(
     });
     Route::middleware(['agent'])->prefix('/agent')->group(function () {
         Route::get('user-transactions', 'userTransactions');
+        Route::get('', 'index');
     });
 });
 

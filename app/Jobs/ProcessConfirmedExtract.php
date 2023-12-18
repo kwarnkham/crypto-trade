@@ -15,7 +15,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class ProcessConfirmedExtract implements ShouldQueue, ShouldBeUnique
+class ProcessConfirmedExtract implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -40,11 +40,6 @@ class ProcessConfirmedExtract implements ShouldQueue, ShouldBeUnique
      * @var int
      */
     public $maxExceptions = 10;
-
-    public function uniqueId(): string
-    {
-        return $this->extractId;
-    }
 
     /**
      * Execute the job.

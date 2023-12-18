@@ -32,7 +32,7 @@ class Deposit extends Model
 
     public function transaction()
     {
-        return $this->belongsTo(Transaction::class);
+        return $this->morphOne(Transaction::class, 'transactionable');
     }
 
     public function wallet()
@@ -76,7 +76,7 @@ class Deposit extends Model
         if ($matchedTx != null) {
             DB::transaction(function () use ($matchedTx) {
                 $res = Tron::getSolidityTransactionInfoById($matchedTx->transaction_id);
-                $transaction = Transaction::create([
+                $transaction = $this->transaction()->create([
                     'from' => $matchedTx->from,
                     'to' => $matchedTx->to,
                     'transaction_id' => $matchedTx->transaction_id,

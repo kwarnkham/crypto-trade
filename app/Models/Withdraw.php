@@ -34,7 +34,7 @@ class Withdraw extends Model
 
     public function transaction()
     {
-        return $this->belongsTo(Transaction::class);
+        return $this->morphOne(Transaction::class, 'transactionable');
     }
 
     public function wallet()
@@ -91,7 +91,7 @@ class Withdraw extends Model
     public function complete(array $tx)
     {
         DB::transaction(function () use ($tx) {
-            $transaction = Transaction::create([
+            $transaction = $this->transaction()->create([
                 'from' => $this->wallet->base58_check,
                 'to' => $this->to,
                 'transaction_id' => $tx['id'],

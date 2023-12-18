@@ -14,6 +14,11 @@ class Extract extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
+    public function transaction()
+    {
+        return $this->morphOne(Transaction::class, 'transactionable');
+    }
+
     protected function amount(): Attribute
     {
         return Attribute::make(
@@ -35,7 +40,7 @@ class Extract extends Model
     public function complete(array $tx)
     {
         DB::transaction(function () use ($tx) {
-            $transaction = Transaction::create([
+            $transaction = $this->transaction()->create([
                 'from' => $this->wallet->base58_check,
                 'to' => $this->to,
                 'transaction_id' => $tx['id'],
