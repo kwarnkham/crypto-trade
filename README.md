@@ -1198,6 +1198,212 @@ curl --location 'http://localhost:8000/api/balance-logs/agent?user_id=1' \
 
 # Transactions
 
+## List Network transactions
+
+> A request can be sent to list tron network transactions
+
+-   **GET** (http://127.0.0.1:8000/api/transactions/agent)
+-   **Filter Param**
+    1. from
+    2. to
+
+```
+curl --location 'http://127.0.0.1:8000/api/transactions/agent' \
+--header 'x-agent: agent' \
+--header 'x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhR3FGQUVWODR1azFWNFN2U1A4SUhjUHhrT0E1Rk1OdjE5WEdsOGNZenRvRzJJN25nR05Fckpoc2F4Tmg3NGs5In0.977MGNWWUr97oLCfSeK9eTaCa-glQc_AcubgJ8SQVoo' \
+--header 'Accept: application/json'
+```
+
+> Response
+
+```
+{
+    "current_page": 1,
+    "data": [
+        {
+            "id": 7,
+            "from": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+            "to": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "transaction_id": "280aeef1c03281fd44ca0f711da206cdede7bf45db250bb21c3de520113b3371",
+            "token_address": "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs",
+            "block_timestamp": "1702881255000",
+            "value": 2,
+            "type": "Transfer",
+            "fee": 0,
+            "receipt": {
+                "energy_usage": 13045,
+                "energy_usage_total": 13045,
+                "net_usage": 346,
+                "result": "SUCCESS"
+            },
+            "created_at": "2023-12-18T07:18:03.000000Z",
+            "updated_at": "2023-12-18T07:18:03.000000Z",
+            "transactionable_id": 4,
+            "transactionable_type": "App\\Models\\Deposit"
+        },
+        {
+            "id": 6,
+            "from": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+            "to": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "transaction_id": "3debd9e923ab355ef8b1a90dec94774fa463e0e09f33453807f9833349e337b7",
+            "token_address": "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs",
+            "block_timestamp": "1702883163000",
+            "value": 2,
+            "type": "Transfer",
+            "fee": 0.346,
+            "receipt": {
+                "energy_usage": 13044,
+                "origin_energy_usage": 1,
+                "energy_usage_total": 13045,
+                "net_fee": 346000,
+                "result": "SUCCESS"
+            },
+            "created_at": "2023-12-18T07:08:01.000000Z",
+            "updated_at": "2023-12-18T07:08:01.000000Z",
+            "transactionable_id": 3,
+            "transactionable_type": "App\\Models\\Deposit"
+        },
+        {
+            "id": 5,
+            "from": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "to": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+            "transaction_id": "c9e383a307b98cfc04b16379f1d90919a36e2aaf851da7d1a6d0413c83361533",
+            "token_address": "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs",
+            "block_timestamp": "1702883037000",
+            "value": 1,
+            "type": "Transfer",
+            "fee": 0,
+            "receipt": {
+                "energy_usage": 13044,
+                "origin_energy_usage": 1,
+                "energy_usage_total": 13045,
+                "net_usage": 345,
+                "result": "SUCCESS"
+            },
+            "created_at": "2023-12-18T07:04:58.000000Z",
+            "updated_at": "2023-12-18T07:04:58.000000Z",
+            "transactionable_id": 1,
+            "transactionable_type": "App\\Models\\Extract"
+        },
+        {
+            "id": 4,
+            "from": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "to": "TQrzoXco7ZRU2rd4ztkyEC5sjqJzPNduqd",
+            "transaction_id": "e093cb4349a21d53d21a12b367a78570040785766f8fb733fc10291f55524524",
+            "token_address": "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs",
+            "block_timestamp": "1702882917000",
+            "value": 1,
+            "type": "Transfer",
+            "fee": 0,
+            "receipt": {
+                "energy_usage": 13044,
+                "origin_energy_usage": 1,
+                "energy_usage_total": 13045,
+                "net_usage": 345,
+                "result": "SUCCESS"
+            },
+            "created_at": "2023-12-18T07:02:59.000000Z",
+            "updated_at": "2023-12-18T07:02:59.000000Z",
+            "transactionable_id": 2,
+            "transactionable_type": "App\\Models\\Withdraw"
+        },
+        {
+            "id": 3,
+            "from": "TQshYDGDZo67UhqyvvAEgXdAvYk9Lt62fJ",
+            "to": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "transaction_id": "62a631d1fccc047737cc1ec3d0d865155e33c228df9cde934972f8bfa9ea49ff",
+            "token_address": "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs",
+            "block_timestamp": "1702882539000",
+            "value": 20,
+            "type": "Transfer",
+            "fee": 0.346,
+            "receipt": {
+                "energy_usage": 13044,
+                "origin_energy_usage": 1,
+                "energy_usage_total": 13045,
+                "net_fee": 346000,
+                "result": "SUCCESS"
+            },
+            "created_at": "2023-12-18T07:00:47.000000Z",
+            "updated_at": "2023-12-18T07:00:47.000000Z",
+            "transactionable_id": 2,
+            "transactionable_type": "App\\Models\\Deposit"
+        },
+        {
+            "id": 2,
+            "from": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "to": "TQrzoXco7ZRU2rd4ztkyEC5sjqJzPNduqd",
+            "transaction_id": "026de4456c721555535cb60b0ab397a3b03b909aa0492bc08f12289b6a6d400b",
+            "token_address": "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs",
+            "block_timestamp": "1702882311000",
+            "value": 1,
+            "type": "Transfer",
+            "fee": 0,
+            "receipt": {
+                "energy_usage": 28044,
+                "origin_energy_usage": 1,
+                "energy_usage_total": 28045,
+                "net_usage": 345,
+                "result": "SUCCESS"
+            },
+            "created_at": "2023-12-18T06:52:51.000000Z",
+            "updated_at": "2023-12-18T06:52:51.000000Z",
+            "transactionable_id": null,
+            "transactionable_type": null
+        },
+        {
+            "id": 1,
+            "from": "TWxQ5m1TMLumFH7bMws4Q1qoP1FeYfkhKc",
+            "to": "TDqVegmPEb3juuAV4vZYNS5AWUbvTUFH3y",
+            "transaction_id": "07d0234e6321d4de82cba6184f9656c5b7f493ecb13c4387b20ba8ffa8864308",
+            "token_address": "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs",
+            "block_timestamp": "1700553195000",
+            "value": 2,
+            "type": "Transfer",
+            "fee": 5.82448,
+            "receipt": {
+                "energy_fee": 5478480,
+                "origin_energy_usage": 1,
+                "energy_usage_total": 13045,
+                "net_fee": 346000,
+                "result": "SUCCESS"
+            },
+            "created_at": "2023-12-18T06:34:34.000000Z",
+            "updated_at": "2023-12-18T06:34:34.000000Z",
+            "transactionable_id": 1,
+            "transactionable_type": "App\\Models\\Deposit"
+        }
+    ],
+    "first_page_url": "http://127.0.0.1:8000/api/transactions/agent?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "http://127.0.0.1:8000/api/transactions/agent?page=1",
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "http://127.0.0.1:8000/api/transactions/agent?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "next_page_url": null,
+    "path": "http://127.0.0.1:8000/api/transactions/agent",
+    "per_page": 10,
+    "prev_page_url": null,
+    "to": 7,
+    "total": 7
+}
+```
+
 ## List Deposits and Withdraws
 
 > A request can be sent to list deposits and withdraws
