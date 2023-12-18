@@ -1203,9 +1203,6 @@ curl --location 'http://localhost:8000/api/balance-logs/agent?user_id=1' \
 > A request can be sent to list tron network transactions
 
 -   **GET** (http://127.0.0.1:8000/api/transactions/agent)
--   **Filter Param**
-    1. from
-    2. to
 
 ```
 curl --location 'http://127.0.0.1:8000/api/transactions/agent' \
@@ -1409,6 +1406,9 @@ curl --location 'http://127.0.0.1:8000/api/transactions/agent' \
 > A request can be sent to list deposits and withdraws
 
 -   **GET** (http://127.0.0.1:8000/api/transactions/agent/user-transactions?from=2023-11-08&to=2023-11-30)
+-   **Filter Param**
+    1. from
+    2. to
 
 ```
 curl --location 'http://localhost:8000/api/transactions/agent/user-transactions?from=2023-11-08&to=2023-11-30' \
