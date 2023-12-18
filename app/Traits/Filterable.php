@@ -47,5 +47,13 @@ trait Filterable
                 $agent_id
             )
         );
+
+        $query->when(
+            $filters['token_address'] ?? null,
+            fn (Builder $query, $token_address) => $query->where(
+                'token_address',
+                $token_address
+            )
+        );
     }
 }

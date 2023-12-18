@@ -11,7 +11,10 @@ class TransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Transaction::query()->latest('id');
+        $filters = $request->validate([
+            'token_address' => ['sometimes', 'required']
+        ]);
+        $query = Transaction::query()->filter($filters)->latest('id');
         return response()->json($query->paginate($request->per_page ?? 10));
     }
 
