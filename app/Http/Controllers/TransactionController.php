@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Deposit;
+use App\Models\Extract;
 use App\Models\Transaction;
 use App\Models\Withdraw;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
@@ -15,7 +17,13 @@ class TransactionController extends Controller
             'token_address' => ['sometimes', 'required'],
             'transactionable_type' => ['sometimes', 'required'],
         ]);
-        $query = Transaction::query()->filter($filters)->latest('id');
+        $query = Transaction::query()->with(['transactionable' => function (MorphTo $morphTo) {
+            $morphTo->morphWith([
+                Deposit::class => ['user'],
+                Withdraw::class => ['user'],
+                Extract::class
+            ]);
+        }])->filter($filters)->latest('id');
         return response()->json($query->paginate($request->per_page ?? 10));
     }
 
