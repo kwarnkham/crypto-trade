@@ -36,7 +36,9 @@ class DepositOberver
                     ]), $deposit->user->agent->aes_key)
                 ]);
             }
-        } else if ($deposit->status == DepositStatus::CONFIRMED->value) {
+        }
+
+        if ($deposit->status == DepositStatus::CONFIRMED->value) {
             ProcessConfirmedDeposit::dispatch($deposit->id);
         } else if ($deposit->status == DepositStatus::COMPLETED->value) {
             $user = $deposit->user;
