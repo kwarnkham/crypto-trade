@@ -1,8 +1,9 @@
 # Test Data
 
-1. Request url is https://crypto-api.pi55xx.com
-2. x-agent is 'agent'
-3. api key is 'sQGmLykW2kGy4kz256bSLMb5dU5Waq4302qsHawvE58YwBYh1GWxiE8MPY60iPNM'
+1. Request url is https://crypto-api.jjdhkpc.com/
+2. Admin url is https://crypto-admin.jjdhkpc.com/ (Please contact me for credentials)
+3. x-agent is 'agent'
+4. api key is 'sQGmLykW2kGy4kz256bSLMb5dU5Waq4302qsHawvE58YwBYh1GWxiE8MPY60iPNM'
 
 -   Please note that x-api-key is JWT string, you can't use the key directly
 
